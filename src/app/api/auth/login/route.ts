@@ -3,6 +3,7 @@ import { getAdminAuth } from '@/lib/firebase/admin'
 import { sessionCookieOptions, SESSION_MAX_AGE_SECONDS } from '@/lib/auth/session'
 import { writeAuditLog } from '@/lib/audit/log'
 import { STRICT_AUDIT_ROLES, type RoleId } from '@/lib/auth/permissions'
+import { checkRateLimit, recordFailedAttempt, clearAttempts } from '@/lib/auth/rate-limit'
 
 const IDENTITY_TOOLKIT_URL = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword'
 
@@ -10,6 +11,15 @@ export async function POST(request: Request) {
   const { email, password } = await request.json()
   if (!email || !password) {
     return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
+  }
+
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+  const emailKey = `login:email:${email.toLowerCase()}`
+  const ipKey = `login:ip:${ip}`
+
+  const [emailLimit, ipLimit] = await Promise.all([checkRateLimit(emailKey), checkRateLimit(ipKey)])
+  if (emailLimit.blocked || ipLimit.blocked) {
+    return NextResponse.json({ error: 'Too many attempts. Try again later.' }, { status: 429 })
   }
 
   const auth = getAdminAuth()
@@ -20,6 +30,7 @@ export async function POST(request: Request) {
     const code = (err as { code?: string })?.code
     if (code === 'auth/user-not-found') {
       // Unknown account — don't reveal that. Let the client proceed with its own sign-in attempt.
+      await recordFailedAttempt(ipKey)
       return NextResponse.json({ strategy: 'client_sdk' })
     }
     console.error('auth/login: unexpected error looking up account', err)
@@ -42,6 +53,7 @@ export async function POST(request: Request) {
   })
 
   if (!signInRes.ok) {
+    await Promise.all([recordFailedAttempt(emailKey), recordFailedAttempt(ipKey)])
     await writeAuditLog({ action: 'login_failed', actorUid: userRecord.uid, actorEmail: email, details: { source: 'server_verified', role } })
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
   }
@@ -50,6 +62,8 @@ export async function POST(request: Request) {
     await writeAuditLog({ action: 'login_failed', actorUid: userRecord.uid, actorEmail: email, details: { source: 'server_verified', reason: 'no_claims' } })
     return NextResponse.json({ error: 'Account not fully provisioned' }, { status: 403 })
   }
+
+  await Promise.all([clearAttempts(emailKey), clearAttempts(ipKey)])
 
   const { idToken } = await signInRes.json()
   const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn: SESSION_MAX_AGE_SECONDS * 1000 })
