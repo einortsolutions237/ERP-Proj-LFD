@@ -3,7 +3,7 @@
 ## What
 Enterprise ERP for LFD Services (starting as a single location, architected for multi-branch growth). Supersedes the earlier "MediCore ERP" healthcare-domain scope — this is a business/retail-and-services enterprise design spanning POS, inventory, CRM, accounting, and HR.
 
-Stack: Next.js (App Router) + TypeScript + Tailwind CSS, Firebase Auth + Firestore + Cloud Functions, deployed on Vercel. Firebase project: `erp-lfd`.
+Stack: Next.js (App Router) + TypeScript + Tailwind CSS, Firebase Auth + Firestore + Cloud Functions, deployed on Vercel. Firebase project: `lfd-erp-4713b`.
 
 Architecture: modular monolith, not microservices — clean module boundaries inside one Next.js app. Every record carries a `branchId` and every permission check is branch-scoped, starting from Phase 1, even though only one branch exists today.
 

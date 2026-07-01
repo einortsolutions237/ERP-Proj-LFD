@@ -6,7 +6,7 @@
 
 **Architecture:** Modular monolith inside one Next.js App Router app. Firebase Auth (custom claims = source of truth for role/branch) + Firestore (default-deny rules, `branchId` on every doc) + Admin SDK for all privileged writes. No test suite yet — each task ends with a manual verification recipe tied to the Phase 1 exit criteria instead of automated tests.
 
-**Tech Stack:** Next.js (App Router) + TypeScript + Tailwind CSS, Firebase Auth + Firestore + Admin SDK, Vercel deploy target, Firebase project `erp-lfd`.
+**Tech Stack:** Next.js (App Router) + TypeScript + Tailwind CSS, Firebase Auth + Firestore + Admin SDK, Vercel deploy target, Firebase project `lfd-erp-4713b`.
 
 ## Global Constraints
 
@@ -234,11 +234,11 @@ npm install firebase firebase-admin
 ```
 NEXT_PUBLIC_FIREBASE_API_KEY=
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=erp-lfd
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=lfd-erp-4713b
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
-FIREBASE_ADMIN_PROJECT_ID=erp-lfd
+FIREBASE_ADMIN_PROJECT_ID=lfd-erp-4713b
 FIREBASE_ADMIN_CLIENT_EMAIL=
 FIREBASE_ADMIN_PRIVATE_KEY=
 SESSION_COOKIE_NAME=__session
@@ -360,7 +360,7 @@ service cloud.firestore {
 Deploy this immediately so there's never a window with permissive default rules:
 
 ```bash
-firebase deploy --only firestore:rules --project erp-lfd
+firebase deploy --only firestore:rules --project lfd-erp-4713b
 ```
 
 - [ ] **Step 3: `scripts/seed.ts`**
@@ -428,7 +428,7 @@ npx tsx scripts/seed.ts
 - Firebase Console → Firestore → `branches` collection has exactly one doc with the placeholder name.
 - Firebase Console → Authentication → the super_admin user exists.
 - Firebase Console → Firestore → `staff/{uid}` doc exists with `role: 'super_admin'`.
-- Run `firebase deploy --only firestore:rules --project erp-lfd` succeeded with no errors, and attempting any client read (e.g. from the Firebase console's Rules Playground, unauthenticated) is denied.
+- Run `firebase deploy --only firestore:rules --project lfd-erp-4713b` succeeded with no errors, and attempting any client read (e.g. from the Firebase console's Rules Playground, unauthenticated) is denied.
 
 - [ ] **Step 5: Commit**
 
@@ -684,7 +684,7 @@ match /auditLogs/{logId} {
 }
 ```
 
-Deploy: `firebase deploy --only firestore:rules --project erp-lfd`
+Deploy: `firebase deploy --only firestore:rules --project lfd-erp-4713b`
 
 - [ ] **Step 4: Manual verification**
 
@@ -1187,7 +1187,7 @@ match /staff/{staffId} {
 }
 ```
 
-Deploy: `firebase deploy --only firestore:rules --project erp-lfd`
+Deploy: `firebase deploy --only firestore:rules --project lfd-erp-4713b`
 
 This is the concrete "Firestore rules reject a direct client write" exit criterion: even a signed-in admin's browser console calling `setDoc(doc(db, 'staff', uid), {...})` directly is denied, because *every* client write is `false` — the only path is the server API, which contains the super_admin checks from Step 3.
 
@@ -1253,7 +1253,7 @@ match /departments/{departmentId} {
 }
 ```
 
-Deploy: `firebase deploy --only firestore:rules --project erp-lfd`
+Deploy: `firebase deploy --only firestore:rules --project lfd-erp-4713b`
 
 - [ ] **Step 4: Page + components** — list/create/edit/deactivate UI, same shape as `StaffTable`/`StaffForm` but for the 2-field department object.
 
@@ -1296,7 +1296,7 @@ match /branches/{branchId} {
 }
 ```
 
-Deploy: `firebase deploy --only firestore:rules --project erp-lfd`
+Deploy: `firebase deploy --only firestore:rules --project lfd-erp-4713b`
 
 - [ ] **Step 3: Page + components** — list showing the one seeded branch, edit form to replace the placeholder name/address, create form for future branches (even though only one exists today, per spec: "build the CRUD even with just one branch").
 
@@ -1349,7 +1349,7 @@ match /settings/{key} {
 }
 ```
 
-Deploy: `firebase deploy --only firestore:rules --project erp-lfd`
+Deploy: `firebase deploy --only firestore:rules --project lfd-erp-4713b`
 
 - [ ] **Step 4: Page + components** — simple key/value table with add/edit/delete row, no categorization (Phase 1 scope is "basic system settings").
 
