@@ -18,9 +18,13 @@ async function main() {
 
   const email = process.env.SEED_SUPER_ADMIN_EMAIL
   if (!email) throw new Error('Set SEED_SUPER_ADMIN_EMAIL before running seed')
-  const tempPassword = randomBytes(18).toString('base64url')
+  // SEED_SUPER_ADMIN_PASSWORD is optional — an operator can supply a known
+  // password for local bootstrapping. Falls back to a CSPRNG-generated
+  // temp password when unset, per CLAUDE.md's "no Math.random() for
+  // security-sensitive values" rule.
+  const password = process.env.SEED_SUPER_ADMIN_PASSWORD || randomBytes(18).toString('base64url')
 
-  const userRecord = await auth.createUser({ email, password: tempPassword, emailVerified: false })
+  const userRecord = await auth.createUser({ email, password, emailVerified: false })
   await auth.setCustomUserClaims(userRecord.uid, {
     role: 'super_admin',
     branchId: branchRef.id,
@@ -43,7 +47,9 @@ async function main() {
   })
 
   console.log('Seeded super_admin:', email)
-  console.log('Temporary password (copy now, not stored anywhere):', tempPassword)
+  if (!process.env.SEED_SUPER_ADMIN_PASSWORD) {
+    console.log('Temporary password (copy now, not stored anywhere):', password)
+  }
 }
 
 main().then(() => process.exit(0)).catch((err) => { console.error(err); process.exit(1) })

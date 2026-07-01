@@ -17,6 +17,14 @@ export function getAdminAuth() {
   return getAuth(getAdminApp())
 }
 
+// This project's Firestore database was provisioned with the explicit
+// database ID "default" (Firestore Enterprise edition's creation flow
+// requires naming a database — it does not offer the SDK's implicit,
+// specially-reserved "(default)" database). getFirestore(app) with no
+// second argument targets "(default)" and fails with NOT_FOUND against
+// this project — the ID must be passed explicitly.
+const FIRESTORE_DATABASE_ID = 'default'
+
 export function getAdminFirestore() {
-  return getFirestore(getAdminApp())
+  return getFirestore(getAdminApp(), FIRESTORE_DATABASE_ID)
 }
