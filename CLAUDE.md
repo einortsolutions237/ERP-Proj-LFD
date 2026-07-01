@@ -8,7 +8,7 @@ Stack: Next.js (App Router) + TypeScript + Tailwind CSS, Firebase Auth + Firesto
 Architecture: modular monolith, not microservices — clean module boundaries inside one Next.js app. Every record carries a `branchId` and every permission check is branch-scoped, starting from Phase 1, even though only one branch exists today.
 
 ## Why
-LFD Services needs one system to replace fragmented/manual operations — starting with staffing and access control, extending to patient care, inventory, pharmacy, lab, billing, insurance, and HR. Full module vision: `docs/project-brief.md`.
+LFD Services needs one system to replace fragmented/manual operations — starting with staffing and access control, extending to POS, inventory, CRM, accounting, and HR. Full module vision: `docs/project-brief.md`.
 
 ## How
 
