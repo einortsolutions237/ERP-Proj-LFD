@@ -16,9 +16,14 @@ export async function POST(request: Request) {
   let userRecord
   try {
     userRecord = await auth.getUserByEmail(email)
-  } catch {
-    // Unknown account — don't reveal that. Let the client proceed with its own sign-in attempt.
-    return NextResponse.json({ strategy: 'client_sdk' })
+  } catch (err: unknown) {
+    const code = (err as { code?: string })?.code
+    if (code === 'auth/user-not-found') {
+      // Unknown account — don't reveal that. Let the client proceed with its own sign-in attempt.
+      return NextResponse.json({ strategy: 'client_sdk' })
+    }
+    console.error('auth/login: unexpected error looking up account', err)
+    return NextResponse.json({ error: 'Login temporarily unavailable, please try again' }, { status: 503 })
   }
 
   const role = userRecord.customClaims?.role as RoleId | undefined
