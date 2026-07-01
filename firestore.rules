@@ -17,6 +17,13 @@ service cloud.firestore {
         && request.auth.token.branchId == resource.data.branchId;
       allow write: if false; // all writes go through Admin SDK via /api/departments
     }
+    match /branches/{branchId} {
+      // No branchId field to scope against here — a branch document IS the
+      // branch. Any authenticated user can read the full list (needed for
+      // e.g. staff creation forms elsewhere); only Admin SDK can write.
+      allow read: if request.auth != null;
+      allow write: if false; // all writes go through Admin SDK via /api/branches
+    }
     match /{document=**} {
       allow read, write: if false;
     }
