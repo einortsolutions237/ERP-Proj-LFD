@@ -43,6 +43,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ st
     for (const field of EDITABLE_FIELDS) {
       if (field in body) updates[field] = body[field]
     }
+    // Match POST's shape: employment.startDate must be stored as a Date
+    // (Firestore Timestamp), not whatever raw type the client sent (the edit
+    // form sends a "YYYY-MM-DD" string) — otherwise the field drifts between
+    // Date and string across create vs. edit.
+    if (updates.employment && typeof updates.employment === 'object' && 'startDate' in (updates.employment as Record<string, unknown>)) {
+      const employment = updates.employment as Record<string, unknown>
+      updates.employment = { ...employment, startDate: new Date(employment.startDate as string | number | Date) }
+    }
     await docRef.update(updates)
 
     const auth = getAdminAuth()
