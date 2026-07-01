@@ -2,6 +2,10 @@ export type AuditAction =
   | 'login' | 'login_failed' | 'logout'
   | 'staff_create' | 'staff_edit' | 'staff_delete'
   | 'permission_change'
+  | 'supplier_create' | 'supplier_edit' | 'supplier_delete'
+  | 'product_create' | 'product_edit' | 'product_delete'
+  | 'service_create' | 'service_edit' | 'service_delete'
+  | 'stock_adjust' | 'stock_transfer'
 
 export interface AuditLogEntry {
   id: string

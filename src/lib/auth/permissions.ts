@@ -22,7 +22,12 @@ export type Capability =
   | 'admin.branches.manage'
   | 'admin.settings.manage'
   | 'admin.auditLog.view'
-  // pos.*, inventory.*, crm.*, accounting.*, hr.* — no capabilities defined yet;
+  | 'inventory.catalog.manage'
+  | 'inventory.suppliers.manage'
+  | 'inventory.stock.view'
+  | 'inventory.stock.adjust'
+  | 'inventory.stock.transfer'
+  // pos.*, crm.*, accounting.*, hr.* — no capabilities defined yet;
   // add them here when each module is actually built.
 
 export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
@@ -36,6 +41,11 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'admin.branches.manage': 'admin',
   'admin.settings.manage': 'admin',
   'admin.auditLog.view': 'admin',
+  'inventory.catalog.manage': 'inventory',
+  'inventory.suppliers.manage': 'inventory',
+  'inventory.stock.view': 'inventory',
+  'inventory.stock.adjust': 'inventory',
+  'inventory.stock.transfer': 'inventory',
 }
 
 // ADMIN_HR is duplicated in firestore.rules' `staff` match (admin.staff.view) —
@@ -58,6 +68,11 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'admin.branches.manage': ADMIN_ONLY,
   'admin.settings.manage': ADMIN_IT,
   'admin.auditLog.view': ADMIN_IT,
+  'inventory.catalog.manage': ADMIN_ONLY,
+  'inventory.suppliers.manage': ADMIN_BRANCH_MGR,
+  'inventory.stock.view': ADMIN_BRANCH_MGR,
+  'inventory.stock.adjust': ADMIN_BRANCH_MGR,
+  'inventory.stock.transfer': ADMIN_BRANCH_MGR,
 }
 
 export function hasCapability(role: RoleId, capability: Capability): boolean {
