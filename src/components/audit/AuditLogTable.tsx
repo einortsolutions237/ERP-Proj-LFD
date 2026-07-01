@@ -20,6 +20,7 @@ export default function AuditLogTable({ logs }: { logs: AuditLogRow[] }) {
             <th className="py-2 pr-4">Actor Email</th>
             <th className="py-2 pr-4">Target UID</th>
             <th className="py-2 pr-4">Branch</th>
+            <th className="py-2 pr-4">Details</th>
           </tr>
         </thead>
         <tbody>
@@ -30,6 +31,9 @@ export default function AuditLogTable({ logs }: { logs: AuditLogRow[] }) {
               <td className="py-2 pr-4">{row.actorEmail ?? '—'}</td>
               <td className="py-2 pr-4 font-mono text-xs">{row.targetUid ?? '—'}</td>
               <td className="py-2 pr-4">{row.branchId ?? '—'}</td>
+              <td className="py-2 pr-4 font-mono text-xs">
+                {row.details ? JSON.stringify(row.details) : '—'}
+              </td>
             </tr>
           ))}
         </tbody>
