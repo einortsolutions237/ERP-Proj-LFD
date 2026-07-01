@@ -5,6 +5,10 @@ import { writeAuditLog } from '@/lib/audit/log'
 import { randomBytes } from 'node:crypto'
 import { ROLES } from '@/lib/auth/permissions'
 
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0
+}
+
 export async function GET() {
   try {
     const user = await requireCapability('admin.staff.view')
@@ -27,11 +31,21 @@ export async function POST(request: Request) {
     if (!ROLES.includes(body.role)) {
       return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
     }
+    if (!isNonEmptyString(body.name)) {
+      return NextResponse.json({ error: 'name is required' }, { status: 400 })
+    }
+    if (!isNonEmptyString(body.email)) {
+      return NextResponse.json({ error: 'email is required' }, { status: 400 })
+    }
 
     const auth = getAdminAuth()
+    const db = getAdminFirestore()
     const tempPassword = randomBytes(18).toString('base64url')
+    // Create the Auth user first, but do NOT set custom claims yet — until the
+    // Firestore doc is written, this account has no role/branchId claims, so
+    // getSessionUser()/requireCapability() reject it even if it somehow tried
+    // to authenticate mid-creation.
     const userRecord = await auth.createUser({ email: body.email, password: tempPassword, emailVerified: false })
-    await auth.setCustomUserClaims(userRecord.uid, { role: body.role, branchId: user.branchId, superAdmin: false })
 
     const staffData = {
       uid: userRecord.uid,
@@ -48,7 +62,26 @@ export async function POST(request: Request) {
       updatedAt: new Date(),
       createdBy: user.uid,
     }
-    await getAdminFirestore().collection('staff').doc(userRecord.uid).set(staffData)
+
+    try {
+      await db.collection('staff').doc(userRecord.uid).set(staffData)
+    } catch (writeErr) {
+      // No Firestore doc exists, so there's nothing else to clean up — just
+      // remove the orphaned Auth user and surface the original failure.
+      await auth.deleteUser(userRecord.uid).catch(() => {})
+      throw writeErr
+    }
+
+    try {
+      await auth.setCustomUserClaims(userRecord.uid, { role: body.role, branchId: user.branchId, superAdmin: false })
+    } catch (claimsErr) {
+      // Firestore doc and Auth user are both now inconsistent — remove both
+      // rather than leave a claims-less orphan behind.
+      await db.collection('staff').doc(userRecord.uid).delete().catch(() => {})
+      await auth.deleteUser(userRecord.uid).catch(() => {})
+      throw claimsErr
+    }
+
     await writeAuditLog({ action: 'staff_create', actorUid: user.uid, actorEmail: user.email, targetUid: userRecord.uid, branchId: user.branchId })
 
     return NextResponse.json({ uid: userRecord.uid, tempPassword }, { status: 201 })
