@@ -66,6 +66,14 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     const doc = await docRef.get()
     if (!doc.exists) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
+    const [staffSnap, departmentsSnap] = await Promise.all([
+      db.collection('staff').where('branchId', '==', id).limit(1).get(),
+      db.collection('departments').where('branchId', '==', id).limit(1).get(),
+    ])
+    if (!staffSnap.empty || !departmentsSnap.empty) {
+      return NextResponse.json({ error: 'Cannot delete a branch that still has staff or departments assigned to it' }, { status: 409 })
+    }
+
     await docRef.delete()
 
     return NextResponse.json({ ok: true })
