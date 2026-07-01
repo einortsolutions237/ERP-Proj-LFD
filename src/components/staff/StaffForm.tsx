@@ -50,8 +50,13 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
         phone: emergencyPhone || null,
         relationship: emergencyRelationship || null,
       },
-      startDate: startDate || undefined,
-      employment: mode === 'edit' ? { status } : undefined,
+      // Create: POST reads a top-level `startDate` (see /api/staff route.ts).
+      // Edit: PATCH replaces the whole `employment` map on write (Firestore
+      // Admin SDK .update() with a plain object, not dot-notation), so both
+      // `status` and `startDate` must travel together inside `employment` or
+      // the other field gets silently wiped from the document.
+      startDate: mode === 'create' ? startDate || undefined : undefined,
+      employment: mode === 'edit' ? { status, startDate: startDate || undefined } : undefined,
       qualifications: qualifications
         .split(',')
         .map((q) => q.trim())

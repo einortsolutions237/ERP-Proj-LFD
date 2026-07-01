@@ -20,8 +20,9 @@ function toIsoString(value: unknown): string {
 export default async function EditStaffPage({ params }: { params: Promise<{ staffId: string }> }) {
   const { staffId } = await params
 
+  let user
   try {
-    await requireCapability('admin.staff.edit')
+    user = await requireCapability('admin.staff.edit')
   } catch (err) {
     if (err instanceof AuthError) redirect('/dashboard?error=not-authorized')
     throw err
@@ -31,6 +32,9 @@ export default async function EditStaffPage({ params }: { params: Promise<{ staf
   if (!doc.exists) notFound()
 
   const data = doc.data() as Staff
+  // Don't reveal that a staff member exists in another branch — treat it the
+  // same as a genuinely missing doc.
+  if (data.branchId !== user.branchId) notFound()
   // Pass only the plain, serializable fields StaffForm actually renders —
   // uid/branchId/createdBy/createdAt/updatedAt are Admin-SDK/Timestamp-shaped
   // and either unused by the form or unsafe to cross the Server->Client

@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server'
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { writeAuditLog } from '@/lib/audit/log'
+import { ROLES } from '@/lib/auth/permissions'
+
+// Fields a caller is ever allowed to change via this endpoint. branchId, uid,
+// createdBy, createdAt are immutable/derived server-side and must never be
+// settable from the request body, no matter what the client sends.
+const EDITABLE_FIELDS = ['name', 'role', 'department', 'contact', 'emergencyContact', 'employment', 'qualifications'] as const
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ staffId: string }> }) {
   const { staffId } = await params
@@ -13,8 +19,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ st
     if (!doc.exists) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
     const existing = doc.data()!
+    // Don't reveal that a staff member exists in another branch — same 404 as a
+    // genuinely missing doc.
+    if (existing.branchId !== user.branchId) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
     const body = await request.json()
 
+    if ('role' in body && body.role !== undefined && !ROLES.includes(body.role)) {
+      return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
+    }
     if (existing.role === 'super_admin') {
       const attemptsRoleChange = 'role' in body && body.role !== 'super_admin'
       const attemptsDeactivate = body.employment?.status === 'inactive'
@@ -26,7 +39,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ st
       return NextResponse.json({ error: 'super_admin cannot be assigned through this endpoint' }, { status: 403 })
     }
 
-    const updates = { ...body, updatedAt: new Date() }
+    const updates: Record<string, unknown> = { updatedAt: new Date() }
+    for (const field of EDITABLE_FIELDS) {
+      if (field in body) updates[field] = body[field]
+    }
     await docRef.update(updates)
 
     const auth = getAdminAuth()
@@ -71,6 +87,9 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     if (!doc.exists) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
     const existing = doc.data()!
+    // Don't reveal that a staff member exists in another branch — same 404 as a
+    // genuinely missing doc.
+    if (existing.branchId !== user.branchId) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     if (existing.role === 'super_admin') {
       return NextResponse.json({ error: 'super_admin cannot be deleted' }, { status: 403 })
     }
