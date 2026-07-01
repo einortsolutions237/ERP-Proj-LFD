@@ -16,12 +16,21 @@ export default function LoginPage() {
 
     // Always try the router first — it decides server-verified vs. client SDK
     // based on the account's role, per Design Decision #1.
-    const routeRes = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    })
-    const routeBody = await routeRes.json()
+    let routeRes: Response
+    let routeBody: { ok?: boolean; error?: string; strategy?: string } = {}
+    try {
+      routeRes = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+      // A non-JSON body (e.g. Next.js's default error page on an unhandled
+      // server exception) must not crash the form — fall back to a generic error.
+      routeBody = await routeRes.json().catch(() => ({}))
+    } catch {
+      setError('Login failed. Please try again.')
+      return
+    }
 
     if (routeRes.ok && routeBody.ok) {
       router.push('/dashboard') // strict path: session already minted
@@ -43,7 +52,7 @@ export default function LoginPage() {
         body: JSON.stringify({ idToken }),
       })
       if (!res.ok) {
-        const body = await res.json()
+        const body = await res.json().catch(() => ({}))
         setError(body.error ?? 'Login failed')
         return
       }
