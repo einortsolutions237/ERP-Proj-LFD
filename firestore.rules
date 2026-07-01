@@ -2,11 +2,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /auditLogs/{logId} {
+      // keep in sync with ROLE_CAPABILITIES['admin.auditLog.view'] (ADMIN_IT) in src/lib/auth/permissions.ts
       allow read: if request.auth != null
         && request.auth.token.role in ['super_admin', 'admin', 'it_admin'];
       allow write: if false; // Admin SDK bypasses rules entirely; no client path, ever
     }
     match /staff/{staffId} {
+      // keep in sync with ROLE_CAPABILITIES['admin.staff.view'] (ADMIN_HR) in src/lib/auth/permissions.ts
       allow read: if request.auth != null
         && request.auth.token.branchId == resource.data.branchId
         && request.auth.token.role in ['super_admin', 'admin', 'hr_admin'];

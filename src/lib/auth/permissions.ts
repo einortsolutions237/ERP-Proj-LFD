@@ -38,9 +38,13 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'admin.auditLog.view': 'admin',
 }
 
+// ADMIN_HR is duplicated in firestore.rules' `staff` match (admin.staff.view) —
+// Firestore rules can't import this constant, so update both together.
 const ADMIN_HR: RoleId[] = ['super_admin', 'admin', 'hr_admin']
 const ADMIN_ONLY: RoleId[] = ['super_admin', 'admin']
 const ADMIN_BRANCH_MGR: RoleId[] = ['super_admin', 'admin', 'branch_manager']
+// ADMIN_IT is duplicated in firestore.rules' `auditLogs` match (admin.auditLog.view) —
+// Firestore rules can't import this constant, so update both together.
 const ADMIN_IT: RoleId[] = ['super_admin', 'admin', 'it_admin']
 
 export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
