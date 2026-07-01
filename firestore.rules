@@ -12,6 +12,11 @@ service cloud.firestore {
         && request.auth.token.role in ['super_admin', 'admin', 'hr_admin'];
       allow create, update, delete: if false; // all writes go through Admin SDK via /api/staff
     }
+    match /departments/{departmentId} {
+      allow read: if request.auth != null
+        && request.auth.token.branchId == resource.data.branchId;
+      allow write: if false; // all writes go through Admin SDK via /api/departments
+    }
     match /{document=**} {
       allow read, write: if false;
     }
