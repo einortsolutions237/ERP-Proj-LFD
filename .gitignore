@@ -1,5 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# project-specific (pre-existing, do not remove)
+.claude/settings.local.json
+.worktrees/
+
 # dependencies
 /node_modules
 /.pnp
@@ -32,6 +36,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.local.example
 
 # vercel
 .vercel
