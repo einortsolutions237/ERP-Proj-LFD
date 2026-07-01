@@ -5,14 +5,16 @@ import StaffForm from '@/components/staff/StaffForm'
 import type { Staff } from '@/lib/types/staff'
 
 // Firestore Timestamp / Date values can't cross the Server->Client Component
-// boundary as-is; normalize anything date-shaped down to an ISO string (or
-// pass through if it's already a string) before handing data to StaffForm.
-function toIsoString(value: unknown): string {
+// boundary as-is; normalize anything date-shaped down to a YYYY-MM-DD string
+// (or pass through if it's already a string) before handing data to
+// StaffForm — its <input type="date"> renders blank unless given exactly
+// that format, per the HTML spec.
+function toDateInputValue(value: unknown): string {
   if (!value) return ''
-  if (typeof value === 'string') return value
-  if (value instanceof Date) return value.toISOString()
+  if (typeof value === 'string') return value.slice(0, 10)
+  if (value instanceof Date) return value.toISOString().slice(0, 10)
   if (typeof value === 'object' && 'toDate' in value && typeof (value as { toDate: unknown }).toDate === 'function') {
-    return (value as { toDate: () => Date }).toDate().toISOString()
+    return (value as { toDate: () => Date }).toDate().toISOString().slice(0, 10)
   }
   return ''
 }
@@ -49,7 +51,7 @@ export default async function EditStaffPage({ params }: { params: Promise<{ staf
     qualifications: data.qualifications ?? [],
     employment: {
       status: data.employment?.status ?? 'active',
-      startDate: toIsoString(data.employment?.startDate),
+      startDate: toDateInputValue(data.employment?.startDate),
     },
   }
 
