@@ -24,6 +24,10 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write: if false; // all writes go through Admin SDK via /api/branches
     }
+    match /settings/{key} {
+      allow read: if request.auth != null;
+      allow write: if false; // all writes go through Admin SDK via /api/settings
+    }
     match /{document=**} {
       allow read, write: if false;
     }
