@@ -82,7 +82,7 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'inventory.stock.transfer': ADMIN_BRANCH_MGR,
   'pos.sale.create': CASHIER_BRANCH_MGR,
   'pos.sale.view': CASHIER_BRANCH_MGR,
-  'pos.sale.void': [],
+  'pos.sale.void': ADMIN_BRANCH_MGR,
 }
 
 export function hasCapability(role: RoleId, capability: Capability): boolean {

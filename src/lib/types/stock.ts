@@ -6,7 +6,7 @@ export interface ProductStock {
   updatedAt: FirebaseFirestore.Timestamp
 }
 
-export type StockMovementType = 'restock' | 'adjustment' | 'waste' | 'transfer_out' | 'transfer_in' | 'sale'
+export type StockMovementType = 'restock' | 'adjustment' | 'waste' | 'transfer_out' | 'transfer_in' | 'sale' | 'void'
 
 export interface StockMovement {
   id: string

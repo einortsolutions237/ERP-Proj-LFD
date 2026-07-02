@@ -161,6 +161,9 @@ export async function POST(request: Request) {
           total,
           payments,
           cashierUid: user.uid,
+          voidedAt: null,
+          voidedBy: null,
+          voidReason: null,
           createdAt: new Date(),
         })
 
