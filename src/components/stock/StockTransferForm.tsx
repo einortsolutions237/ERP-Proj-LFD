@@ -14,7 +14,7 @@ export default function StockTransferForm({
   destinationBranches,
   onDone,
 }: StockTransferFormProps) {
-  const [destBranchId, setDestBranchId] = useState(destinationBranches[0]?.id ?? '')
+  const [destBranchId, setDestBranchId] = useState('')
   const [quantity, setQuantity] = useState('')
   const [reason, setReason] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -70,6 +70,9 @@ export default function StockTransferForm({
           onChange={(e) => setDestBranchId(e.target.value)}
           className="w-full border rounded px-3 py-2"
         >
+          <option value="" disabled>
+            Select a branch…
+          </option>
           {destinationBranches.map((branch) => (
             <option key={branch.id} value={branch.id}>
               {branch.name}

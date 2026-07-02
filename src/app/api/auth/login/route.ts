@@ -17,7 +17,13 @@ export async function POST(request: Request) {
   const emailKey = `login:email:${email.toLowerCase()}`
   const ipKey = `login:ip:${ip}`
 
-  const [emailLimit, ipLimit] = await Promise.all([checkRateLimit(emailKey), checkRateLimit(ipKey)])
+  let emailLimit: { blocked: boolean; retryAfterMs?: number } = { blocked: false }
+  let ipLimit: { blocked: boolean; retryAfterMs?: number } = { blocked: false }
+  try {
+    ;[emailLimit, ipLimit] = await Promise.all([checkRateLimit(emailKey), checkRateLimit(ipKey)])
+  } catch (err) {
+    console.error('auth/login: rate limit check failed, failing open', err)
+  }
   if (emailLimit.blocked || ipLimit.blocked) {
     return NextResponse.json({ error: 'Too many attempts. Try again later.' }, { status: 429 })
   }
@@ -30,7 +36,9 @@ export async function POST(request: Request) {
     const code = (err as { code?: string })?.code
     if (code === 'auth/user-not-found') {
       // Unknown account — don't reveal that. Let the client proceed with its own sign-in attempt.
-      await recordFailedAttempt(ipKey)
+      await recordFailedAttempt(ipKey).catch((rlErr) => {
+        console.error('auth/login: failed to record rate-limit attempt, failing open', rlErr)
+      })
       return NextResponse.json({ strategy: 'client_sdk' })
     }
     console.error('auth/login: unexpected error looking up account', err)
@@ -53,7 +61,9 @@ export async function POST(request: Request) {
   })
 
   if (!signInRes.ok) {
-    await Promise.all([recordFailedAttempt(emailKey), recordFailedAttempt(ipKey)])
+    await Promise.all([recordFailedAttempt(emailKey), recordFailedAttempt(ipKey)]).catch((rlErr) => {
+      console.error('auth/login: failed to record rate-limit attempt, failing open', rlErr)
+    })
     await writeAuditLog({ action: 'login_failed', actorUid: userRecord.uid, actorEmail: email, details: { source: 'server_verified', role } })
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
   }
@@ -63,7 +73,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Account not fully provisioned' }, { status: 403 })
   }
 
-  await Promise.all([clearAttempts(emailKey), clearAttempts(ipKey)])
+  await Promise.all([clearAttempts(emailKey), clearAttempts(ipKey)]).catch((rlErr) => {
+    console.error('auth/login: failed to clear rate-limit attempts, ignoring', rlErr)
+  })
 
   const { idToken } = await signInRes.json()
   const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn: SESSION_MAX_AGE_SECONDS * 1000 })
