@@ -70,6 +70,9 @@ service cloud.firestore {
     match /attendanceRecords/{recordId} {
       allow read, write: if false; // all access goes through /api/attendance
     }
+    match /notifications/{notificationId} {
+      allow read, write: if false; // all access goes through /api/notifications — personal data, same fully-closed treatment as leaveRequests/attendanceRecords
+    }
     match /{document=**} {
       allow read, write: if false;
     }
