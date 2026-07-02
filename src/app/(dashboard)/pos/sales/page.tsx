@@ -19,12 +19,12 @@ export default async function SalesLogPage() {
     .get()
 
   const sales: SaleRow[] = snap.docs.map((d) => {
-    const data = d.data()
+    const { voidedAt, ...data } = d.data()
     return {
       id: d.id,
       ...data,
       createdAt: data.createdAt?.toDate?.().toISOString() ?? '',
-      voided: data.voidedAt != null,
+      voided: voidedAt != null,
     } as SaleRow
   })
 

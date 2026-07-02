@@ -4,9 +4,10 @@ import type { Sale } from '@/lib/types/sale'
 
 // Server Components can't pass Firestore Timestamp instances to Client
 // Components (Next.js only serializes plain objects across that boundary),
-// so the list page converts createdAt to an ISO string before handing rows
-// to this table.
-export type SaleRow = Omit<Sale, 'createdAt'> & {
+// so the list page converts createdAt to an ISO string and drops the raw
+// voidedAt Timestamp (a voided sale would otherwise leak one through) before
+// handing rows to this table — voided status arrives pre-reduced to a boolean.
+export type SaleRow = Omit<Sale, 'createdAt' | 'voidedAt'> & {
   id: string
   createdAt: string
   voided: boolean
