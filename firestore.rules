@@ -60,6 +60,10 @@ service cloud.firestore {
         && request.auth.token.branchId == resource.data.branchId;
       allow write: if false; // all writes go through Admin SDK via /api/sales
     }
+    match /customers/{customerId} {
+      allow read: if request.auth != null;
+      allow write: if false; // all writes go through Admin SDK via /api/customers
+    }
     match /{document=**} {
       allow read, write: if false;
     }
