@@ -30,7 +30,10 @@ export type Capability =
   | 'pos.sale.create'
   | 'pos.sale.view'
   | 'pos.sale.void'
-  // crm.*, accounting.*, hr.* — no capabilities defined yet;
+  | 'crm.customer.create'
+  | 'crm.customer.view'
+  | 'crm.customer.manage'
+  // accounting.*, hr.* — no capabilities defined yet;
   // add them here when each module is actually built.
 
 export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
@@ -52,6 +55,9 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'pos.sale.create': 'pos',
   'pos.sale.view': 'pos',
   'pos.sale.void': 'pos',
+  'crm.customer.create': 'crm',
+  'crm.customer.view': 'crm',
+  'crm.customer.manage': 'crm',
 }
 
 // ADMIN_HR is duplicated in firestore.rules' `staff` match (admin.staff.view) —
@@ -83,6 +89,9 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'pos.sale.create': CASHIER_BRANCH_MGR,
   'pos.sale.view': CASHIER_BRANCH_MGR,
   'pos.sale.void': ADMIN_BRANCH_MGR,
+  'crm.customer.create': CASHIER_BRANCH_MGR,
+  'crm.customer.view': CASHIER_BRANCH_MGR,
+  'crm.customer.manage': ADMIN_BRANCH_MGR,
 }
 
 export function hasCapability(role: RoleId, capability: Capability): boolean {

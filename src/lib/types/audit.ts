@@ -7,6 +7,7 @@ export type AuditAction =
   | 'service_create' | 'service_edit' | 'service_delete'
   | 'stock_adjust' | 'stock_transfer'
   | 'sale_create' | 'sale_void'
+  | 'customer_create' | 'customer_edit' | 'customer_delete'
 
 export interface AuditLogEntry {
   id: string

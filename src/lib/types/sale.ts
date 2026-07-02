@@ -23,6 +23,7 @@ export interface Sale {
   total: number
   payments: SalePayment[]
   cashierUid: string
+  customerId: string | null
   voidedAt: FirebaseFirestore.Timestamp | null
   voidedBy: string | null
   voidReason: string | null
