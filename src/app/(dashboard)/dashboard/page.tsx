@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/auth/server-guard'
+import AttendanceWidget from '@/components/attendance/AttendanceWidget'
 
 export default async function DashboardPage() {
   const user = await getSessionUser()
@@ -12,6 +13,7 @@ export default async function DashboardPage() {
         Role: <span className="font-medium">{user.role}</span> &middot; Branch:{' '}
         <span className="font-medium">{user.branchId}</span>
       </p>
+      <AttendanceWidget />
     </div>
   )
 }

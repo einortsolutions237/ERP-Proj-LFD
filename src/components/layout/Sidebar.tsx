@@ -21,6 +21,9 @@ const NAV_LINKS: NavLink[] = [
   { href: '/pos', label: 'New Sale', capability: 'pos.sale.create' },
   { href: '/pos/sales', label: 'Sales Log', capability: 'pos.sale.view' },
   { href: '/customers', label: 'Customers', capability: 'crm.customer.view' },
+  { href: '/leave', label: 'My Leave', capability: 'hr.leave.request' },
+  { href: '/leave/review', label: 'Review Leave', capability: 'hr.leave.approve' },
+  { href: '/attendance', label: 'Attendance', capability: 'hr.attendance.view' },
 ]
 
 export default function Sidebar({ role }: { role: RoleId }) {
