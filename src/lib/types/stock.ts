@@ -6,7 +6,7 @@ export interface ProductStock {
   updatedAt: FirebaseFirestore.Timestamp
 }
 
-export type StockMovementType = 'restock' | 'adjustment' | 'waste' | 'transfer_out' | 'transfer_in'
+export type StockMovementType = 'restock' | 'adjustment' | 'waste' | 'transfer_out' | 'transfer_in' | 'sale'
 
 export interface StockMovement {
   id: string
@@ -18,4 +18,5 @@ export interface StockMovement {
   actorUid: string
   createdAt: FirebaseFirestore.Timestamp
   transferId: string | null
+  saleId: string | null   // set to the sales/{saleId} doc id only for type:'sale'; null for every other movement type
 }
