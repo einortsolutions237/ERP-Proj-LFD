@@ -1,5 +1,5 @@
 export const ROLES = [
-  'super_admin', 'admin', 'branch_manager', 'hr_admin', 'finance_admin', 'it_admin',
+  'super_admin', 'admin', 'branch_manager', 'hr_admin', 'finance_admin', 'it_admin', 'cashier',
 ] as const
 
 export type RoleId = typeof ROLES[number]
@@ -27,7 +27,10 @@ export type Capability =
   | 'inventory.stock.view'
   | 'inventory.stock.adjust'
   | 'inventory.stock.transfer'
-  // pos.*, crm.*, accounting.*, hr.* — no capabilities defined yet;
+  | 'pos.sale.create'
+  | 'pos.sale.view'
+  | 'pos.sale.void'
+  // crm.*, accounting.*, hr.* — no capabilities defined yet;
   // add them here when each module is actually built.
 
 export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
@@ -46,6 +49,9 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'inventory.stock.view': 'inventory',
   'inventory.stock.adjust': 'inventory',
   'inventory.stock.transfer': 'inventory',
+  'pos.sale.create': 'pos',
+  'pos.sale.view': 'pos',
+  'pos.sale.void': 'pos',
 }
 
 // ADMIN_HR is duplicated in firestore.rules' `staff` match (admin.staff.view) —
@@ -53,6 +59,7 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
 const ADMIN_HR: RoleId[] = ['super_admin', 'admin', 'hr_admin']
 const ADMIN_ONLY: RoleId[] = ['super_admin', 'admin']
 const ADMIN_BRANCH_MGR: RoleId[] = ['super_admin', 'admin', 'branch_manager']
+const CASHIER_BRANCH_MGR: RoleId[] = ['super_admin', 'admin', 'branch_manager', 'cashier']
 // ADMIN_IT is duplicated in firestore.rules' `auditLogs` match (admin.auditLog.view) —
 // Firestore rules can't import this constant, so update both together.
 const ADMIN_IT: RoleId[] = ['super_admin', 'admin', 'it_admin']
@@ -73,6 +80,9 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'inventory.stock.view': ADMIN_BRANCH_MGR,
   'inventory.stock.adjust': ADMIN_BRANCH_MGR,
   'inventory.stock.transfer': ADMIN_BRANCH_MGR,
+  'pos.sale.create': CASHIER_BRANCH_MGR,
+  'pos.sale.view': CASHIER_BRANCH_MGR,
+  'pos.sale.void': [],
 }
 
 export function hasCapability(role: RoleId, capability: Capability): boolean {
