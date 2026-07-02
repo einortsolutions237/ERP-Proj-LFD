@@ -1,6 +1,8 @@
 import { redirect, notFound } from 'next/navigation'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
+import { hasCapability } from '@/lib/auth/permissions'
+import VoidSaleButton from '@/components/pos/VoidSaleButton'
 import type { Sale } from '@/lib/types/sale'
 
 export default async function SaleDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -23,6 +25,7 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ id:
   if (data.branchId !== user.branchId) notFound()
 
   const createdAt = data.createdAt?.toDate?.().toISOString() ?? ''
+  const voidedAt = data.voidedAt?.toDate?.().toISOString() ?? ''
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-8">
@@ -31,6 +34,22 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ id:
         <p className="text-sm text-gray-500">
           {createdAt ? new Date(createdAt).toLocaleString() : ''} &middot; Cashier {data.cashierUid}
         </p>
+        {data.voidedAt ? (
+          <div className="mt-2 space-y-1">
+            <span className="inline-block rounded bg-red-100 text-red-700 px-2 py-1 text-xs font-medium">
+              Voided
+            </span>
+            <p className="text-sm text-gray-500">
+              Voided {voidedAt ? new Date(voidedAt).toLocaleString() : ''} by {data.voidedBy} — {data.voidReason}
+            </p>
+          </div>
+        ) : (
+          hasCapability(user.role, 'pos.sale.void') && (
+            <div className="mt-2">
+              <VoidSaleButton saleId={id} />
+            </div>
+          )
+        )}
       </div>
 
       <div className="space-y-3">
