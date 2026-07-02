@@ -10,7 +10,21 @@ export async function GET() {
 
     const today = getTodayDateString()
     const snap = await db.collection('attendanceRecords').doc(`${user.uid}_${today}`).get()
-    return NextResponse.json(snap.exists ? { id: snap.id, ...snap.data() } : null)
+    if (!snap.exists) return NextResponse.json(null)
+
+    const data = snap.data()!
+    // Firestore's Timestamp has no toJSON(), so a raw spread here would
+    // serialize checkInAt/checkOutAt as {_seconds, _nanoseconds} instead of
+    // a string this route's only consumer (a client component) can parse.
+    return NextResponse.json({
+      id: snap.id,
+      staffId: data.staffId,
+      branchId: data.branchId,
+      date: data.date,
+      status: data.status,
+      checkInAt: data.checkInAt.toDate().toISOString(),
+      checkOutAt: data.checkOutAt ? data.checkOutAt.toDate().toISOString() : null,
+    })
   } catch (err) {
     if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status })
     throw err
