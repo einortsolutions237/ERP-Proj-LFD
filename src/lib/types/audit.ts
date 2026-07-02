@@ -8,6 +8,8 @@ export type AuditAction =
   | 'stock_adjust' | 'stock_transfer'
   | 'sale_create' | 'sale_void'
   | 'customer_create' | 'customer_edit' | 'customer_delete'
+  | 'leave_request_create' | 'leave_request_approve' | 'leave_request_reject'
+  | 'attendance_checkin' | 'attendance_checkout'
 
 export interface AuditLogEntry {
   id: string

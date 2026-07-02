@@ -9,7 +9,7 @@ export type RoleId = typeof ROLES[number]
 export const STRICT_AUDIT_ROLES: RoleId[] = ['super_admin', 'admin']
 
 // Every future module the permission system will gate. Phase 1 only implements
-// capabilities for 'admin' — the other four are reserved so the shape exists
+// capabilities for 'admin' — the other modules are reserved so the shape exists
 // without building screens ahead of scope.
 export const MODULES = ['admin', 'pos', 'inventory', 'crm', 'accounting', 'hr'] as const
 
@@ -33,8 +33,12 @@ export type Capability =
   | 'crm.customer.create'
   | 'crm.customer.view'
   | 'crm.customer.manage'
-  // accounting.*, hr.* — no capabilities defined yet;
-  // add them here when each module is actually built.
+  | 'hr.leave.request'
+  | 'hr.leave.approve'
+  | 'hr.attendance.self'
+  | 'hr.attendance.view'
+  // accounting.* — no capabilities defined yet;
+  // add them here when the module is actually built.
 
 export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'admin.staff.view': 'admin',
@@ -58,7 +62,14 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'crm.customer.create': 'crm',
   'crm.customer.view': 'crm',
   'crm.customer.manage': 'crm',
+  'hr.leave.request': 'hr',
+  'hr.leave.approve': 'hr',
+  'hr.attendance.self': 'hr',
+  'hr.attendance.view': 'hr',
 }
+
+const ALL_ROLES: RoleId[] = [...ROLES]
+const APPROVER_ROLES: RoleId[] = ['super_admin', 'admin', 'branch_manager', 'hr_admin']
 
 // ADMIN_HR is duplicated in firestore.rules' `staff` match (admin.staff.view) —
 // Firestore rules can't import this constant, so update both together.
@@ -92,6 +103,10 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'crm.customer.create': CASHIER_BRANCH_MGR,
   'crm.customer.view': CASHIER_BRANCH_MGR,
   'crm.customer.manage': ADMIN_BRANCH_MGR,
+  'hr.leave.request': ALL_ROLES,
+  'hr.leave.approve': APPROVER_ROLES,
+  'hr.attendance.self': ALL_ROLES,
+  'hr.attendance.view': APPROVER_ROLES,
 }
 
 export function hasCapability(role: RoleId, capability: Capability): boolean {
