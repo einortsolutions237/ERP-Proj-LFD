@@ -53,29 +53,35 @@ export async function POST(request: Request) {
 
     const db = getAdminFirestore()
     const sku = body.sku.trim()
+    const newProductRef = db.collection('products').doc()
 
-    const skuSnap = await db.collection('products').where('sku', '==', sku).limit(1).get()
-    if (!skuSnap.empty) {
-      return NextResponse.json({ error: 'A product with this SKU already exists' }, { status: 409 })
+    try {
+      await db.runTransaction(async (tx) => {
+        const skuSnap = await tx.get(db.collection('products').where('sku', '==', sku).limit(1))
+        if (!skuSnap.empty) {
+          throw new AuthError('A product with this SKU already exists', 409)
+        }
+        tx.set(newProductRef, {
+          name: body.name.trim(),
+          sku,
+          category: body.category.trim(),
+          unitCost: body.unitCost,
+          price: body.price,
+          supplierId: isNonEmptyString(body.supplierId) ? body.supplierId : null,
+          reorderThreshold: body.reorderThreshold,
+          active: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+      })
+    } catch (err) {
+      if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status })
+      throw err
     }
 
-    const productData = {
-      name: body.name.trim(),
-      sku,
-      category: body.category.trim(),
-      unitCost: body.unitCost,
-      price: body.price,
-      supplierId: isNonEmptyString(body.supplierId) ? body.supplierId : null,
-      reorderThreshold: body.reorderThreshold,
-      active: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-    const docRef = await db.collection('products').add(productData)
+    await writeAuditLog({ action: 'product_create', actorUid: user.uid, actorEmail: user.email, targetUid: newProductRef.id, branchId: null })
 
-    await writeAuditLog({ action: 'product_create', actorUid: user.uid, actorEmail: user.email, targetUid: docRef.id, branchId: null })
-
-    return NextResponse.json({ id: docRef.id }, { status: 201 })
+    return NextResponse.json({ id: newProductRef.id }, { status: 201 })
   } catch (err) {
     if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status })
     throw err
