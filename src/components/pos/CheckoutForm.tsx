@@ -22,6 +22,7 @@ interface PaymentRow {
 export interface CheckoutFormProps {
   products: { id: string; name: string; sku: string; price: number; quantity: number }[]
   services: { id: string; name: string; price: number }[]
+  customers: { id: string; name: string; phone: string }[]
   branchId: string
 }
 
@@ -31,11 +32,22 @@ const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   orange_money: 'Orange Money',
 }
 
-export default function CheckoutForm({ products, services }: CheckoutFormProps) {
+export default function CheckoutForm({ products, services, customers }: CheckoutFormProps) {
   const router = useRouter()
 
   const [search, setSearch] = useState('')
   const [cart, setCart] = useState<CartLine[]>([])
+  const [customerId, setCustomerId] = useState<string | null>(null)
+  const [customerPickerOpen, setCustomerPickerOpen] = useState(false)
+  const [customerSearch, setCustomerSearch] = useState('')
+  const [quickAddName, setQuickAddName] = useState('')
+  const [quickAddPhone, setQuickAddPhone] = useState('')
+  const [quickAddError, setQuickAddError] = useState<string | null>(null)
+  const [quickAddSubmitting, setQuickAddSubmitting] = useState(false)
+  // Customers created via quick-add mid-checkout aren't in the server-fetched
+  // `customers` prop; track them locally so the selected customer can be
+  // displayed immediately without an extra round trip.
+  const [extraCustomers, setExtraCustomers] = useState<{ id: string; name: string; phone: string }[]>([])
   const [discountAmount, setDiscountAmount] = useState('')
   const [payments, setPayments] = useState<PaymentRow[]>([
     { method: 'cash', amount: '', reference: '' },
@@ -48,6 +60,13 @@ export default function CheckoutForm({ products, services }: CheckoutFormProps) 
   const query = search.trim().toLowerCase()
   const filteredProducts = products.filter((p) => p.name.toLowerCase().includes(query))
   const filteredServices = services.filter((s) => s.name.toLowerCase().includes(query))
+
+  const allCustomers = [...customers, ...extraCustomers]
+  const customerQuery = customerSearch.trim().toLowerCase()
+  const filteredCustomers = allCustomers.filter(
+    (c) => c.name.toLowerCase().includes(customerQuery) || c.phone.toLowerCase().includes(customerQuery)
+  )
+  const selectedCustomer = customerId ? allCustomers.find((c) => c.id === customerId) ?? null : null
 
   const subtotal = cart.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0)
   const discount = Number(discountAmount) || 0
@@ -89,6 +108,43 @@ export default function CheckoutForm({ products, services }: CheckoutFormProps) 
     setPayments((prev) => prev.map((p) => (p.method === method ? { ...p, [field]: value } : p)))
   }
 
+  function selectCustomer(id: string) {
+    setCustomerId(id)
+    setCustomerPickerOpen(false)
+    setCustomerSearch('')
+    setQuickAddName('')
+    setQuickAddPhone('')
+    setQuickAddError(null)
+  }
+
+  function removeCustomer() {
+    setCustomerId(null)
+  }
+
+  async function handleQuickAdd() {
+    setQuickAddError(null)
+    setQuickAddSubmitting(true)
+    try {
+      const res = await fetch('/api/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: quickAddName, phone: quickAddPhone }),
+      })
+      const body = await res.json()
+      if (!res.ok) {
+        setQuickAddError(body.error ?? 'Customer could not be created')
+        setQuickAddSubmitting(false)
+        return
+      }
+      setExtraCustomers((prev) => [...prev, { id: body.id, name: quickAddName, phone: quickAddPhone }])
+      selectCustomer(body.id)
+      setQuickAddSubmitting(false)
+    } catch {
+      setQuickAddError('Customer could not be created')
+      setQuickAddSubmitting(false)
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
@@ -103,6 +159,7 @@ export default function CheckoutForm({ products, services }: CheckoutFormProps) 
           payments: payments
             .filter((p) => Number(p.amount) > 0)
             .map((p) => ({ method: p.method, amount: Number(p.amount), reference: p.reference.trim() || null })),
+          ...(customerId ? { customerId } : {}),
         }),
       })
       const body = await res.json()
@@ -164,6 +221,105 @@ export default function CheckoutForm({ products, services }: CheckoutFormProps) 
       </div>
 
       <div className="space-y-4">
+        <div className="border rounded p-3 space-y-2">
+          <label className="block text-sm font-medium">Customer</label>
+          {!customerPickerOpen && (
+            <div className="flex items-center justify-between gap-2">
+              {selectedCustomer ? (
+                <>
+                  <span className="text-sm">
+                    {selectedCustomer.name} <span className="text-gray-500">({selectedCustomer.phone})</span>
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setCustomerPickerOpen(true)}
+                      className="text-sm border rounded px-2 py-1"
+                    >
+                      Change
+                    </button>
+                    <button type="button" onClick={removeCustomer} className="text-sm text-red-600 border rounded px-2 py-1">
+                      Remove
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span className="text-sm text-gray-500">Walk-in</span>
+                  <button
+                    type="button"
+                    onClick={() => setCustomerPickerOpen(true)}
+                    className="text-sm border rounded px-2 py-1"
+                  >
+                    Attach customer
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
+          {customerPickerOpen && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <input
+                  value={customerSearch}
+                  onChange={(e) => setCustomerSearch(e.target.value)}
+                  placeholder="Search name or phone…"
+                  className="flex-1 border rounded px-3 py-2"
+                />
+                <button
+                  type="button"
+                  onClick={() => setCustomerPickerOpen(false)}
+                  className="text-sm border rounded px-2 py-1"
+                >
+                  Close
+                </button>
+              </div>
+              <div className="border rounded divide-y max-h-40 overflow-y-auto">
+                {filteredCustomers.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => selectCustomer(c.id)}
+                    className="w-full text-left px-3 py-2 hover:bg-gray-50 flex items-center justify-between"
+                  >
+                    <span>{c.name}</span>
+                    <span className="text-sm text-gray-500">{c.phone}</span>
+                  </button>
+                ))}
+                {filteredCustomers.length === 0 && (
+                  <p className="px-3 py-2 text-sm text-gray-500">No matches</p>
+                )}
+              </div>
+
+              <div className="border-t pt-3 space-y-2">
+                <p className="text-sm font-medium">Quick add</p>
+                <input
+                  value={quickAddName}
+                  onChange={(e) => setQuickAddName(e.target.value)}
+                  placeholder="Name"
+                  className="w-full border rounded px-3 py-2"
+                />
+                <input
+                  value={quickAddPhone}
+                  onChange={(e) => setQuickAddPhone(e.target.value)}
+                  placeholder="Phone"
+                  className="w-full border rounded px-3 py-2"
+                />
+                {quickAddError && <p className="text-red-600 text-sm">{quickAddError}</p>}
+                <button
+                  type="button"
+                  onClick={handleQuickAdd}
+                  disabled={quickAddSubmitting || !quickAddName.trim() || !quickAddPhone.trim()}
+                  className="bg-black text-white rounded px-3 py-2 disabled:opacity-50"
+                >
+                  Add customer
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className="border rounded divide-y">
           {cart.length === 0 && <p className="px-3 py-2 text-sm text-gray-500">Cart is empty</p>}
           {cart.map((line, index) => (

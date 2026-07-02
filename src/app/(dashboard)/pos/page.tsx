@@ -13,10 +13,11 @@ export default async function PosPage() {
   }
 
   const db = getAdminFirestore()
-  const [productsSnap, servicesSnap, stockSnap] = await Promise.all([
+  const [productsSnap, servicesSnap, stockSnap, customersSnap] = await Promise.all([
     db.collection('products').where('active', '==', true).get(),
     db.collection('services').where('active', '==', true).get(),
     db.collection('productStock').where('branchId', '==', user.branchId).get(),
+    db.collection('customers').get(),
   ])
 
   const quantityByProductId = new Map<string, number>()
@@ -45,10 +46,19 @@ export default async function PosPage() {
     }
   })
 
+  const customers = customersSnap.docs.map((d) => {
+    const data = d.data()
+    return {
+      id: d.id,
+      name: data.name as string,
+      phone: data.phone as string,
+    }
+  })
+
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-6">
       <h1 className="text-xl font-semibold">Checkout</h1>
-      <CheckoutForm products={products} services={services} branchId={user.branchId} />
+      <CheckoutForm products={products} services={services} customers={customers} branchId={user.branchId} />
     </div>
   )
 }
