@@ -45,6 +45,16 @@ service cloud.firestore {
     match /rateLimits/{key} {
       allow read, write: if false; // Admin SDK only, no client path at all
     }
+    match /productStock/{docId} {
+      allow read: if request.auth != null
+        && request.auth.token.branchId == resource.data.branchId;
+      allow write: if false; // all writes go through Admin SDK via /api/stock/movements and /api/stock/transfer
+    }
+    match /stockMovements/{movementId} {
+      allow read: if request.auth != null
+        && request.auth.token.branchId == resource.data.branchId;
+      allow write: if false; // all writes go through Admin SDK via /api/stock/movements and /api/stock/transfer
+    }
     match /{document=**} {
       allow read, write: if false;
     }
