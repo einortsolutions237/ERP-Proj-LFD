@@ -24,6 +24,7 @@ export default async function SalesLogPage() {
       id: d.id,
       ...data,
       createdAt: data.createdAt?.toDate?.().toISOString() ?? '',
+      voided: data.voidedAt != null,
     } as SaleRow
   })
 
