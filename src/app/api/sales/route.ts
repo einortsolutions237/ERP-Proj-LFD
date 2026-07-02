@@ -87,6 +87,14 @@ export async function POST(request: Request) {
       payments.push({ method: p.method, amount: p.amount, reference })
     }
 
+    let customerId: string | null = null
+    if ('customerId' in body && body.customerId !== undefined && body.customerId !== null) {
+      if (!isNonEmptyString(body.customerId)) {
+        return NextResponse.json({ error: 'customerId must be a non-empty string or null' }, { status: 400 })
+      }
+      customerId = body.customerId.trim()
+    }
+
     const db = getAdminFirestore()
     const saleRef = db.collection('sales').doc()
     const normalized = normalizeCartLines(rawLines)
@@ -113,6 +121,13 @@ export async function POST(request: Request) {
           }
           if (snap.data()!.active !== true) {
             throw new AuthError(`Item "${snap.data()!.name}" is not available for sale`, 400)
+          }
+        }
+
+        if (customerId) {
+          const customerSnap = await tx.get(db.collection('customers').doc(customerId))
+          if (!customerSnap.exists) {
+            throw new AuthError('customerId does not reference an existing customer', 400)
           }
         }
 
@@ -161,6 +176,7 @@ export async function POST(request: Request) {
           total,
           payments,
           cashierUid: user.uid,
+          customerId,
           voidedAt: null,
           voidedBy: null,
           voidReason: null,
@@ -206,6 +222,7 @@ export async function POST(request: Request) {
         taxAmount: 0,
         total: committed.total,
         payments,
+        customerId,
       },
     })
 
