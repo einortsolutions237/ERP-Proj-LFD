@@ -75,15 +75,15 @@ export interface Notification {
     "deploy": "npm run build && firebase deploy --only functions"
   },
   "dependencies": {
-    "firebase-admin": "^14.1.0",
-    "firebase-functions": "^6.0.0"
+    "firebase-admin": "^13.10.0",
+    "firebase-functions": "^7.2.5"
   },
   "devDependencies": {
     "typescript": "^5"
   }
 }
 ```
-(`firebase-admin` version matches the root `package.json`'s existing `^14.1.0` — no reason to drift.)
+(**Correction from an earlier version of this plan:** `firebase-functions` — even at its latest published version (7.2.5 as of this check) — has a peer dependency on `firebase-admin@^11||^12||^13`, not `^14`. It does not yet support `firebase-admin` v14 at all, so `functions/` cannot match the root app's `^14.1.0`. This is fine: `functions/` is a fully separate npm project with its own `node_modules`, and nothing requires the two admin SDK versions to match. Verified directly with `npm view firebase-functions@7.2.5 peerDependencies` before writing this — don't re-guess a version pairing without checking peer deps first.)
 
 `functions/tsconfig.json`:
 ```json
