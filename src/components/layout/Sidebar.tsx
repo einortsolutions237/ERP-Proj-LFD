@@ -18,6 +18,8 @@ const NAV_LINKS: NavLink[] = [
   { href: '/services', label: 'Services', capability: 'inventory.catalog.manage' },
   { href: '/suppliers', label: 'Suppliers', capability: 'inventory.suppliers.manage' },
   { href: '/stock', label: 'Stock', capability: 'inventory.stock.view' },
+  { href: '/pos', label: 'New Sale', capability: 'pos.sale.create' },
+  { href: '/pos/sales', label: 'Sales Log', capability: 'pos.sale.view' },
 ]
 
 export default function Sidebar({ role }: { role: RoleId }) {
