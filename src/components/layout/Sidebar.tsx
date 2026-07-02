@@ -14,6 +14,10 @@ const NAV_LINKS: NavLink[] = [
   { href: '/branches', label: 'Branches', capability: 'admin.branches.manage' },
   { href: '/settings', label: 'Settings', capability: 'admin.settings.manage' },
   { href: '/audit-log', label: 'Audit Log', capability: 'admin.auditLog.view' },
+  { href: '/products', label: 'Products', capability: 'inventory.catalog.manage' },
+  { href: '/services', label: 'Services', capability: 'inventory.catalog.manage' },
+  { href: '/suppliers', label: 'Suppliers', capability: 'inventory.suppliers.manage' },
+  { href: '/stock', label: 'Stock', capability: 'inventory.stock.view' },
 ]
 
 export default function Sidebar({ role }: { role: RoleId }) {
