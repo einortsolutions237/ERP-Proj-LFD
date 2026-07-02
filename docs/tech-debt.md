@@ -17,3 +17,17 @@ Tracked deviations, deferred hardening, and known limitations accepted during a 
 - Must be backwards compatible: existing entries without a before/after snapshot remain valid and readable; the audit log viewer (`/audit-log`) must not assume `details.before`/`details.after` exist.
 - Scope to "where practical" — a route already has the pre-write doc read in hand for `PATCH` handlers (e.g. suppliers'/products' partial-update pattern already reads `existing` before merging), so the "before" snapshot is close to free; "after" is just the fields actually written. Don't add a new read solely to support this if a route doesn't already read the existing doc.
 - Not required for `_create`/`_delete` actions — create has no "before", delete's "after" is just "gone"; only `_edit` actions are in scope for this enhancement.
+
+## TD-2: Low-stock notification's "quantity before this movement" has a race window
+
+**Deferred to:** Not scheduled — accepted as a known limitation for Phase 6 (not blocking Phase 6 completion; see `docs/superpowers/plans/2026-07-02-phase-6-notifications.md`).
+
+**Found during:** Phase 6 (In-App Notifications) planning, 2026-07-02.
+
+**Current state:** `functions/src/lowStock.ts`'s `onLowStock` trigger fires on every `stockMovements` create and must decide whether this specific movement newly crossed the product's `reorderThreshold`. It reconstructs "quantity before this movement" as `productStock.quantity (read live, after the trigger fires) - thisMovement.quantityDelta`. This is correct only if no *other* movement for the same product+branch lands between the original write's transaction committing and this handler's read. If a second movement does land in that window, the live `productStock.quantity` already reflects both movements, and the reconstructed "before" value is wrong — it could cause a missed notification (a real crossing not detected) or, less likely, a spurious one.
+
+**Why not fixed now:** the only way to close this is for `stockMovements` itself to snapshot the resulting quantity at write time, but that means adding a field to the write path in `api/stock/movements/route.ts`/`api/stock/transfer/route.ts`/`api/sales/route.ts` — the exact already-audited files this phase was built specifically to avoid touching (see Phase 6's plan). Fixing TD-2 by touching those files is a legitimate future option, just not one available inside Phase 6's own constraints.
+
+**Proposed enhancement (for whenever this gets prioritized):** add a `resultingQuantity` field to `StockMovement`, written inside the same transaction that already increments `productStock.quantity` (the value is already known there — `FieldValue.increment`'s result isn't readable in the same transaction, but the transaction can compute and set the exact resulting number directly instead of using `increment()`, or read-after-increment within the transaction). Then `onLowStock` reads `resultingQuantity` directly off the movement doc instead of reconstructing it, eliminating the race entirely.
+
+**Constraints for the fix (per project decision):** whichever future phase does this must go through the same review rigor as any other change to `api/stock/movements/route.ts`/`api/stock/transfer/route.ts`/`api/sales/route.ts` (Opus-tier review for the transaction change, per this project's established practice for high-stakes Firestore transactions).
