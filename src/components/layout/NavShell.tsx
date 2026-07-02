@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Sidebar from './Sidebar'
 import type { SessionUser } from '@/lib/auth/server-guard'
+import NotificationBell from '@/components/notifications/NotificationBell'
 
 export default function NavShell({ user, children }: { user: SessionUser; children: React.ReactNode }) {
   const router = useRouter()
@@ -46,6 +47,7 @@ export default function NavShell({ user, children }: { user: SessionUser; childr
           <span className="text-sm text-zinc-600 truncate">
             {user.email} &middot; <span className="font-medium">{user.role}</span>
           </span>
+          <NotificationBell />
           <button
             onClick={handleLogout}
             className="shrink-0 rounded border px-3 py-1.5 text-sm hover:bg-zinc-100"

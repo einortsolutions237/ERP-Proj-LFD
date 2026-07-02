@@ -544,7 +544,7 @@ match /notifications/{notificationId} {
 - Modify: `src/components/layout/NavShell.tsx`
 
 **Interfaces:**
-- Consumes: `GET /api/notifications`, `PATCH /api/notifications/[id]` (Task 4).
+- Consumes: `GET /api/notifications`, `PATCH /api/notifications/[id]` (Task 4). Note the client-side shape is NOT the `Notification` type from Task 4 as-is — that type's `createdAt: FirebaseFirestore.Timestamp` is a server-side Firestore-doc shape, but the actual JSON response has `createdAt` as an ISO string (converted server-side) and omits `recipientUid` entirely. Define a small client-local type for the fetched shape rather than reusing `Notification` directly — the same "don't let a server-side Firestore type leak into client state" discipline every other client component in this app already follows.
 
 Read `src/components/layout/NavShell.tsx` and `src/components/attendance/AttendanceWidget.tsx` first — the bell is a `'use client'` component fetching on mount (same pattern as `AttendanceWidget`), placed in `NavShell`'s existing `<header>` between the email/role `<span>` and the "Sign out" button.
 
