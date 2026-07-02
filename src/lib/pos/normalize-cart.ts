@@ -9,6 +9,10 @@ export interface NormalizedCart {
   serviceLines: { itemId: string; quantity: number }[]
 }
 
+// For stock-check/stock-write purposes only — the aggregated productLines here
+// collapse repeated itemIds into one summed entry, so this must never be used
+// to populate sales/{saleId}.lineItems (the receipt), which needs one entry
+// per original cart line with its own resolved name/unitPrice/lineTotal.
 export function normalizeCartLines(lineItems: RawCartLine[]): NormalizedCart {
   const productQuantities = new Map<string, number>()
   const serviceLines: { itemId: string; quantity: number }[] = []
