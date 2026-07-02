@@ -1,24 +1,15 @@
 'use client'
 import { useEffect, useState } from 'react'
 
-// The documented /api/attendance/me contract is checkInAt/checkOutAt as
-// ISO strings, but that route returns the raw Firestore Timestamp via
-// NextResponse.json, which serializes it as {_seconds, _nanoseconds}
-// (verified: it has no toJSON). Accept both shapes here so the widget
-// never renders "Invalid Date" — see task-H8-report.md for the API-side
-// note; not fixed here since API routes are out of scope for this task.
-type SerializedTimestamp = { _seconds: number; _nanoseconds: number }
-
 interface AttendanceMe {
   status: 'checked_in' | 'checked_out'
-  checkInAt: string | SerializedTimestamp
-  checkOutAt: string | SerializedTimestamp | null
+  checkInAt: string
+  checkOutAt: string | null
 }
 
-function formatTime(value: string | SerializedTimestamp | null | undefined): string {
+function formatTime(value: string | null | undefined): string {
   if (!value) return '—'
-  if (typeof value === 'string') return new Date(value).toLocaleTimeString()
-  return new Date(value._seconds * 1000).toLocaleTimeString()
+  return new Date(value).toLocaleTimeString()
 }
 
 export default function AttendanceWidget() {
