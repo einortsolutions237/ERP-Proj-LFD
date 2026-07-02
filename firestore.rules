@@ -55,6 +55,11 @@ service cloud.firestore {
         && request.auth.token.branchId == resource.data.branchId;
       allow write: if false; // all writes go through Admin SDK via /api/stock/movements and /api/stock/transfer
     }
+    match /sales/{saleId} {
+      allow read: if request.auth != null
+        && request.auth.token.branchId == resource.data.branchId;
+      allow write: if false; // all writes go through Admin SDK via /api/sales
+    }
     match /{document=**} {
       allow read, write: if false;
     }
