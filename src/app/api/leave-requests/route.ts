@@ -2,56 +2,13 @@ import { NextResponse } from 'next/server'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { writeAuditLog } from '@/lib/audit/log'
-import type { LeaveType, LeaveStatus } from '@/lib/types/leave-request'
+import type { LeaveType } from '@/lib/types/leave-request'
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0
 }
 
 const LEAVE_TYPES: LeaveType[] = ['annual', 'sick', 'unpaid', 'other']
-const LEAVE_STATUSES: LeaveStatus[] = ['pending', 'approved', 'rejected']
-
-export async function GET(request: Request) {
-  try {
-    const url = new URL(request.url)
-    const mine = url.searchParams.get('mine')
-    const db = getAdminFirestore()
-
-    if (mine === 'true') {
-      const user = await requireCapability('hr.leave.request')
-      const snap = await db
-        .collection('leaveRequests')
-        .where('staffId', '==', user.uid)
-        .orderBy('createdAt', 'desc')
-        .get()
-      return NextResponse.json(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
-    }
-
-    const user = await requireCapability('hr.leave.approve')
-
-    const statusParam = url.searchParams.get('status')
-    if (statusParam !== null && !LEAVE_STATUSES.includes(statusParam as LeaveStatus)) {
-      return NextResponse.json({ error: 'Invalid status filter' }, { status: 400 })
-    }
-
-    let query: FirebaseFirestore.Query =
-      user.role === 'branch_manager'
-        ? db.collection('leaveRequests').where('branchId', '==', user.branchId)
-        : db.collection('leaveRequests')
-
-    if (statusParam !== null) {
-      query = query.where('status', '==', statusParam)
-    }
-
-    query = query.orderBy('createdAt', 'desc')
-
-    const snap = await query.get()
-    return NextResponse.json(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
-  } catch (err) {
-    if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status })
-    throw err
-  }
-}
 
 export async function POST(request: Request) {
   try {
