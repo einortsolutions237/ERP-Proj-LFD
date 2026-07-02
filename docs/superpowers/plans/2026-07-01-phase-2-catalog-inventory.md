@@ -35,6 +35,8 @@ Parameters: 5 failed attempts within a 15-minute rolling window → 15-minute lo
 
 Storage: new Firestore collection `rateLimits/{key}`, Admin-SDK-only (`allow read, write: if false` — no client path at all, not even authenticated reads, since nothing legitimate ever needs to read this).
 
+**Accepted tradeoff (flagged by final review, confirmed):** because the per-email counter locks on the target account regardless of source IP, anyone who knows a `super_admin`/`admin` email can keep that account locked out indefinitely by deliberately failing 5 logins every 15 minutes — the per-IP counter doesn't protect the victim, since the attacker is tripping the *email* key specifically, not the IP key. This is accepted as reasonable for an internal-only ERP with a small, trusted user base; revisit (e.g. IP-only lockout, or a longer cooldown with human-in-the-loop unlock) if this app ever gets a larger or less-trusted admin population.
+
 ```ts
 // rateLimits/{key} shape
 {
