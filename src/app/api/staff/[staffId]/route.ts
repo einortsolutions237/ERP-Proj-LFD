@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { writeAuditLog } from '@/lib/audit/log'
-import { ROLES } from '@/lib/auth/permissions'
+import { ROLES, isBranchLocked } from '@/lib/auth/permissions'
 
 // Fields a caller is ever allowed to change via this endpoint. branchId, uid,
 // createdBy, createdAt are immutable/derived server-side and must never be
@@ -19,9 +19,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ st
     if (!doc.exists) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
     const existing = doc.data()!
-    // Don't reveal that a staff member exists in another branch — same 404 as a
-    // genuinely missing doc.
-    if (existing.branchId !== user.branchId) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    // Only a branch-locked role (e.g. branch_manager) is restricted to its own
+    // branch's staff — that restriction doubles as "don't reveal that a staff
+    // member exists in another branch" via the same 404 as a genuinely missing
+    // doc. A non-branch-locked role (e.g. admin/hr_admin) is org-wide and may
+    // act on any branch's staff doc.
+    if (isBranchLocked(user.role) && existing.branchId !== user.branchId) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
 
     const body = await request.json()
 
@@ -95,9 +100,14 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     if (!doc.exists) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
     const existing = doc.data()!
-    // Don't reveal that a staff member exists in another branch — same 404 as a
-    // genuinely missing doc.
-    if (existing.branchId !== user.branchId) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    // Only a branch-locked role (e.g. branch_manager) is restricted to its own
+    // branch's staff — that restriction doubles as "don't reveal that a staff
+    // member exists in another branch" via the same 404 as a genuinely missing
+    // doc. A non-branch-locked role (e.g. admin/hr_admin) is org-wide and may
+    // act on any branch's staff doc.
+    if (isBranchLocked(user.role) && existing.branchId !== user.branchId) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
     if (existing.role === 'super_admin') {
       return NextResponse.json({ error: 'super_admin cannot be deleted' }, { status: 403 })
     }

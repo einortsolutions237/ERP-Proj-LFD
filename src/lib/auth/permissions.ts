@@ -123,3 +123,14 @@ export function hasCapability(role: RoleId, capability: Capability): boolean {
 export function isSuperAdmin(role: RoleId): boolean {
   return role === 'super_admin'
 }
+
+// Roles whose data access is inherently scoped to a single branch — the
+// opposite of every other role, which operates org-wide. Used anywhere a
+// route must decide "restrict to the caller's own branch" vs. "no
+// restriction" based on role alone, rather than duplicating the same
+// role check per route.
+export const BRANCH_LOCKED_ROLES: RoleId[] = ['branch_manager', 'cashier']
+
+export function isBranchLocked(role: RoleId): boolean {
+  return BRANCH_LOCKED_ROLES.includes(role)
+}

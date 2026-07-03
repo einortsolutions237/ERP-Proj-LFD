@@ -3,7 +3,7 @@ import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { writeAuditLog } from '@/lib/audit/log'
 import { randomBytes } from 'node:crypto'
-import { ROLES } from '@/lib/auth/permissions'
+import { ROLES, isBranchLocked } from '@/lib/auth/permissions'
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0
@@ -12,7 +12,13 @@ function isNonEmptyString(value: unknown): value is string {
 export async function GET() {
   try {
     const user = await requireCapability('admin.staff.view')
-    const snap = await getAdminFirestore().collection('staff').where('branchId', '==', user.branchId).get()
+    // admin.staff.view is granted to ADMIN_HR, none of which are branch-locked
+    // today — but if it's ever also granted to a branch-locked role, that role
+    // must still only see its own branch's staff.
+    const collection = getAdminFirestore().collection('staff')
+    const snap = isBranchLocked(user.role)
+      ? await collection.where('branchId', '==', user.branchId).get()
+      : await collection.get()
     return NextResponse.json(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
   } catch (err) {
     if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status })
