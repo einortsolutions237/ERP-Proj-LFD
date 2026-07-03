@@ -37,86 +37,96 @@ export default function StockTable({ rows, branches, branchId, canAdjust, canTra
 
   return (
     <div className="space-y-3">
-      <table className="w-full text-sm border-collapse">
-        <thead>
-          <tr className="text-left border-b">
-            <th className="py-2 pr-4">Product</th>
-            <th className="py-2 pr-4">SKU</th>
-            <th className="py-2 pr-4">Quantity</th>
-            <th className="py-2 pr-4">Reorder Threshold</th>
-            <th className="py-2 pr-4">Status</th>
-            {showActions && <th className="py-2 pr-4" />}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <Fragment key={row.id}>
-              <tr className="border-b">
-                <td className="py-2 pr-4">{row.productName}</td>
-                <td className="py-2 pr-4">{row.sku}</td>
-                <td className="py-2 pr-4">{row.quantity}</td>
-                <td className="py-2 pr-4">{row.reorderThreshold}</td>
-                <td className="py-2 pr-4">
-                  {row.lowStock ? <span className="text-red-600 font-medium">Low stock</span> : 'OK'}
-                </td>
-                {showActions && (
-                  <td className="py-2 pr-4 space-x-2">
-                    {canAdjust && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setOpenForm(
-                            openForm?.productId === row.productId && openForm.kind === 'adjust'
-                              ? null
-                              : { productId: row.productId, kind: 'adjust' }
-                          )
-                        }
-                        className="underline"
-                      >
-                        Adjust
-                      </button>
-                    )}
-                    {canTransfer && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setOpenForm(
-                            openForm?.productId === row.productId && openForm.kind === 'transfer'
-                              ? null
-                              : { productId: row.productId, kind: 'transfer' }
-                          )
-                        }
-                        className="underline"
-                      >
-                        Transfer
-                      </button>
+      <div className="overflow-hidden rounded-md border border-mist">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-mist/40">
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Product</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">SKU</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Quantity</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Reorder Threshold</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Status</th>
+              {showActions && <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate" />}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-mist">
+            {rows.map((row) => (
+              <Fragment key={row.id}>
+                <tr className="hover:bg-mist/40 transition-colors">
+                  <td className="px-3 py-2 text-ink">{row.productName}</td>
+                  <td className="px-3 py-2 text-ink">{row.sku}</td>
+                  <td className="px-3 py-2 font-mono text-ink">{row.quantity}</td>
+                  <td className="px-3 py-2 font-mono text-ink">{row.reorderThreshold}</td>
+                  <td className="px-3 py-2 text-ink">
+                    {row.lowStock ? (
+                      <span className="inline-block rounded-full bg-danger/10 px-2 py-0.5 text-xs font-medium text-danger">
+                        Low stock
+                      </span>
+                    ) : (
+                      <span className="inline-block rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
+                        OK
+                      </span>
                     )}
                   </td>
+                  {showActions && (
+                    <td className="px-3 py-2 space-x-2">
+                      {canAdjust && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setOpenForm(
+                              openForm?.productId === row.productId && openForm.kind === 'adjust'
+                                ? null
+                                : { productId: row.productId, kind: 'adjust' }
+                            )
+                          }
+                          className="rounded-md border border-mist px-2 py-1 text-sm text-ink transition-colors hover:bg-mist"
+                        >
+                          Adjust
+                        </button>
+                      )}
+                      {canTransfer && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setOpenForm(
+                              openForm?.productId === row.productId && openForm.kind === 'transfer'
+                                ? null
+                                : { productId: row.productId, kind: 'transfer' }
+                            )
+                          }
+                          className="rounded-md border border-mist px-2 py-1 text-sm text-ink transition-colors hover:bg-mist"
+                        >
+                          Transfer
+                        </button>
+                      )}
+                    </td>
+                  )}
+                </tr>
+                {openForm?.productId === row.productId && openForm.kind === 'adjust' && (
+                  <tr className="bg-mist/30">
+                    <td colSpan={showActions ? 6 : 5} className="px-3 py-3">
+                      <StockAdjustForm productId={row.productId} branchId={branchId} onDone={handleDone} />
+                    </td>
+                  </tr>
                 )}
-              </tr>
-              {openForm?.productId === row.productId && openForm.kind === 'adjust' && (
-                <tr className="border-b bg-zinc-50">
-                  <td colSpan={showActions ? 6 : 5} className="py-3 pr-4">
-                    <StockAdjustForm productId={row.productId} branchId={branchId} onDone={handleDone} />
-                  </td>
-                </tr>
-              )}
-              {openForm?.productId === row.productId && openForm.kind === 'transfer' && (
-                <tr className="border-b bg-zinc-50">
-                  <td colSpan={showActions ? 6 : 5} className="py-3 pr-4">
-                    <StockTransferForm
-                      productId={row.productId}
-                      sourceBranchId={branchId}
-                      destinationBranches={branches}
-                      onDone={handleDone}
-                    />
-                  </td>
-                </tr>
-              )}
-            </Fragment>
-          ))}
-        </tbody>
-      </table>
+                {openForm?.productId === row.productId && openForm.kind === 'transfer' && (
+                  <tr className="bg-mist/30">
+                    <td colSpan={showActions ? 6 : 5} className="px-3 py-3">
+                      <StockTransferForm
+                        productId={row.productId}
+                        sourceBranchId={branchId}
+                        destinationBranches={branches}
+                        onDone={handleDone}
+                      />
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

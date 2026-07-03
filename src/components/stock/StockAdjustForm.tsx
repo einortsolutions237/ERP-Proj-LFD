@@ -56,11 +56,11 @@ export default function StockAdjustForm({ productId, branchId, onDone }: StockAd
   return (
     <form onSubmit={handleSubmit} className="max-w-sm space-y-3">
       <div>
-        <label className="block text-sm font-medium">Type</label>
+        <label className="block text-sm font-medium text-ink">Type</label>
         <select
           value={type}
           onChange={(e) => setType(e.target.value as typeof type)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
         >
           <option value="restock">Restock</option>
           <option value="adjustment">Adjustment</option>
@@ -69,11 +69,11 @@ export default function StockAdjustForm({ productId, branchId, onDone }: StockAd
       </div>
       {type === 'adjustment' && (
         <div>
-          <label className="block text-sm font-medium">Direction</label>
+          <label className="block text-sm font-medium text-ink">Direction</label>
           <select
             value={direction}
             onChange={(e) => setDirection(e.target.value as AdjustDirection)}
-            className="w-full border rounded px-3 py-2"
+            className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
           >
             <option value="increase">Increase</option>
             <option value="decrease">Decrease</option>
@@ -81,7 +81,7 @@ export default function StockAdjustForm({ productId, branchId, onDone }: StockAd
         </div>
       )}
       <div>
-        <label className="block text-sm font-medium">Quantity</label>
+        <label className="block text-sm font-medium text-ink">Quantity</label>
         <input
           required
           type="number"
@@ -89,19 +89,23 @@ export default function StockAdjustForm({ productId, branchId, onDone }: StockAd
           step={1}
           value={magnitude}
           onChange={(e) => setMagnitude(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 font-mono text-ink focus:border-marine"
         />
       </div>
       <div>
-        <label className="block text-sm font-medium">Reason (optional)</label>
+        <label className="block text-sm font-medium text-ink">Reason (optional)</label>
         <input
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
         />
       </div>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-      <button type="submit" disabled={submitting} className="bg-black text-white rounded px-3 py-2 disabled:opacity-50">
+      {error && <p className="text-sm text-danger">{error}</p>}
+      <button
+        type="submit"
+        disabled={submitting}
+        className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+      >
         Submit
       </button>
     </form>

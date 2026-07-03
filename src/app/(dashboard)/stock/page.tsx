@@ -54,7 +54,7 @@ export default async function StockPage() {
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-6">
-      <h1 className="text-xl font-semibold">Stock</h1>
+      <h1 className="font-display text-2xl font-semibold text-ink">Stock</h1>
       <StockTable
         rows={rows}
         branches={branches}

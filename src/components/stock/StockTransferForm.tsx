@@ -63,12 +63,12 @@ export default function StockTransferForm({
   return (
     <form onSubmit={handleSubmit} className="max-w-sm space-y-3">
       <div>
-        <label className="block text-sm font-medium">Destination branch</label>
+        <label className="block text-sm font-medium text-ink">Destination branch</label>
         <select
           required
           value={destBranchId}
           onChange={(e) => setDestBranchId(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
         >
           <option value="" disabled>
             Select a branch…
@@ -81,7 +81,7 @@ export default function StockTransferForm({
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium">Quantity</label>
+        <label className="block text-sm font-medium text-ink">Quantity</label>
         <input
           required
           type="number"
@@ -89,19 +89,23 @@ export default function StockTransferForm({
           step={1}
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 font-mono text-ink focus:border-marine"
         />
       </div>
       <div>
-        <label className="block text-sm font-medium">Reason (optional)</label>
+        <label className="block text-sm font-medium text-ink">Reason (optional)</label>
         <input
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
         />
       </div>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-      <button type="submit" disabled={submitting} className="bg-black text-white rounded px-3 py-2 disabled:opacity-50">
+      {error && <p className="text-sm text-danger">{error}</p>}
+      <button
+        type="submit"
+        disabled={submitting}
+        className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+      >
         Submit
       </button>
     </form>
