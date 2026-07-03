@@ -11,7 +11,7 @@ export const STRICT_AUDIT_ROLES: RoleId[] = ['super_admin', 'admin']
 // Every future module the permission system will gate. Phase 1 only implements
 // capabilities for 'admin' — the other modules are reserved so the shape exists
 // without building screens ahead of scope.
-export const MODULES = ['admin', 'pos', 'inventory', 'crm', 'accounting', 'hr'] as const
+export const MODULES = ['admin', 'pos', 'inventory', 'crm', 'accounting', 'hr', 'reporting'] as const
 
 export type ModuleId = typeof MODULES[number]
 
@@ -37,6 +37,8 @@ export type Capability =
   | 'hr.leave.approve'
   | 'hr.attendance.self'
   | 'hr.attendance.view'
+  | 'reports.sales.view'
+  | 'reports.inventory.view'
   // accounting.* — no capabilities defined yet;
   // add them here when the module is actually built.
 
@@ -66,6 +68,8 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'hr.leave.approve': 'hr',
   'hr.attendance.self': 'hr',
   'hr.attendance.view': 'hr',
+  'reports.sales.view': 'reporting',
+  'reports.inventory.view': 'reporting',
 }
 
 const ALL_ROLES: RoleId[] = [...ROLES]
@@ -80,6 +84,7 @@ const CASHIER_BRANCH_MGR: RoleId[] = ['super_admin', 'admin', 'branch_manager', 
 // ADMIN_IT is duplicated in firestore.rules' `auditLogs` match (admin.auditLog.view) —
 // Firestore rules can't import this constant, so update both together.
 const ADMIN_IT: RoleId[] = ['super_admin', 'admin', 'it_admin']
+const REPORTS_ROLES: RoleId[] = ['super_admin', 'admin', 'branch_manager', 'finance_admin']
 
 export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'admin.staff.view': ADMIN_HR,
@@ -107,6 +112,8 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'hr.leave.approve': APPROVER_ROLES,
   'hr.attendance.self': ALL_ROLES,
   'hr.attendance.view': APPROVER_ROLES,
+  'reports.sales.view': REPORTS_ROLES,
+  'reports.inventory.view': REPORTS_ROLES,
 }
 
 export function hasCapability(role: RoleId, capability: Capability): boolean {
