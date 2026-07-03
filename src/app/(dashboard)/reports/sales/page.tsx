@@ -49,7 +49,7 @@ export default async function SalesReportPage({
   const csv = report
     ? toCsv(
         ['Type', 'Name', 'Quantity', 'Revenue'],
-        report.topSellers.map((item) => [item.type, item.name, item.quantity, item.revenue])
+        report.topSellers.map((item) => [item.type, item.name, item.quantity, item.revenue.toFixed(2)])
       )
     : ''
 

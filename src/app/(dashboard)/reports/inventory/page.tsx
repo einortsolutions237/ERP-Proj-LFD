@@ -25,7 +25,7 @@ export default async function InventoryReportPage() {
       row.quantity,
       row.reorderThreshold,
       row.lowStock ? 'yes' : 'no',
-      row.value,
+      row.value.toFixed(2),
     ])
   )
 
