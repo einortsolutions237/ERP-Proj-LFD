@@ -16,7 +16,7 @@ export default async function NewProductPage() {
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-6">
-      <h1 className="text-xl font-semibold">Add product</h1>
+      <h1 className="font-display text-2xl font-semibold text-ink">Add product</h1>
       <ProductForm mode="create" suppliers={suppliers} />
     </div>
   )
