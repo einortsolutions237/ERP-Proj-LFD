@@ -1,12 +1,19 @@
-import { initializeApp, getApps, getApp } from 'firebase-admin/app'
+import { initializeApp, getApps, type App } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 
 // Inside the Cloud Functions runtime, initializeApp() with no args picks up
 // the environment's implicit default credentials (unlike the Next.js app on
 // Vercel, which needs an explicit cert() — see src/lib/firebase/admin.ts).
-function getFunctionsApp() {
-  if (getApps().length) return getApp()
-  return initializeApp()
+//
+// Deliberately NOT getApp() here: confirmed live (2026-07-03 functional
+// test) that the Cloud Functions v2 runtime can have a pre-existing
+// registered app that ISN'T named "[DEFAULT]" — getApps().length is then
+// truthy, but getApp() (which looks up "[DEFAULT]" specifically) throws
+// "The default Firebase app does not exist" even though an app is present.
+// Grabbing getApps()[0] sidesteps the name lookup entirely.
+function getFunctionsApp(): App {
+  const existing = getApps()
+  return existing.length > 0 ? existing[0] : initializeApp()
 }
 
 // This project's Firestore database has the explicit name "default", not the
