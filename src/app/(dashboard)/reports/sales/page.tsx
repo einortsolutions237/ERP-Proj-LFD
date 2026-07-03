@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { buildSalesReport, ReportValidationError } from '@/lib/reports/sales'
 import { toCsv } from '@/lib/csv'
@@ -7,9 +8,14 @@ import DownloadCsvButton from '@/components/reports/DownloadCsvButton'
 export default async function SalesReportPage({
   searchParams,
 }: {
-  searchParams: Promise<{ startDate?: string; endDate?: string }>
+  searchParams: Promise<{ startDate?: string; endDate?: string; sortBy?: string }>
 }) {
-  const { startDate: startParam, endDate: endParam } = await searchParams
+  const { startDate: startParam, endDate: endParam, sortBy: sortByParam } = await searchParams
+
+  // Sorting top-sellers is a display concern, not an aggregation concern —
+  // buildSalesReport always returns topSellers sorted by revenue descending;
+  // resolve the requested sort here and apply it to a copy before rendering.
+  const sortBy: 'revenue' | 'quantity' = sortByParam === 'quantity' ? 'quantity' : 'revenue'
 
   let user
   try {
@@ -42,6 +48,21 @@ export default async function SalesReportPage({
   const startValue = report ? report.range.start.slice(0, 10) : startParam ?? ''
   const endValue = report ? report.range.end.slice(0, 10) : endParam ?? ''
 
+  // Copy before sorting — buildSalesReport's own topSellers array (sorted by
+  // revenue) is never mutated. Rendered table and CSV both use this sorted
+  // copy so their row order always matches.
+  const sortedTopSellers = report ? [...report.topSellers].sort((a, b) => b[sortBy] - a[sortBy]) : []
+
+  // Preserve the current date range when toggling sort order, so switching
+  // sort doesn't drop the applied filter.
+  const sortLinkParams = (nextSortBy: 'revenue' | 'quantity') => {
+    const params = new URLSearchParams()
+    if (startParam) params.set('startDate', startParam)
+    if (endParam) params.set('endDate', endParam)
+    params.set('sortBy', nextSortBy)
+    return `?${params.toString()}`
+  }
+
   // CSV shape: one row per top-seller (product/service, quantity, revenue).
   // This is the most granular per-row breakdown the report exposes and the
   // brief's first suggested example; byBranch/byPaymentMethod are already
@@ -49,7 +70,7 @@ export default async function SalesReportPage({
   const csv = report
     ? toCsv(
         ['Type', 'Name', 'Quantity', 'Revenue'],
-        report.topSellers.map((item) => [item.type, item.name, item.quantity, item.revenue.toFixed(2)])
+        sortedTopSellers.map((item) => [item.type, item.name, item.quantity, item.revenue.toFixed(2)])
       )
     : ''
 
@@ -162,7 +183,25 @@ export default async function SalesReportPage({
 
           <section>
             <h2 className="text-lg font-semibold mb-2">Top sellers</h2>
-            {report.topSellers.length === 0 ? (
+            <p className="text-sm mb-2">
+              Sort by:{' '}
+              {sortBy === 'revenue' ? (
+                <span>Revenue</span>
+              ) : (
+                <Link href={sortLinkParams('revenue')} className="underline">
+                  Revenue
+                </Link>
+              )}
+              {' | '}
+              {sortBy === 'quantity' ? (
+                <span>Quantity</span>
+              ) : (
+                <Link href={sortLinkParams('quantity')} className="underline">
+                  Quantity
+                </Link>
+              )}
+            </p>
+            {sortedTopSellers.length === 0 ? (
               <p className="text-sm text-gray-500">No items sold in this range.</p>
             ) : (
               <table className="w-full text-sm border-collapse">
@@ -175,7 +214,7 @@ export default async function SalesReportPage({
                   </tr>
                 </thead>
                 <tbody>
-                  {report.topSellers.map((row) => (
+                  {sortedTopSellers.map((row) => (
                     <tr key={`${row.type}:${row.itemId}`} className="border-b">
                       <td className="py-2 pr-4">{row.type}</td>
                       <td className="py-2 pr-4">{row.name}</td>
