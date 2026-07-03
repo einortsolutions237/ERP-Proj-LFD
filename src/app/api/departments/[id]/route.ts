@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
+import { isBranchLocked } from '@/lib/auth/permissions'
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0
@@ -21,9 +22,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (!doc.exists) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
     const existing = doc.data()!
-    // Don't reveal that a department exists in another branch — same 404 as a
-    // genuinely missing doc.
-    if (existing.branchId !== user.branchId) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    // Only a branch-locked role (e.g. branch_manager) is restricted to its own
+    // branch's departments — that restriction doubles as "don't reveal that a
+    // department exists in another branch" via the same 404 as a genuinely
+    // missing doc. A non-branch-locked role (e.g. admin/super_admin) is
+    // org-wide and may act on any branch's department doc.
+    if (isBranchLocked(user.role) && existing.branchId !== user.branchId) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
 
     const body = await request.json()
 
@@ -57,9 +63,14 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     if (!doc.exists) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
     const existing = doc.data()!
-    // Don't reveal that a department exists in another branch — same 404 as a
-    // genuinely missing doc.
-    if (existing.branchId !== user.branchId) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    // Only a branch-locked role (e.g. branch_manager) is restricted to its own
+    // branch's departments — that restriction doubles as "don't reveal that a
+    // department exists in another branch" via the same 404 as a genuinely
+    // missing doc. A non-branch-locked role (e.g. admin/super_admin) is
+    // org-wide and may act on any branch's department doc.
+    if (isBranchLocked(user.role) && existing.branchId !== user.branchId) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
 
     await docRef.delete()
 
