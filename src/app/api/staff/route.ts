@@ -40,6 +40,28 @@ export async function POST(request: Request) {
 
     const auth = getAdminAuth()
     const db = getAdminFirestore()
+
+    // branch_manager/cashier are branch-locked roles. Even though neither can
+    // reach this route today via admin.staff.create (only ADMIN_HR can), a
+    // client-supplied branchId must never be able to override user.branchId
+    // for a branch-locked role — the same "never let a client-supplied value
+    // silently override a server-controlled field" reasoning that already
+    // excludes branchId from EDITABLE_FIELDS on the sibling edit route.
+    const BRANCH_LOCKED = user.role === 'branch_manager' || user.role === 'cashier'
+
+    let targetBranchId = user.branchId
+    if (!BRANCH_LOCKED && 'branchId' in body && body.branchId !== undefined && body.branchId !== null) {
+      if (!isNonEmptyString(body.branchId)) {
+        return NextResponse.json({ error: 'branchId must be a non-empty string' }, { status: 400 })
+      }
+      const requestedBranchId = body.branchId.trim()
+      const branchSnap = await db.collection('branches').doc(requestedBranchId).get()
+      if (!branchSnap.exists) {
+        return NextResponse.json({ error: 'branchId does not reference an existing branch' }, { status: 400 })
+      }
+      targetBranchId = requestedBranchId
+    }
+
     const tempPassword = randomBytes(18).toString('base64url')
     // Create the Auth user first, but do NOT set custom claims yet — until the
     // Firestore doc is written, this account has no role/branchId claims, so
@@ -52,7 +74,7 @@ export async function POST(request: Request) {
       email: body.email,
       name: body.name,
       role: body.role,
-      branchId: user.branchId,
+      branchId: targetBranchId,
       department: body.department ?? null,
       contact: body.contact ?? { phone: null, address: null },
       emergencyContact: body.emergencyContact ?? { name: null, phone: null, relationship: null },
@@ -73,7 +95,7 @@ export async function POST(request: Request) {
     }
 
     try {
-      await auth.setCustomUserClaims(userRecord.uid, { role: body.role, branchId: user.branchId, superAdmin: false })
+      await auth.setCustomUserClaims(userRecord.uid, { role: body.role, branchId: targetBranchId, superAdmin: false })
     } catch (claimsErr) {
       // Firestore doc and Auth user are both now inconsistent — remove both
       // rather than leave a claims-less orphan behind.
@@ -82,7 +104,7 @@ export async function POST(request: Request) {
       throw claimsErr
     }
 
-    await writeAuditLog({ action: 'staff_create', actorUid: user.uid, actorEmail: user.email, targetUid: userRecord.uid, branchId: user.branchId })
+    await writeAuditLog({ action: 'staff_create', actorUid: user.uid, actorEmail: user.email, targetUid: userRecord.uid, branchId: targetBranchId })
 
     return NextResponse.json({ uid: userRecord.uid, tempPassword }, { status: 201 })
   } catch (err) {
