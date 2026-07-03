@@ -38,43 +38,55 @@ export default function ServiceTable({ services }: { services: ServiceRow[] }) {
 
   return (
     <div className="space-y-3">
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-      <table className="w-full text-sm border-collapse">
-        <thead>
-          <tr className="text-left border-b">
-            <th className="py-2 pr-4">Name</th>
-            <th className="py-2 pr-4">Category</th>
-            <th className="py-2 pr-4">Price</th>
-            <th className="py-2 pr-4">Duration (min)</th>
-            <th className="py-2 pr-4">Status</th>
-            <th className="py-2 pr-4" />
-          </tr>
-        </thead>
-        <tbody>
-          {services.map((row) => (
-            <tr key={row.id} className="border-b">
-              <td className="py-2 pr-4">{row.name}</td>
-              <td className="py-2 pr-4">{row.category}</td>
-              <td className="py-2 pr-4">{row.price.toFixed(2)}</td>
-              <td className="py-2 pr-4">{row.durationMinutes}</td>
-              <td className="py-2 pr-4">{row.active ? 'active' : 'inactive'}</td>
-              <td className="py-2 pr-4 space-x-2">
-                <Link href={`/services/${row.id}`} className="underline">
-                  Edit
-                </Link>
-                <button
-                  type="button"
-                  disabled={deletingId === row.id}
-                  onClick={() => handleDelete(row)}
-                  className="text-red-600 underline disabled:text-gray-400 disabled:no-underline"
-                >
-                  Delete
-                </button>
-              </td>
+      {error && <p className="text-sm text-danger">{error}</p>}
+      <div className="overflow-hidden rounded-md border border-mist">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-mist/40">
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Name</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Category</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Price</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Duration (min)</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Status</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate" />
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-mist">
+            {services.map((row) => (
+              <tr key={row.id} className="hover:bg-mist/40 transition-colors">
+                <td className="px-3 py-2 text-ink">{row.name}</td>
+                <td className="px-3 py-2 text-ink">{row.category}</td>
+                <td className="px-3 py-2 font-mono text-ink">{row.price.toFixed(2)}</td>
+                <td className="px-3 py-2 font-mono text-ink">{row.durationMinutes}</td>
+                <td className="px-3 py-2 text-ink">
+                  {row.active ? (
+                    <span className="inline-block rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
+                      active
+                    </span>
+                  ) : (
+                    <span className="inline-block rounded-full bg-slate/10 px-2 py-0.5 text-xs font-medium text-slate">
+                      inactive
+                    </span>
+                  )}
+                </td>
+                <td className="px-3 py-2 space-x-3">
+                  <Link href={`/services/${row.id}`} className="text-marine underline-offset-2 hover:underline">
+                    Edit
+                  </Link>
+                  <button
+                    type="button"
+                    disabled={deletingId === row.id}
+                    onClick={() => handleDelete(row)}
+                    className="text-danger underline-offset-2 hover:underline disabled:text-slate disabled:no-underline"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
