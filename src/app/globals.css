@@ -9,6 +9,7 @@
   --color-slate: #5b6470;
   --color-success: #1e7a4c;
   --color-danger: #b23a3a;
+  --color-tender-orange: #e8631b;
 
   /* Conventional Tailwind v4 names other utilities may already reference. */
   --color-background: var(--color-paper);

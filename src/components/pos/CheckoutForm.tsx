@@ -32,6 +32,44 @@ const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   orange_money: 'Orange Money',
 }
 
+// Tender-chip background per payment method — cash stays deliberately quiet
+// (neutral default), the two mobile-money brands lean on their approved
+// tokens for real color identity (see design brief, Phase 9 Task 3).
+const TENDER_CHIP_CARD: Record<PaymentMethod, string> = {
+  cash: 'bg-mist text-ink',
+  mtn_momo: 'bg-brass text-ink',
+  orange_money: 'bg-tender-orange text-ink',
+}
+
+// Small geometric glyphs — not the real MTN/Orange logos, just an abstract
+// mark to give each mobile-money chip a distinct silhouette at a glance.
+function TenderGlyph({ method, className }: { method: 'mtn_momo' | 'orange_money'; className?: string }) {
+  const shared = {
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.8,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+    'aria-hidden': true as const,
+    className,
+  }
+  if (method === 'mtn_momo') {
+    return (
+      <svg {...shared}>
+        <path d="M12 3 20 12 12 21 4 12z" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+    )
+  }
+  return (
+    <svg {...shared}>
+      <path d="M12 3l7.8 4.5v9L12 21l-7.8-4.5v-9z" />
+      <circle cx="12" cy="12" r="2.6" />
+    </svg>
+  )
+}
+
 export default function CheckoutForm({ products, services, customers }: CheckoutFormProps) {
   const router = useRouter()
 
@@ -132,7 +170,7 @@ export default function CheckoutForm({ products, services, customers }: Checkout
       })
       const body = await res.json()
       if (!res.ok) {
-        setQuickAddError(body.error ?? 'Customer could not be created')
+        setQuickAddError(body.error ?? 'Customer could not be created — check your connection and try again.')
         setQuickAddSubmitting(false)
         return
       }
@@ -140,7 +178,7 @@ export default function CheckoutForm({ products, services, customers }: Checkout
       selectCustomer(body.id)
       setQuickAddSubmitting(false)
     } catch {
-      setQuickAddError('Customer could not be created')
+      setQuickAddError('Customer could not be created — check your connection and try again.')
       setQuickAddSubmitting(false)
     }
   }
@@ -164,41 +202,43 @@ export default function CheckoutForm({ products, services, customers }: Checkout
       })
       const body = await res.json()
       if (!res.ok) {
-        setError(body.error ?? 'Sale could not be completed')
+        setError(body.error ?? 'Sale could not be completed — check your connection and try again.')
         setSubmitting(false)
         return
       }
       router.push(`/pos/sales/${body.id}`)
     } catch {
-      setError('Sale could not be completed')
+      setError('Sale could not be completed — check your connection and try again.')
       setSubmitting(false)
     }
   }
 
+  const submitDisabled = submitting || cart.length === 0 || Math.abs(balanceDue) >= 0.01
+
   return (
-    <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">
+    <form onSubmit={handleSubmit} className="grid gap-6 pb-24 md:grid-cols-2 md:pb-0">
       <div className="space-y-3">
         <div>
-          <label className="block text-sm font-medium">Search</label>
+          <label className="block text-sm font-medium text-ink">Search</label>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search products or services…"
-            className="w-full border rounded px-3 py-2"
+            className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
           />
         </div>
-        <div className="border rounded divide-y max-h-96 overflow-y-auto">
+        <div className="max-h-96 divide-y divide-mist overflow-y-auto rounded-md border border-mist bg-paper">
           {filteredProducts.map((product) => (
             <button
               key={product.id}
               type="button"
               onClick={() => addProduct(product)}
-              className="w-full text-left px-3 py-2 hover:bg-gray-50 flex items-center justify-between"
+              className="flex w-full items-center justify-between px-3 py-2 text-left transition-colors hover:bg-mist"
             >
-              <span>
-                {product.name} <span className="text-gray-500 text-sm">({product.sku})</span>
+              <span className="text-ink">
+                {product.name} <span className="text-sm text-slate">({product.sku})</span>
               </span>
-              <span className="text-sm text-gray-500">
+              <span className="font-mono text-sm text-slate">
                 {product.price.toFixed(2)} · qty {product.quantity}
               </span>
             </button>
@@ -208,48 +248,52 @@ export default function CheckoutForm({ products, services, customers }: Checkout
               key={service.id}
               type="button"
               onClick={() => addService(service)}
-              className="w-full text-left px-3 py-2 hover:bg-gray-50 flex items-center justify-between"
+              className="flex w-full items-center justify-between px-3 py-2 text-left transition-colors hover:bg-mist"
             >
-              <span>{service.name}</span>
-              <span className="text-sm text-gray-500">{service.price.toFixed(2)}</span>
+              <span className="text-ink">{service.name}</span>
+              <span className="font-mono text-sm text-slate">{service.price.toFixed(2)}</span>
             </button>
           ))}
           {filteredProducts.length === 0 && filteredServices.length === 0 && (
-            <p className="px-3 py-2 text-sm text-gray-500">No matches</p>
+            <p className="px-3 py-2 text-sm text-slate">No products or services match your search.</p>
           )}
         </div>
       </div>
 
       <div className="space-y-4">
-        <div className="border rounded p-3 space-y-2">
-          <label className="block text-sm font-medium">Customer</label>
+        <div className="space-y-2 rounded-md border border-mist bg-paper p-3">
+          <label className="block text-sm font-medium text-ink">Customer</label>
           {!customerPickerOpen && (
             <div className="flex items-center justify-between gap-2">
               {selectedCustomer ? (
                 <>
-                  <span className="text-sm">
-                    {selectedCustomer.name} <span className="text-gray-500">({selectedCustomer.phone})</span>
+                  <span className="text-sm text-ink">
+                    {selectedCustomer.name} <span className="text-slate">({selectedCustomer.phone})</span>
                   </span>
                   <div className="flex gap-2">
                     <button
                       type="button"
                       onClick={() => setCustomerPickerOpen(true)}
-                      className="text-sm border rounded px-2 py-1"
+                      className="rounded-md border border-mist px-2 py-1 text-sm text-ink transition-colors hover:bg-mist"
                     >
                       Change
                     </button>
-                    <button type="button" onClick={removeCustomer} className="text-sm text-red-600 border rounded px-2 py-1">
+                    <button
+                      type="button"
+                      onClick={removeCustomer}
+                      className="rounded-md border border-mist px-2 py-1 text-sm text-danger transition-colors hover:bg-mist"
+                    >
                       Remove
                     </button>
                   </div>
                 </>
               ) : (
                 <>
-                  <span className="text-sm text-gray-500">Walk-in</span>
+                  <span className="text-sm text-slate">Walk-in</span>
                   <button
                     type="button"
                     onClick={() => setCustomerPickerOpen(true)}
-                    className="text-sm border rounded px-2 py-1"
+                    className="rounded-md border border-mist px-2 py-1 text-sm text-ink transition-colors hover:bg-mist"
                   >
                     Attach customer
                   </button>
@@ -265,53 +309,53 @@ export default function CheckoutForm({ products, services, customers }: Checkout
                   value={customerSearch}
                   onChange={(e) => setCustomerSearch(e.target.value)}
                   placeholder="Search name or phone…"
-                  className="flex-1 border rounded px-3 py-2"
+                  className="flex-1 rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
                 />
                 <button
                   type="button"
                   onClick={() => setCustomerPickerOpen(false)}
-                  className="text-sm border rounded px-2 py-1"
+                  className="rounded-md border border-mist px-2 py-1 text-sm text-ink transition-colors hover:bg-mist"
                 >
                   Close
                 </button>
               </div>
-              <div className="border rounded divide-y max-h-40 overflow-y-auto">
+              <div className="max-h-40 divide-y divide-mist overflow-y-auto rounded-md border border-mist">
                 {filteredCustomers.map((c) => (
                   <button
                     key={c.id}
                     type="button"
                     onClick={() => selectCustomer(c.id)}
-                    className="w-full text-left px-3 py-2 hover:bg-gray-50 flex items-center justify-between"
+                    className="flex w-full items-center justify-between px-3 py-2 text-left transition-colors hover:bg-mist"
                   >
-                    <span>{c.name}</span>
-                    <span className="text-sm text-gray-500">{c.phone}</span>
+                    <span className="text-ink">{c.name}</span>
+                    <span className="text-sm text-slate">{c.phone}</span>
                   </button>
                 ))}
                 {filteredCustomers.length === 0 && (
-                  <p className="px-3 py-2 text-sm text-gray-500">No matches</p>
+                  <p className="px-3 py-2 text-sm text-slate">No matches</p>
                 )}
               </div>
 
-              <div className="border-t pt-3 space-y-2">
-                <p className="text-sm font-medium">Quick add</p>
+              <div className="space-y-2 border-t border-mist pt-3">
+                <p className="text-sm font-medium text-ink">Quick add</p>
                 <input
                   value={quickAddName}
                   onChange={(e) => setQuickAddName(e.target.value)}
                   placeholder="Name"
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
                 />
                 <input
                   value={quickAddPhone}
                   onChange={(e) => setQuickAddPhone(e.target.value)}
                   placeholder="Phone"
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
                 />
-                {quickAddError && <p className="text-red-600 text-sm">{quickAddError}</p>}
+                {quickAddError && <p className="text-sm text-danger">{quickAddError}</p>}
                 <button
                   type="button"
                   onClick={handleQuickAdd}
                   disabled={quickAddSubmitting || !quickAddName.trim() || !quickAddPhone.trim()}
-                  className="bg-black text-white rounded px-3 py-2 disabled:opacity-50"
+                  className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
                 >
                   Add customer
                 </button>
@@ -320,111 +364,136 @@ export default function CheckoutForm({ products, services, customers }: Checkout
           )}
         </div>
 
-        <div className="border rounded divide-y">
-          {cart.length === 0 && <p className="px-3 py-2 text-sm text-gray-500">Cart is empty</p>}
-          {cart.map((line, index) => (
-            <div key={`${line.type}-${line.itemId}-${index}`} className="px-3 py-2 flex items-center justify-between gap-2">
-              <div className="flex-1">
-                <p className="text-sm">{line.name}</p>
-                <p className="text-xs text-gray-500">{line.unitPrice.toFixed(2)} each</p>
-              </div>
-              {line.type === 'product' ? (
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => setLineQuantity(index, line.quantity - 1)}
-                    className="border rounded px-2"
-                  >
-                    −
-                  </button>
-                  <input
-                    type="number"
-                    min={1}
-                    step={1}
-                    value={line.quantity}
-                    onChange={(e) => setLineQuantity(index, Number(e.target.value))}
-                    className="w-14 border rounded px-2 py-1 text-center"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setLineQuantity(index, line.quantity + 1)}
-                    className="border rounded px-2"
-                  >
-                    +
-                  </button>
+        <div className="space-y-2">
+          <h2 className="font-display text-sm font-semibold uppercase tracking-wide text-ink">Cart</h2>
+          <div className="divide-y divide-mist rounded-md border border-mist">
+            {cart.length === 0 && (
+              <p className="px-3 py-2 text-sm text-slate">
+                Cart is empty — search for a product or service to add one.
+              </p>
+            )}
+            {cart.map((line, index) => (
+              <div key={`${line.type}-${line.itemId}-${index}`} className="flex items-center justify-between gap-2 px-3 py-2">
+                <div className="flex-1">
+                  <p className="text-sm text-ink">{line.name}</p>
+                  <p className="font-mono text-xs text-slate">{line.unitPrice.toFixed(2)} each</p>
                 </div>
-              ) : (
-                <span className="text-sm text-gray-500">qty 1</span>
-              )}
-              <p className="w-20 text-right text-sm">{(line.unitPrice * line.quantity).toFixed(2)}</p>
-              <button type="button" onClick={() => removeLine(index)} className="text-red-600 px-2">
-                ×
-              </button>
-            </div>
-          ))}
+                {line.type === 'product' ? (
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setLineQuantity(index, line.quantity - 1)}
+                      className="rounded-md border border-mist px-2 text-ink transition-colors hover:bg-mist"
+                    >
+                      −
+                    </button>
+                    <input
+                      type="number"
+                      min={1}
+                      step={1}
+                      value={line.quantity}
+                      onChange={(e) => setLineQuantity(index, Number(e.target.value))}
+                      className="w-14 rounded-md border border-mist px-2 py-1 text-center font-mono text-ink"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setLineQuantity(index, line.quantity + 1)}
+                      className="rounded-md border border-mist px-2 text-ink transition-colors hover:bg-mist"
+                    >
+                      +
+                    </button>
+                  </div>
+                ) : (
+                  <span className="font-mono text-sm text-slate">qty 1</span>
+                )}
+                <p className="w-20 text-right font-mono text-sm text-ink">{(line.unitPrice * line.quantity).toFixed(2)}</p>
+                <button type="button" onClick={() => removeLine(index)} className="px-2 text-danger">
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Discount</label>
+          <label className="block text-sm font-medium text-ink">Discount</label>
           <input
             type="number"
             min={0}
             step="0.01"
             value={discountAmount}
             onChange={(e) => setDiscountAmount(e.target.value)}
-            className="w-full border rounded px-3 py-2"
+            className="w-full rounded-md border border-mist bg-paper px-3 py-2 font-mono text-ink focus:border-marine"
           />
         </div>
 
-        <div className="text-sm space-y-1">
+        <div className="space-y-1 rounded-md border border-mist bg-mist/40 p-3 text-sm text-ink">
           <div className="flex justify-between">
             <span>Subtotal</span>
-            <span>{subtotal.toFixed(2)}</span>
+            <span className="font-mono">{subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between">
             <span>Discount</span>
-            <span>-{discount.toFixed(2)}</span>
+            <span className="font-mono">-{discount.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between font-semibold">
+          <div className="flex justify-between border-t border-mist pt-1 font-semibold">
             <span>Total</span>
-            <span>{total.toFixed(2)}</span>
+            <span className="font-mono">{total.toFixed(2)}</span>
           </div>
         </div>
 
         <div className="space-y-2">
-          <label className="block text-sm font-medium">Payment</label>
-          {payments.map((p) => (
-            <div key={p.method} className="flex items-center gap-2">
-              <span className="w-28 text-sm">{PAYMENT_METHOD_LABELS[p.method]}</span>
-              <input
-                type="number"
-                min={0}
-                step="0.01"
-                value={p.amount}
-                onChange={(e) => updatePayment(p.method, 'amount', e.target.value)}
-                className="w-28 border rounded px-3 py-2"
-              />
-              {(p.method === 'mtn_momo' || p.method === 'orange_money') && (
-                <input
-                  value={p.reference}
-                  onChange={(e) => updatePayment(p.method, 'reference', e.target.value)}
-                  placeholder="Reference"
-                  className="flex-1 border rounded px-3 py-2"
-                />
-              )}
-            </div>
-          ))}
-          <div className="flex justify-between text-sm">
+          <h2 className="font-display text-sm font-semibold uppercase tracking-wide text-ink">Payment</h2>
+          <div className="space-y-2">
+            {payments.map((p) => {
+              const hasAmount = Number(p.amount) > 0
+              return (
+                <div key={p.method} className={`relative overflow-hidden rounded-md p-3 ${TENDER_CHIP_CARD[p.method]}`}>
+                  {p.method === 'cash' && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute right-0 top-0 h-4 w-4 bg-paper/70"
+                      style={{ clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }}
+                    />
+                  )}
+                  <div className="mb-2 flex items-center gap-1.5">
+                    {p.method !== 'cash' && <TenderGlyph method={p.method} className="h-4 w-4 opacity-70" />}
+                    <span className="text-sm font-medium">{PAYMENT_METHOD_LABELS[p.method]}</span>
+                  </div>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={p.amount}
+                    onChange={(e) => updatePayment(p.method, 'amount', e.target.value)}
+                    className={`w-full rounded-md border bg-paper px-3 py-2 font-mono text-ink focus:border-marine ${
+                      hasAmount ? 'border-ink/30 shadow-[inset_0_1px_5px_rgba(0,0,0,0.35)]' : 'border-mist'
+                    }`}
+                  />
+                  {(p.method === 'mtn_momo' || p.method === 'orange_money') && (
+                    <input
+                      value={p.reference}
+                      onChange={(e) => updatePayment(p.method, 'reference', e.target.value)}
+                      placeholder="Reference"
+                      className="mt-2 w-full rounded-md border border-mist bg-paper px-3 py-2 text-sm text-ink placeholder:text-slate focus:border-marine"
+                    />
+                  )}
+                </div>
+              )
+            })}
+          </div>
+          <div className="flex justify-between text-sm text-ink">
             <span>Balance due</span>
-            <span>{balanceDue.toFixed(2)}</span>
+            <span className="font-mono">{balanceDue.toFixed(2)}</span>
           </div>
         </div>
 
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
+
         <button
           type="submit"
-          disabled={submitting || cart.length === 0 || Math.abs(balanceDue) >= 0.01}
-          className="bg-black text-white rounded px-3 py-2 disabled:opacity-50"
+          disabled={submitDisabled}
+          className="fixed inset-x-0 bottom-0 z-30 w-full rounded-none border-t border-mist bg-marine px-4 py-3 font-medium text-paper transition-opacity disabled:opacity-50 md:static md:inset-auto md:z-auto md:w-auto md:rounded-md md:border-0 md:px-4 md:py-2"
         >
           Complete sale
         </button>
