@@ -56,27 +56,52 @@ export default function SupplierForm({ mode, supplierId, initial }: SupplierForm
   return (
     <form onSubmit={handleSubmit} className="max-w-md space-y-4">
       <div>
-        <label className="block text-sm font-medium">Name</label>
-        <input required value={name} onChange={(e) => setName(e.target.value)} className="w-full border rounded px-3 py-2" />
+        <label className="block text-sm font-medium text-ink">Name</label>
+        <input
+          required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
       </div>
       <div>
-        <label className="block text-sm font-medium">Phone</label>
-        <input value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full border rounded px-3 py-2" />
+        <label className="block text-sm font-medium text-ink">Phone</label>
+        <input
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
       </div>
       <div>
-        <label className="block text-sm font-medium">Email</label>
-        <input value={email} onChange={(e) => setEmail(e.target.value)} className="w-full border rounded px-3 py-2" />
+        <label className="block text-sm font-medium text-ink">Email</label>
+        <input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
       </div>
       <div>
-        <label className="block text-sm font-medium">Address</label>
-        <input value={address} onChange={(e) => setAddress(e.target.value)} className="w-full border rounded px-3 py-2" />
+        <label className="block text-sm font-medium text-ink">Address</label>
+        <input
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
       </div>
       <div>
-        <label className="block text-sm font-medium">Notes</label>
-        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full border rounded px-3 py-2" />
+        <label className="block text-sm font-medium text-ink">Notes</label>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
       </div>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-      <button type="submit" disabled={submitting} className="bg-black text-white rounded px-3 py-2 disabled:opacity-50">
+      {error && <p className="text-sm text-danger">{error}</p>}
+      <button
+        type="submit"
+        disabled={submitting}
+        className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+      >
         {mode === 'create' ? 'Create supplier' : 'Save changes'}
       </button>
     </form>

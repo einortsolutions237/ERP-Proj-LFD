@@ -27,7 +27,7 @@ export default async function EditSupplierPage({ params }: { params: Promise<{ i
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-6">
-      <h1 className="text-xl font-semibold">Edit supplier</h1>
+      <h1 className="font-display text-2xl font-semibold text-ink">Edit supplier</h1>
       <SupplierForm mode="edit" supplierId={id} initial={initial} />
     </div>
   )
