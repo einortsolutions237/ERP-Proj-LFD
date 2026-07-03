@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     // for a branch-locked role — the same "never let a client-supplied value
     // silently override a server-controlled field" reasoning that already
     // excludes branchId from EDITABLE_FIELDS on the sibling edit route.
-    const BRANCH_LOCKED = user.role === 'branch_manager' || user.role === 'cashier'
+    const BRANCH_LOCKED = isBranchLocked(user.role)
 
     let targetBranchId = user.branchId
     if (!BRANCH_LOCKED && 'branchId' in body && body.branchId !== undefined && body.branchId !== null) {
