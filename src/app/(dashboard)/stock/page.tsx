@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasCapability, isBranchLocked } from '@/lib/auth/permissions'
 import StockTable, { type StockRow } from '@/components/stock/StockTable'
 
 export default async function StockPage() {
@@ -15,7 +15,9 @@ export default async function StockPage() {
 
   const db = getAdminFirestore()
   const [stockSnap, productsSnap, branchesSnap] = await Promise.all([
-    db.collection('productStock').where('branchId', '==', user.branchId).get(),
+    isBranchLocked(user.role)
+      ? db.collection('productStock').where('branchId', '==', user.branchId).get()
+      : db.collection('productStock').get(),
     // Unfiltered on purpose: products are an org-wide catalog collection, not
     // branch-scoped (same reasoning as the products list page).
     db.collection('products').get(),
@@ -35,6 +37,7 @@ export default async function StockPage() {
     return [
       {
         id: d.id,
+        branchId: data.branchId as string,
         productId: data.productId as string,
         productName: product.name as string,
         sku: product.sku as string,
@@ -45,9 +48,7 @@ export default async function StockPage() {
     ]
   })
 
-  const branches = branchesSnap.docs
-    .filter((d) => d.id !== user.branchId)
-    .map((d) => ({ id: d.id, name: d.data().name as string }))
+  const branches = branchesSnap.docs.map((d) => ({ id: d.id, name: d.data().name as string }))
 
   const canAdjust = hasCapability(user.role, 'inventory.stock.adjust')
   const canTransfer = hasCapability(user.role, 'inventory.stock.transfer')
@@ -58,7 +59,6 @@ export default async function StockPage() {
       <StockTable
         rows={rows}
         branches={branches}
-        branchId={user.branchId}
         canAdjust={canAdjust}
         canTransfer={canTransfer}
       />

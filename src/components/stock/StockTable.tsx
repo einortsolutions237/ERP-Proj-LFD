@@ -6,6 +6,7 @@ import StockTransferForm from './StockTransferForm'
 
 export interface StockRow {
   id: string
+  branchId: string
   productId: string
   productName: string
   sku: string
@@ -17,14 +18,13 @@ export interface StockRow {
 interface StockTableProps {
   rows: StockRow[]
   branches: { id: string; name: string }[]
-  branchId: string
   canAdjust: boolean
   canTransfer: boolean
 }
 
 type OpenForm = { productId: string; kind: 'adjust' | 'transfer' } | null
 
-export default function StockTable({ rows, branches, branchId, canAdjust, canTransfer }: StockTableProps) {
+export default function StockTable({ rows, branches, canAdjust, canTransfer }: StockTableProps) {
   const router = useRouter()
   const [openForm, setOpenForm] = useState<OpenForm>(null)
 
@@ -106,7 +106,7 @@ export default function StockTable({ rows, branches, branchId, canAdjust, canTra
                 {openForm?.productId === row.productId && openForm.kind === 'adjust' && (
                   <tr className="bg-mist/30">
                     <td colSpan={showActions ? 6 : 5} className="px-3 py-3">
-                      <StockAdjustForm productId={row.productId} branchId={branchId} onDone={handleDone} />
+                      <StockAdjustForm productId={row.productId} branchId={row.branchId} onDone={handleDone} />
                     </td>
                   </tr>
                 )}
@@ -115,8 +115,8 @@ export default function StockTable({ rows, branches, branchId, canAdjust, canTra
                     <td colSpan={showActions ? 6 : 5} className="px-3 py-3">
                       <StockTransferForm
                         productId={row.productId}
-                        sourceBranchId={branchId}
-                        destinationBranches={branches}
+                        sourceBranchId={row.branchId}
+                        destinationBranches={branches.filter((b) => b.id !== row.branchId)}
                         onDone={handleDone}
                       />
                     </td>
