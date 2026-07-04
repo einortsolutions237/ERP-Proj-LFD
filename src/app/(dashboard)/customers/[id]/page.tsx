@@ -61,10 +61,10 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">{data.name}</h1>
+        <h1 className="font-display text-2xl font-semibold text-ink">{data.name}</h1>
         {canManage && (
           <div className="flex items-center gap-3">
-            <Link href={`/customers/${id}/edit`} className="underline text-sm">
+            <Link href={`/customers/${id}/edit`} className="text-marine underline-offset-2 hover:underline">
               Edit
             </Link>
             <DeleteCustomerButton customerId={id} customerName={data.name} />
@@ -74,50 +74,52 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
       <div className="space-y-1 text-sm">
         <div>
-          <span className="text-gray-500">Phone:</span> {data.phone}
+          <span className="text-slate">Phone:</span> <span className="text-ink">{data.phone}</span>
         </div>
         <div>
-          <span className="text-gray-500">Email:</span> {data.email ?? '—'}
+          <span className="text-slate">Email:</span> <span className="text-ink">{data.email ?? '—'}</span>
         </div>
         <div>
-          <span className="text-gray-500">Address:</span> {data.address ?? '—'}
+          <span className="text-slate">Address:</span> <span className="text-ink">{data.address ?? '—'}</span>
         </div>
         <div>
-          <span className="text-gray-500">Notes:</span> {data.notes ?? '—'}
+          <span className="text-slate">Notes:</span> <span className="text-ink">{data.notes ?? '—'}</span>
         </div>
       </div>
 
       <div className="space-y-3">
-        <h2 className="text-lg font-medium">Purchase history</h2>
+        <h2 className="text-lg font-medium text-ink">Purchase history</h2>
         {purchases.length === 0 ? (
-          <p className="text-sm text-gray-500">No purchases yet.</p>
+          <p className="text-sm text-slate">No purchases yet.</p>
         ) : (
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="text-left border-b">
-                <th className="py-2 pr-4">Date/Time</th>
-                <th className="py-2 pr-4">Items</th>
-                <th className="py-2 pr-4">Total</th>
-                <th className="py-2 pr-4">Payment</th>
-                <th className="py-2 pr-4" />
-              </tr>
-            </thead>
-            <tbody>
-              {purchases.map((row) => (
-                <tr key={row.id} className="border-b">
-                  <td className="py-2 pr-4">{row.createdAt ? new Date(row.createdAt).toLocaleString() : ''}</td>
-                  <td className="py-2 pr-4">{row.itemCount}</td>
-                  <td className="py-2 pr-4">{row.total.toFixed(2)}</td>
-                  <td className="py-2 pr-4">{row.payments}</td>
-                  <td className="py-2 pr-4">
-                    <Link href={`/pos/sales/${row.id}`} className="underline">
-                      View
-                    </Link>
-                  </td>
+          <div className="overflow-hidden rounded-md border border-mist">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-mist/40">
+                  <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Date/Time</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Items</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Total</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Payment</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-mist">
+                {purchases.map((row) => (
+                  <tr key={row.id} className="hover:bg-mist/40 transition-colors">
+                    <td className="px-3 py-2 text-ink">{row.createdAt ? new Date(row.createdAt).toLocaleString() : ''}</td>
+                    <td className="px-3 py-2 text-ink">{row.itemCount}</td>
+                    <td className="px-3 py-2 font-mono text-ink">{row.total.toFixed(2)}</td>
+                    <td className="px-3 py-2 text-ink">{row.payments}</td>
+                    <td className="px-3 py-2 text-ink">
+                      <Link href={`/pos/sales/${row.id}`} className="text-marine underline-offset-2 hover:underline">
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

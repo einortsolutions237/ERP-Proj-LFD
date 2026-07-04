@@ -26,39 +26,41 @@ export default function CustomerTable({ customers }: { customers: CustomerRow[] 
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search by name or phone…"
-        className="w-full border rounded px-3 py-2 text-sm"
+        className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
       />
-      <table className="w-full text-sm border-collapse">
-        <thead>
-          <tr className="text-left border-b">
-            <th className="py-2 pr-4">Name</th>
-            <th className="py-2 pr-4">Phone</th>
-            <th className="py-2 pr-4">Email</th>
-            <th className="py-2 pr-4" />
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.map((row) => (
-            <tr key={row.id} className="border-b">
-              <td className="py-2 pr-4">{row.name}</td>
-              <td className="py-2 pr-4">{row.phone}</td>
-              <td className="py-2 pr-4">{row.email ?? '—'}</td>
-              <td className="py-2 pr-4">
-                <Link href={`/customers/${row.id}`} className="underline">
-                  View
-                </Link>
-              </td>
+      <div className="overflow-hidden rounded-md border border-mist">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-mist/40">
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Name</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Phone</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Email</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate" />
             </tr>
-          ))}
-          {filtered.length === 0 && (
-            <tr>
-              <td colSpan={4} className="py-4 text-center text-gray-500">
-                No customers found
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-mist">
+            {filtered.map((row) => (
+              <tr key={row.id} className="hover:bg-mist/40 transition-colors">
+                <td className="px-3 py-2 text-ink">{row.name}</td>
+                <td className="px-3 py-2 text-ink">{row.phone}</td>
+                <td className="px-3 py-2 text-ink">{row.email ?? '—'}</td>
+                <td className="px-3 py-2 text-ink">
+                  <Link href={`/customers/${row.id}`} className="text-marine underline-offset-2 hover:underline">
+                    View
+                  </Link>
+                </td>
+              </tr>
+            ))}
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={4} className="px-3 py-4 text-center text-slate">
+                  No customers found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

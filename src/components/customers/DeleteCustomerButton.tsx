@@ -37,11 +37,11 @@ export default function DeleteCustomerButton({ customerId, customerName }: Delet
         type="button"
         disabled={deleting}
         onClick={handleDelete}
-        className="text-red-600 underline text-sm disabled:text-gray-400 disabled:no-underline"
+        className="text-danger underline-offset-2 hover:underline disabled:text-slate disabled:no-underline"
       >
         Delete
       </button>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
     </div>
   )
 }
