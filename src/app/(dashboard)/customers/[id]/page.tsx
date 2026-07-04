@@ -1,9 +1,11 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { requireCapability, AuthError } from '@/lib/auth/server-guard'
+import { requireAnyCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { hasCapability } from '@/lib/auth/permissions'
 import DeleteCustomerButton from '@/components/customers/DeleteCustomerButton'
+import { getPatientTreatments } from '@/lib/clinical/getPatientTreatments'
+import ClinicalSection from '@/components/clinical/ClinicalSection'
 import type { Customer } from '@/lib/types/customer'
 import type { Sale } from '@/lib/types/sale'
 
@@ -25,7 +27,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
   let user
   try {
-    user = await requireCapability('crm.customer.view')
+    user = await requireAnyCapability(['crm.customer.view', 'clinical.record.view'])
   } catch (err) {
     if (err instanceof AuthError) redirect('/dashboard?error=not-authorized')
     throw err
@@ -57,6 +59,10 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   })
 
   const canManage = hasCapability(user.role, 'crm.customer.manage')
+  const canViewCommercial = hasCapability(user.role, 'crm.customer.view')
+  const canViewClinical = hasCapability(user.role, 'clinical.record.view')
+  const canCreateTreatment = hasCapability(user.role, 'clinical.record.create')
+  const treatments = canViewClinical ? await getPatientTreatments(id, user) : []
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-8">
@@ -87,6 +93,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         </div>
       </div>
 
+      {canViewCommercial && (
       <div className="space-y-3">
         <h2 className="text-lg font-medium text-ink">Purchase history</h2>
         {purchases.length === 0 ? (
@@ -122,6 +129,11 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           </div>
         )}
       </div>
+      )}
+
+      {canViewClinical && (
+        <ClinicalSection customerId={id} treatments={treatments} canCreate={canCreateTreatment} />
+      )}
     </div>
   )
 }
