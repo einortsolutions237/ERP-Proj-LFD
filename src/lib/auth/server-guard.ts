@@ -43,3 +43,10 @@ export async function requireCapability(capability: Capability): Promise<Session
   if (!hasCapability(user.role, capability)) throw new AuthError('Forbidden', 403)
   return user
 }
+
+export async function requireAnyCapability(capabilities: Capability[]): Promise<SessionUser> {
+  const user = await getSessionUser()
+  if (!user) throw new AuthError('Not signed in', 401)
+  if (!capabilities.some((c) => hasCapability(user.role, c))) throw new AuthError('Forbidden', 403)
+  return user
+}

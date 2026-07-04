@@ -1,5 +1,5 @@
 export const ROLES = [
-  'super_admin', 'admin', 'branch_manager', 'hr_admin', 'finance_admin', 'it_admin', 'cashier',
+  'super_admin', 'admin', 'branch_manager', 'hr_admin', 'finance_admin', 'it_admin', 'cashier', 'doctor',
 ] as const
 
 export type RoleId = typeof ROLES[number]
@@ -11,7 +11,7 @@ export const STRICT_AUDIT_ROLES: RoleId[] = ['super_admin', 'admin']
 // Every future module the permission system will gate. Phase 1 only implements
 // capabilities for 'admin' — the other modules are reserved so the shape exists
 // without building screens ahead of scope.
-export const MODULES = ['admin', 'pos', 'inventory', 'crm', 'accounting', 'hr', 'reporting'] as const
+export const MODULES = ['admin', 'pos', 'inventory', 'crm', 'accounting', 'hr', 'reporting', 'clinical'] as const
 
 export type ModuleId = typeof MODULES[number]
 
@@ -39,6 +39,7 @@ export type Capability =
   | 'hr.attendance.view'
   | 'reports.sales.view'
   | 'reports.inventory.view'
+  | 'clinical.record.create' | 'clinical.record.view'
   // accounting.* — no capabilities defined yet;
   // add them here when the module is actually built.
 
@@ -70,6 +71,8 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'hr.attendance.view': 'hr',
   'reports.sales.view': 'reporting',
   'reports.inventory.view': 'reporting',
+  'clinical.record.create': 'clinical',
+  'clinical.record.view': 'clinical',
 }
 
 const ALL_ROLES: RoleId[] = [...ROLES]
@@ -85,6 +88,7 @@ const CASHIER_BRANCH_MGR: RoleId[] = ['super_admin', 'admin', 'branch_manager', 
 // Firestore rules can't import this constant, so update both together.
 const ADMIN_IT: RoleId[] = ['super_admin', 'admin', 'it_admin']
 const REPORTS_ROLES: RoleId[] = ['super_admin', 'admin', 'branch_manager', 'finance_admin']
+const CLINICAL_ROLES: RoleId[] = ['super_admin', 'admin', 'doctor']
 
 export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'admin.staff.view': ADMIN_HR,
@@ -114,6 +118,8 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'hr.attendance.view': APPROVER_ROLES,
   'reports.sales.view': REPORTS_ROLES,
   'reports.inventory.view': REPORTS_ROLES,
+  'clinical.record.create': CLINICAL_ROLES,
+  'clinical.record.view': CLINICAL_ROLES,
 }
 
 export function hasCapability(role: RoleId, capability: Capability): boolean {
