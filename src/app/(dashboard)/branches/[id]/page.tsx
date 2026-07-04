@@ -28,7 +28,7 @@ export default async function EditBranchPage({ params }: { params: Promise<{ id:
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-6">
-      <h1 className="text-xl font-semibold">Edit branch</h1>
+      <h1 className="font-display text-2xl font-semibold text-ink">Edit branch</h1>
       <BranchForm mode="edit" branchId={id} initial={initial} />
     </div>
   )

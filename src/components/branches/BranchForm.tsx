@@ -48,32 +48,50 @@ export default function BranchForm({ mode, branchId, initial }: BranchFormProps)
   return (
     <form onSubmit={handleSubmit} className="max-w-md space-y-4">
       <div>
-        <label className="block text-sm font-medium">Name</label>
-        <input required value={name} onChange={(e) => setName(e.target.value)} className="w-full border rounded px-3 py-2" />
+        <label className="block text-sm font-medium text-ink">Name</label>
+        <input
+          required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
       </div>
       <div>
-        <label className="block text-sm font-medium">Address</label>
-        <input required value={address} onChange={(e) => setAddress(e.target.value)} className="w-full border rounded px-3 py-2" />
+        <label className="block text-sm font-medium text-ink">Address</label>
+        <input
+          required
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
       </div>
       <div>
-        <label className="block text-sm font-medium">Phone</label>
-        <input value={phone ?? ''} onChange={(e) => setPhone(e.target.value)} className="w-full border rounded px-3 py-2" />
+        <label className="block text-sm font-medium text-ink">Phone</label>
+        <input
+          value={phone ?? ''}
+          onChange={(e) => setPhone(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
       </div>
       {mode === 'edit' && (
         <div>
-          <label className="block text-sm font-medium">Status</label>
+          <label className="block text-sm font-medium text-ink">Status</label>
           <select
             value={active ? 'active' : 'inactive'}
             onChange={(e) => setActive(e.target.value === 'active')}
-            className="w-full border rounded px-3 py-2"
+            className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
           >
             <option value="active">active</option>
             <option value="inactive">inactive</option>
           </select>
         </div>
       )}
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-      <button type="submit" disabled={submitting} className="bg-black text-white rounded px-3 py-2 disabled:opacity-50">
+      {error && <p className="text-sm text-danger">{error}</p>}
+      <button
+        type="submit"
+        disabled={submitting}
+        className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+      >
         {mode === 'create' ? 'Create branch' : 'Save changes'}
       </button>
     </form>
