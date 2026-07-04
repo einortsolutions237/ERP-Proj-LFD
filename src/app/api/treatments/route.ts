@@ -35,6 +35,10 @@ export async function POST(request: Request) {
     if (!isNonEmptyString(body.date)) {
       return NextResponse.json({ error: 'date is required' }, { status: 400 })
     }
+    const parsedDate = new Date(body.date)
+    if (Number.isNaN(parsedDate.getTime())) {
+      return NextResponse.json({ error: 'date is not a valid date' }, { status: 400 })
+    }
     if (!isNonEmptyString(body.diagnosis)) {
       return NextResponse.json({ error: 'diagnosis is required' }, { status: 400 })
     }
@@ -66,7 +70,7 @@ export async function POST(request: Request) {
       customerId,
       doctorUid: user.uid,
       branchId: user.branchId,
-      date: new Date(body.date),
+      date: parsedDate,
       diagnosis: body.diagnosis.trim(),
       notes: isNonEmptyString(body.notes) ? body.notes.trim() : null,
       prescription: isNonEmptyString(body.prescription) ? body.prescription.trim() : null,
