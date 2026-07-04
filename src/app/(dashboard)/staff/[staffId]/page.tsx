@@ -57,7 +57,7 @@ export default async function EditStaffPage({ params }: { params: Promise<{ staf
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-6">
-      <h1 className="text-xl font-semibold">Edit staff member</h1>
+      <h1 className="font-display text-2xl font-semibold text-ink">Edit staff member</h1>
       <StaffForm mode="edit" staffId={staffId} initial={initial} />
     </div>
   )

@@ -31,8 +31,8 @@ export default async function StaffPage() {
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Staff</h1>
-        <Link href="/staff/new" className="bg-black text-white rounded px-3 py-2 text-sm">
+        <h1 className="font-display text-2xl font-semibold text-ink">Staff</h1>
+        <Link href="/staff/new" className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50">
           Add staff member
         </Link>
       </div>

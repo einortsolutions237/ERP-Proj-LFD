@@ -39,43 +39,57 @@ export default function StaffTable({ staff }: { staff: StaffRow[] }) {
 
   return (
     <div className="space-y-3">
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-      <table className="w-full text-sm border-collapse">
-        <thead>
-          <tr className="text-left border-b">
-            <th className="py-2 pr-4">Name</th>
-            <th className="py-2 pr-4">Email</th>
-            <th className="py-2 pr-4">Role</th>
-            <th className="py-2 pr-4">Department</th>
-            <th className="py-2 pr-4">Status</th>
-            <th className="py-2 pr-4" />
-          </tr>
-        </thead>
-        <tbody>
-          {staff.map((row) => (
-            <tr key={row.id} className="border-b">
-              <td className="py-2 pr-4">{row.name}</td>
-              <td className="py-2 pr-4">{row.email}</td>
-              <td className="py-2 pr-4">{row.role}</td>
-              <td className="py-2 pr-4">{row.department ?? '—'}</td>
-              <td className="py-2 pr-4">{row.employment?.status ?? '—'}</td>
-              <td className="py-2 pr-4 space-x-2">
-                <Link href={`/staff/${row.id}`} className="underline">
-                  Edit
-                </Link>
-                <button
-                  type="button"
-                  disabled={row.role === 'super_admin' || deletingId === row.id}
-                  onClick={() => handleDelete(row)}
-                  className="text-red-600 underline disabled:text-gray-400 disabled:no-underline"
-                >
-                  Delete
-                </button>
-              </td>
+      {error && <p className="text-sm text-danger">{error}</p>}
+      <div className="overflow-hidden rounded-md border border-mist">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-mist/40">
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Name</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Email</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Role</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Department</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Status</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate" />
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-mist">
+            {staff.map((row) => (
+              <tr key={row.id} className="hover:bg-mist/40 transition-colors">
+                <td className="px-3 py-2 text-ink">{row.name}</td>
+                <td className="px-3 py-2 text-ink">{row.email}</td>
+                <td className="px-3 py-2 text-ink">{row.role}</td>
+                <td className="px-3 py-2 text-ink">{row.department ?? '—'}</td>
+                <td className="px-3 py-2 text-ink">
+                  {row.employment?.status === 'active' ? (
+                    <span className="inline-block rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
+                      active
+                    </span>
+                  ) : row.employment?.status === 'inactive' ? (
+                    <span className="inline-block rounded-full bg-slate/10 px-2 py-0.5 text-xs font-medium text-slate">
+                      inactive
+                    </span>
+                  ) : (
+                    row.employment?.status ?? '—'
+                  )}
+                </td>
+                <td className="px-3 py-2 space-x-3">
+                  <Link href={`/staff/${row.id}`} className="text-marine underline-offset-2 hover:underline">
+                    Edit
+                  </Link>
+                  <button
+                    type="button"
+                    disabled={row.role === 'super_admin' || deletingId === row.id}
+                    onClick={() => handleDelete(row)}
+                    className="text-danger underline-offset-2 hover:underline disabled:text-slate disabled:no-underline"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

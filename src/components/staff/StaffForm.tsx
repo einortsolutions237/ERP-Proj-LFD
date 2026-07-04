@@ -90,12 +90,16 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
   if (tempPassword) {
     return (
       <div className="max-w-md space-y-4">
-        <p className="text-sm">
+        <p className="text-sm text-ink">
           Staff account created. Share this temporary password with the new staff member securely
           — it will not be shown again:
         </p>
-        <code className="block bg-gray-100 rounded px-3 py-2 break-all">{tempPassword}</code>
-        <button type="button" className="bg-black text-white rounded px-3 py-2" onClick={() => router.push('/staff')}>
+        <code className="block rounded-md bg-mist/40 px-3 py-2 font-mono text-ink break-all">{tempPassword}</code>
+        <button
+          type="button"
+          className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+          onClick={() => router.push('/staff')}
+        >
           Done
         </button>
       </div>
@@ -105,26 +109,39 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
   return (
     <form onSubmit={handleSubmit} className="max-w-md space-y-4">
       <div>
-        <label className="block text-sm font-medium">Name</label>
-        <input required value={name} onChange={(e) => setName(e.target.value)} className="w-full border rounded px-3 py-2" />
+        <label className="block text-sm font-medium text-ink">Name</label>
+        <input
+          required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
       </div>
       <div>
-        <label className="block text-sm font-medium">Email</label>
+        <label className="block text-sm font-medium text-ink">Email</label>
         <input
           type="email"
           required
           disabled={mode === 'edit'}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       <div>
-        <label className="block text-sm font-medium">Role</label>
+        <label className="block text-sm font-medium text-ink">Role</label>
         {isSuperAdminTarget ? (
-          <input disabled value="super_admin (protected — cannot be changed here)" className="w-full border rounded px-3 py-2 bg-gray-100" />
+          <input
+            disabled
+            value="super_admin (protected — cannot be changed here)"
+            className="w-full rounded-md border border-mist bg-mist/40 px-3 py-2 text-ink"
+          />
         ) : (
-          <select value={role} onChange={(e) => setRole(e.target.value as RoleId)} className="w-full border rounded px-3 py-2">
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value as RoleId)}
+            className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+          >
             {ASSIGNABLE_ROLES.map((r) => (
               <option key={r} value={r}>
                 {r}
@@ -134,39 +151,74 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
         )}
       </div>
       <div>
-        <label className="block text-sm font-medium">Department</label>
-        <input value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full border rounded px-3 py-2" />
+        <label className="block text-sm font-medium text-ink">Department</label>
+        <input
+          value={department}
+          onChange={(e) => setDepartment(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
       </div>
       <div>
-        <label className="block text-sm font-medium">Phone</label>
-        <input value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full border rounded px-3 py-2" />
+        <label className="block text-sm font-medium text-ink">Phone</label>
+        <input
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
       </div>
       <div>
-        <label className="block text-sm font-medium">Address</label>
-        <input value={address} onChange={(e) => setAddress(e.target.value)} className="w-full border rounded px-3 py-2" />
+        <label className="block text-sm font-medium text-ink">Address</label>
+        <input
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
       </div>
-      <fieldset className="border rounded p-3 space-y-2">
-        <legend className="text-sm font-medium px-1">Emergency contact</legend>
-        <input placeholder="Name" value={emergencyName} onChange={(e) => setEmergencyName(e.target.value)} className="w-full border rounded px-3 py-2" />
-        <input placeholder="Phone" value={emergencyPhone} onChange={(e) => setEmergencyPhone(e.target.value)} className="w-full border rounded px-3 py-2" />
+      <fieldset className="rounded-md border border-mist p-3 space-y-2">
+        <legend className="text-sm font-medium text-ink px-1">Emergency contact</legend>
+        <input
+          placeholder="Name"
+          value={emergencyName}
+          onChange={(e) => setEmergencyName(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
+        <input
+          placeholder="Phone"
+          value={emergencyPhone}
+          onChange={(e) => setEmergencyPhone(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
         <input
           placeholder="Relationship"
           value={emergencyRelationship}
           onChange={(e) => setEmergencyRelationship(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </fieldset>
       <div>
-        <label className="block text-sm font-medium">Start date</label>
-        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full border rounded px-3 py-2" />
+        <label className="block text-sm font-medium text-ink">Start date</label>
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
       </div>
       {mode === 'edit' && (
         <div>
-          <label className="block text-sm font-medium">Employment status</label>
+          <label className="block text-sm font-medium text-ink">Employment status</label>
           {isSuperAdminTarget ? (
-            <input disabled value="active (protected — cannot be deactivated here)" className="w-full border rounded px-3 py-2 bg-gray-100" />
+            <input
+              disabled
+              value="active (protected — cannot be deactivated here)"
+              className="w-full rounded-md border border-mist bg-mist/40 px-3 py-2 text-ink"
+            />
           ) : (
-            <select value={status} onChange={(e) => setStatus(e.target.value as 'active' | 'inactive')} className="w-full border rounded px-3 py-2">
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as 'active' | 'inactive')}
+              className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+            >
               <option value="active">active</option>
               <option value="inactive">inactive</option>
             </select>
@@ -174,11 +226,19 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
         </div>
       )}
       <div>
-        <label className="block text-sm font-medium">Qualifications (comma-separated)</label>
-        <input value={qualifications} onChange={(e) => setQualifications(e.target.value)} className="w-full border rounded px-3 py-2" />
+        <label className="block text-sm font-medium text-ink">Qualifications (comma-separated)</label>
+        <input
+          value={qualifications}
+          onChange={(e) => setQualifications(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
       </div>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-      <button type="submit" disabled={submitting} className="bg-black text-white rounded px-3 py-2 disabled:opacity-50">
+      {error && <p className="text-sm text-danger">{error}</p>}
+      <button
+        type="submit"
+        disabled={submitting}
+        className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+      >
         {mode === 'create' ? 'Create staff member' : 'Save changes'}
       </button>
     </form>
