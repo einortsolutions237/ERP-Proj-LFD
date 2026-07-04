@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
+import { isBranchLocked } from '@/lib/auth/permissions'
 import StaffTable, { type StaffRow } from '@/components/staff/StaffTable'
 
 export default async function StaffPage() {
@@ -13,7 +14,10 @@ export default async function StaffPage() {
     throw err
   }
 
-  const snap = await getAdminFirestore().collection('staff').where('branchId', '==', user.branchId).get()
+  const collection = getAdminFirestore().collection('staff')
+  const snap = isBranchLocked(user.role)
+    ? await collection.where('branchId', '==', user.branchId).get()
+    : await collection.get()
   const staff: StaffRow[] = snap.docs.map((d) => {
     const data = d.data()
     return {

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasCapability, isBranchLocked } from '@/lib/auth/permissions'
 import RoleMatrix from '@/components/roles/RoleMatrix'
 import RoleReassignmentTable from '@/components/roles/RoleReassignmentTable'
 import type { StaffRow } from '@/components/staff/StaffTable'
@@ -15,7 +15,10 @@ export default async function RolesPage() {
     throw err
   }
 
-  const snap = await getAdminFirestore().collection('staff').where('branchId', '==', user.branchId).get()
+  const collection = getAdminFirestore().collection('staff')
+  const snap = isBranchLocked(user.role)
+    ? await collection.where('branchId', '==', user.branchId).get()
+    : await collection.get()
   const staff: StaffRow[] = snap.docs.map((d) => {
     const data = d.data()
     return {
