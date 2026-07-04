@@ -73,6 +73,9 @@ service cloud.firestore {
     match /notifications/{notificationId} {
       allow read, write: if false; // all access goes through /api/notifications — personal data, same fully-closed treatment as leaveRequests/attendanceRecords
     }
+    match /treatments/{treatmentId} {
+      allow read, write: if false; // all access goes through /api/treatments — clinical data, same fully-closed treatment as leaveRequests/attendanceRecords/notifications, plus every read is separately audit-logged server-side
+    }
     match /{document=**} {
       allow read, write: if false;
     }
