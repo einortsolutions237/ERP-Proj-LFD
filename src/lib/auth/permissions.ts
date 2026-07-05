@@ -92,14 +92,21 @@ const CASHIER_BRANCH_MGR: RoleId[] = ['super_admin', 'admin', 'branch_manager', 
 // Firestore rules can't import this constant, so update both together.
 const ADMIN_IT: RoleId[] = ['super_admin', 'admin', 'it_admin']
 const REPORTS_ROLES: RoleId[] = ['super_admin', 'admin', 'branch_manager', 'finance_admin']
-const CLINICAL_ROLES: RoleId[] = ['super_admin', 'admin', 'doctor']
+// admin is deliberately absent here — CLAUDE.md's hybrid-business/clinical-wall
+// section states clinical data is walled off from admin despite admin being
+// broad elsewhere. Both this and CLINICAL_VIEW_ROLES included admin from
+// Phase 13 through Phase 14's Task 1 (an undetected discrepancy against that
+// stated design, caught during Phase 14's Task 7 review and fixed as a
+// follow-up within this phase, per explicit user decision 2026-07-05).
+const CLINICAL_ROLES: RoleId[] = ['super_admin', 'doctor']
 const CRM_VIEW_ROLES: RoleId[] = ['super_admin', 'admin', 'branch_manager', 'cashier', 'medical_secretary']
 // Backs both clinical.record.view and clinical.appointments.manage (Phase
 // 14). When general_manager ships as a real role, it must be added HERE —
 // retrofitting both capabilities at once, not just one — per CLAUDE.md's
 // "hybrid business" section, which says general_manager gets full clinical
 // read access. Not added yet: general_manager doesn't exist in ROLES.
-const CLINICAL_VIEW_ROLES: RoleId[] = ['super_admin', 'admin', 'doctor', 'medical_secretary']
+// admin is deliberately absent — see CLINICAL_ROLES' comment above.
+const CLINICAL_VIEW_ROLES: RoleId[] = ['super_admin', 'doctor', 'medical_secretary']
 
 export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'admin.staff.view': ADMIN_HR,
