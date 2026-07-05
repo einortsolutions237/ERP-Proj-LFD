@@ -1,5 +1,5 @@
 export const ROLES = [
-  'super_admin', 'admin', 'branch_manager', 'hr_admin', 'finance_admin', 'it_admin', 'cashier', 'doctor',
+  'super_admin', 'admin', 'branch_manager', 'hr_admin', 'finance_admin', 'it_admin', 'cashier', 'doctor', 'medical_secretary',
 ] as const
 
 export type RoleId = typeof ROLES[number]
@@ -11,7 +11,7 @@ export const STRICT_AUDIT_ROLES: RoleId[] = ['super_admin', 'admin']
 // Every future module the permission system will gate. Phase 1 only implements
 // capabilities for 'admin' — the other modules are reserved so the shape exists
 // without building screens ahead of scope.
-export const MODULES = ['admin', 'pos', 'inventory', 'crm', 'accounting', 'hr', 'reporting', 'clinical'] as const
+export const MODULES = ['admin', 'pos', 'inventory', 'crm', 'accounting', 'hr', 'reporting', 'clinical', 'seminars'] as const
 
 export type ModuleId = typeof MODULES[number]
 
@@ -40,6 +40,8 @@ export type Capability =
   | 'reports.sales.view'
   | 'reports.inventory.view'
   | 'clinical.record.create' | 'clinical.record.view'
+  | 'clinical.appointments.manage'
+  | 'seminars.attendance.view'
   // accounting.* — no capabilities defined yet;
   // add them here when the module is actually built.
 
@@ -73,6 +75,8 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'reports.inventory.view': 'reporting',
   'clinical.record.create': 'clinical',
   'clinical.record.view': 'clinical',
+  'clinical.appointments.manage': 'clinical',
+  'seminars.attendance.view': 'seminars',
 }
 
 const ALL_ROLES: RoleId[] = [...ROLES]
@@ -89,6 +93,8 @@ const CASHIER_BRANCH_MGR: RoleId[] = ['super_admin', 'admin', 'branch_manager', 
 const ADMIN_IT: RoleId[] = ['super_admin', 'admin', 'it_admin']
 const REPORTS_ROLES: RoleId[] = ['super_admin', 'admin', 'branch_manager', 'finance_admin']
 const CLINICAL_ROLES: RoleId[] = ['super_admin', 'admin', 'doctor']
+const CRM_VIEW_ROLES: RoleId[] = ['super_admin', 'admin', 'branch_manager', 'cashier', 'medical_secretary']
+const CLINICAL_VIEW_ROLES: RoleId[] = ['super_admin', 'admin', 'doctor', 'medical_secretary']
 
 export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'admin.staff.view': ADMIN_HR,
@@ -110,7 +116,7 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'pos.sale.view': CASHIER_BRANCH_MGR,
   'pos.sale.void': ADMIN_BRANCH_MGR,
   'crm.customer.create': CASHIER_BRANCH_MGR,
-  'crm.customer.view': CASHIER_BRANCH_MGR,
+  'crm.customer.view': CRM_VIEW_ROLES,
   'crm.customer.manage': ADMIN_BRANCH_MGR,
   'hr.leave.request': ALL_ROLES,
   'hr.leave.approve': APPROVER_ROLES,
@@ -119,7 +125,9 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'reports.sales.view': REPORTS_ROLES,
   'reports.inventory.view': REPORTS_ROLES,
   'clinical.record.create': CLINICAL_ROLES,
-  'clinical.record.view': CLINICAL_ROLES,
+  'clinical.record.view': CLINICAL_VIEW_ROLES,
+  'clinical.appointments.manage': [],
+  'seminars.attendance.view': [],
 }
 
 export function hasCapability(role: RoleId, capability: Capability): boolean {
