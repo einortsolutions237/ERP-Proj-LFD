@@ -32,14 +32,12 @@ Tracked deviations, deferred hardening, and known limitations accepted during a 
 
 **Constraints for the fix (per project decision):** whichever future phase does this must go through the same review rigor as any other change to `api/stock/movements/route.ts`/`api/stock/transfer/route.ts`/`api/sales/route.ts` (Opus-tier review for the transaction change, per this project's established practice for high-stakes Firestore transactions).
 
-## TD-3: Customer deletion doesn't check for dependent clinical records
+## TD-3: Customer deletion doesn't check for dependent clinical records — RESOLVED (Phase 15, 2026-07-05)
 
-**Deferred to:** Not scheduled — accepted as a known limitation since Phase 13 (not blocking Phase 13 or Phase 14 completion).
+**Originally found during:** Phase 13 (Clinical Foundation), 2026-07-04; scope confirmed to also cover `appointments` during Phase 14 (Appointments), 2026-07-05; resolved comprehensively in Phase 15 (Laboratory), 2026-07-05.
 
-**Found during:** Phase 13 (Clinical Foundation), 2026-07-04; scope confirmed to also cover `appointments` during Phase 14 (Appointments), 2026-07-05.
+**Resolution:** `DELETE /api/customers/[id]` now checks `sales`, `treatments`, `appointments`, and `labOrders` independently (each a `where('customerId', '==', id).limit(1)` existence check mirroring the original `sales` pattern), rather than adding one more narrow check per collection as each new module landed. Live-verified: a customer referenced by only a lab order (no sales/treatments/appointments) is correctly blocked with a lab-order-specific message, proving the new check fires independently rather than just compiling alongside the others. No check against `labResults` is needed — a result always belongs to an order that already references the customer, so blocking on `labOrders` transitively covers it.
 
-**Current state:** `DELETE /api/customers/[id]` checks the `sales` collection for a referential-integrity block before allowing deletion (the same pattern proven on `suppliers` in Phase 2), but this check was never extended to `treatments` when Phase 13 added that collection, and Phase 14 confirmed the identical gap now also applies to `appointments`. A customer with clinical treatment history or upcoming/past appointments can currently be deleted through the app itself, orphaning those dependent records.
-
-**Proposed enhancement:** add the same `where('customerId', '==', id)` existence check against both `treatments` and `appointments`, mirroring the existing `sales` check exactly.
+**Standing question, still open:** whether this allowlist-of-dependent-collections shape remains the right long-term approach once a fifth dependent collection exists (Phase 16's seminar attendance is the next candidate), or whether customer deletion should become a soft-delete/archive once *any* history exists, commercial or clinical, rather than continuing to add one more hard check per new module. Worth deciding before Phase 16 lands, not after.
 
 **Constraints for the fix (per project decision):** worth reconsidering as this grows further — lab results (Phase 15) will be the same problem again — whether an allowlist-of-dependent-collections check is still the right long-term shape, or whether customer deletion should become a soft-delete/archive once *any* history exists (commercial or clinical), rather than re-adding one more hard check per new module. Not fixed in either Phase 13 or Phase 14 because neither phase's own work touched `src/app/api/customers/[id]/route.ts`'s `DELETE` handler, per this project's known-issues policy (fix only when a phase's own work already touches the affected file/area).
