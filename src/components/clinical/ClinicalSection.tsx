@@ -66,10 +66,6 @@ export default function ClinicalSection({ customerId, treatments, canCreate }: C
       )}
 
       <div className="space-y-1">
-        <h3 className="text-sm font-medium text-ink">Lab results</h3>
-        <p className="text-sm text-slate">Will appear once Lab exists (Phase 15).</p>
-      </div>
-      <div className="space-y-1">
         <h3 className="text-sm font-medium text-ink">Seminar attendance</h3>
         <p className="text-sm text-slate">Will appear once Seminars exists (Phase 16).</p>
       </div>
