@@ -82,6 +82,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
       try {
         await db.runTransaction(async (tx) => {
+          const freshSnap = await tx.get(apptRef)
+          if (!freshSnap.exists || freshSnap.data()!.status !== 'scheduled') {
+            throw new AuthError('Only a scheduled appointment can be updated', 409)
+          }
           const conflictId = await findOverlappingAppointment(tx, db, appt.doctorUid as string, scheduledAt, scheduledEnd, id)
           if (conflictId) {
             throw new AuthError('This doctor already has an appointment overlapping that time', 409)
