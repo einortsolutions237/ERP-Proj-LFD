@@ -6,7 +6,9 @@ import { hasCapability } from '@/lib/auth/permissions'
 import DeleteCustomerButton from '@/components/customers/DeleteCustomerButton'
 import { getPatientTreatments } from '@/lib/clinical/getPatientTreatments'
 import { getAppointments } from '@/lib/clinical/getAppointments'
+import { getLabRecords } from '@/lib/clinical/getLabRecords'
 import ClinicalSection from '@/components/clinical/ClinicalSection'
+import LabSection from '@/components/clinical/LabSection'
 import type { Customer } from '@/lib/types/customer'
 import type { Sale } from '@/lib/types/sale'
 
@@ -67,6 +69,9 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   const upcomingAppointments = canManageAppointments
     ? await getAppointments({ customerId: id, upcomingOnly: true }, user)
     : []
+  const canViewLab = hasCapability(user.role, 'clinical.lab.view')
+  const canManageLab = hasCapability(user.role, 'clinical.lab.manage')
+  const labOrders = canViewLab ? await getLabRecords(id, user) : []
   const treatments = canViewClinical ? await getPatientTreatments(id, user) : []
 
   return (
@@ -173,6 +178,10 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             Book appointment
           </Link>
         </div>
+      )}
+
+      {canViewLab && (
+        <LabSection customerId={id} orders={labOrders} canManage={canManageLab} />
       )}
     </div>
   )
