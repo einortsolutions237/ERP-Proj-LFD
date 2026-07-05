@@ -88,9 +88,11 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         <div>
           <span className="text-slate">Address:</span> <span className="text-ink">{data.address ?? '—'}</span>
         </div>
-        <div>
-          <span className="text-slate">Notes:</span> <span className="text-ink">{data.notes ?? '—'}</span>
-        </div>
+        {canViewCommercial && (
+          <div>
+            <span className="text-slate">Notes:</span> <span className="text-ink">{data.notes ?? '—'}</span>
+          </div>
+        )}
       </div>
 
       {canViewCommercial && (
