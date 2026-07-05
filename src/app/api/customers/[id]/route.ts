@@ -91,6 +91,19 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Cannot delete a customer that is still referenced by a sale' }, { status: 409 })
     }
 
+    const treatmentsSnap = await db.collection('treatments').where('customerId', '==', id).limit(1).get()
+    if (!treatmentsSnap.empty) {
+      return NextResponse.json({ error: 'Cannot delete a customer that is still referenced by a treatment record' }, { status: 409 })
+    }
+    const appointmentsSnap = await db.collection('appointments').where('customerId', '==', id).limit(1).get()
+    if (!appointmentsSnap.empty) {
+      return NextResponse.json({ error: 'Cannot delete a customer that is still referenced by an appointment' }, { status: 409 })
+    }
+    const labOrdersSnap = await db.collection('labOrders').where('customerId', '==', id).limit(1).get()
+    if (!labOrdersSnap.empty) {
+      return NextResponse.json({ error: 'Cannot delete a customer that is still referenced by a lab order' }, { status: 409 })
+    }
+
     await docRef.delete()
 
     await writeAuditLog({ action: 'customer_delete', actorUid: user.uid, actorEmail: user.email, targetUid: id, branchId: null })
