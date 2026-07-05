@@ -18,6 +18,7 @@ const NOTIFICATION_LINKS: Record<NotificationType, (relatedId: string) => string
   leave_request_submitted: () => '/leave/review',
   leave_request_reviewed: () => '/leave',
   appointment_scheduled: () => '/appointments',
+  lab_result_entered: (relatedId) => `/customers/${relatedId}`,
 }
 
 export default function NotificationBell() {

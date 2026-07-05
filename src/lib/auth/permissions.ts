@@ -41,6 +41,7 @@ export type Capability =
   | 'reports.inventory.view'
   | 'clinical.record.create' | 'clinical.record.view'
   | 'clinical.appointments.manage'
+  | 'clinical.lab.manage' | 'clinical.lab.view'
   | 'seminars.attendance.view'
   // accounting.* — no capabilities defined yet;
   // add them here when the module is actually built.
@@ -76,6 +77,8 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'clinical.record.create': 'clinical',
   'clinical.record.view': 'clinical',
   'clinical.appointments.manage': 'clinical',
+  'clinical.lab.manage': 'clinical',
+  'clinical.lab.view': 'clinical',
   'seminars.attendance.view': 'seminars',
 }
 
@@ -139,6 +142,8 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'clinical.record.create': CLINICAL_ROLES,
   'clinical.record.view': CLINICAL_VIEW_ROLES,
   'clinical.appointments.manage': CLINICAL_VIEW_ROLES,
+  'clinical.lab.manage': CLINICAL_ROLES,
+  'clinical.lab.view': CLINICAL_VIEW_ROLES,
   'seminars.attendance.view': [],
 }
 

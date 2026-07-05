@@ -12,6 +12,7 @@ export type AuditAction =
   | 'attendance_checkin' | 'attendance_checkout'
   | 'clinical_record_create' | 'clinical_record_view'
   | 'appointment_create' | 'appointment_update' | 'appointment_view'
+  | 'lab_order_create' | 'lab_result_create' | 'lab_view'
 
 export interface AuditLogEntry {
   id: string
