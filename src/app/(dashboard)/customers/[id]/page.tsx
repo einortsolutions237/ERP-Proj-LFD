@@ -5,6 +5,7 @@ import { getAdminFirestore } from '@/lib/firebase/admin'
 import { hasCapability } from '@/lib/auth/permissions'
 import DeleteCustomerButton from '@/components/customers/DeleteCustomerButton'
 import { getPatientTreatments } from '@/lib/clinical/getPatientTreatments'
+import { getAppointments } from '@/lib/clinical/getAppointments'
 import ClinicalSection from '@/components/clinical/ClinicalSection'
 import type { Customer } from '@/lib/types/customer'
 import type { Sale } from '@/lib/types/sale'
@@ -62,6 +63,10 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   const canViewCommercial = hasCapability(user.role, 'crm.customer.view')
   const canViewClinical = hasCapability(user.role, 'clinical.record.view')
   const canCreateTreatment = hasCapability(user.role, 'clinical.record.create')
+  const canManageAppointments = hasCapability(user.role, 'clinical.appointments.manage')
+  const upcomingAppointments = canManageAppointments
+    ? await getAppointments({ customerId: id, upcomingOnly: true }, user)
+    : []
   const treatments = canViewClinical ? await getPatientTreatments(id, user) : []
 
   return (
@@ -135,6 +140,39 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
       {canViewClinical && (
         <ClinicalSection customerId={id} treatments={treatments} canCreate={canCreateTreatment} />
+      )}
+
+      {canManageAppointments && (
+        <div className="space-y-3">
+          <h2 className="text-lg font-medium text-ink">Upcoming appointments</h2>
+          {upcomingAppointments.length === 0 ? (
+            <p className="text-sm text-slate">No upcoming appointments.</p>
+          ) : (
+            <div className="overflow-hidden rounded-md border border-mist">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-mist/40">
+                    <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Date/Time</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Doctor</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Reason</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-mist">
+                  {upcomingAppointments.map((row) => (
+                    <tr key={row.id} className="hover:bg-mist/40 transition-colors">
+                      <td className="px-3 py-2 text-ink">{new Date(row.scheduledAt).toLocaleString()}</td>
+                      <td className="px-3 py-2 text-ink">{row.doctorName}</td>
+                      <td className="px-3 py-2 text-ink">{row.reason ?? '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <Link href={`/appointments/new?customerId=${id}`} className="text-sm text-marine underline-offset-2 hover:underline">
+            Book appointment
+          </Link>
+        </div>
       )}
     </div>
   )
