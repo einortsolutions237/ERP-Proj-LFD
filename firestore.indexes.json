@@ -90,6 +90,22 @@
         { "fieldPath": "customerId", "order": "ASCENDING" },
         { "fieldPath": "orderedAt", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "seminarAttendance",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "seminarId", "order": "ASCENDING" },
+        { "fieldPath": "recordedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "seminarAttendance",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "customerId", "order": "ASCENDING" },
+        { "fieldPath": "recordedAt", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

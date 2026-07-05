@@ -85,6 +85,12 @@ service cloud.firestore {
     match /labResults/{labResultId} {
       allow read, write: if false; // all access goes through /api/lab-results — clinical data, same fully-closed treatment as labOrders
     }
+    match /seminars/{seminarId} {
+      allow read, write: if false; // all access goes through /api/seminars — clinical-adjacent event data, same fully-closed treatment as treatments/appointments/labOrders/labResults
+    }
+    match /seminarAttendance/{attendanceId} {
+      allow read, write: if false; // all access goes through /api/seminar-attendance — clinical-adjacent attendance data, same fully-closed treatment as seminars, plus every read is separately audit-logged server-side
+    }
     match /{document=**} {
       allow read, write: if false;
     }
