@@ -94,6 +94,11 @@ const ADMIN_IT: RoleId[] = ['super_admin', 'admin', 'it_admin']
 const REPORTS_ROLES: RoleId[] = ['super_admin', 'admin', 'branch_manager', 'finance_admin']
 const CLINICAL_ROLES: RoleId[] = ['super_admin', 'admin', 'doctor']
 const CRM_VIEW_ROLES: RoleId[] = ['super_admin', 'admin', 'branch_manager', 'cashier', 'medical_secretary']
+// Backs both clinical.record.view and clinical.appointments.manage (Phase
+// 14). When general_manager ships as a real role, it must be added HERE —
+// retrofitting both capabilities at once, not just one — per CLAUDE.md's
+// "hybrid business" section, which says general_manager gets full clinical
+// read access. Not added yet: general_manager doesn't exist in ROLES.
 const CLINICAL_VIEW_ROLES: RoleId[] = ['super_admin', 'admin', 'doctor', 'medical_secretary']
 
 export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
@@ -126,7 +131,7 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'reports.inventory.view': REPORTS_ROLES,
   'clinical.record.create': CLINICAL_ROLES,
   'clinical.record.view': CLINICAL_VIEW_ROLES,
-  'clinical.appointments.manage': [],
+  'clinical.appointments.manage': CLINICAL_VIEW_ROLES,
   'seminars.attendance.view': [],
 }
 

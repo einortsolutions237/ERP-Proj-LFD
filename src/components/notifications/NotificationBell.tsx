@@ -17,6 +17,7 @@ const NOTIFICATION_LINKS: Record<NotificationType, (relatedId: string) => string
   low_stock: (relatedId) => `/products/${relatedId}`,
   leave_request_submitted: () => '/leave/review',
   leave_request_reviewed: () => '/leave',
+  appointment_scheduled: () => '/appointments',
 }
 
 export default function NotificationBell() {
