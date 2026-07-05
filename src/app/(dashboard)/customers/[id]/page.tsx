@@ -31,7 +31,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
   let user
   try {
-    user = await requireAnyCapability(['crm.customer.view', 'clinical.record.view'])
+    user = await requireAnyCapability(['crm.customer.view', 'clinical.record.view', 'seminars.attendance.view'])
   } catch (err) {
     if (err instanceof AuthError) redirect('/dashboard?error=not-authorized')
     throw err
