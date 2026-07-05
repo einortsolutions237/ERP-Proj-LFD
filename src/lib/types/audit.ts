@@ -11,6 +11,7 @@ export type AuditAction =
   | 'leave_request_create' | 'leave_request_approve' | 'leave_request_reject'
   | 'attendance_checkin' | 'attendance_checkout'
   | 'clinical_record_create' | 'clinical_record_view'
+  | 'appointment_create' | 'appointment_update' | 'appointment_view'
 
 export interface AuditLogEntry {
   id: string

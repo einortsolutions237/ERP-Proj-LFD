@@ -168,6 +168,14 @@ const ChartLineIcon: IconComponent = ({ className }) => (
   </svg>
 )
 
+const StethoscopeIcon: IconComponent = ({ className }) => (
+  <svg {...ICON_SVG_PROPS} className={className}>
+    <path d="M6 4v6a4 4 0 008 0V4" />
+    <path d="M10 14v2a4 4 0 004 4 4 4 0 004-4v-1" />
+    <circle cx="18" cy="9" r="1.5" />
+  </svg>
+)
+
 interface NavLink {
   href: string
   label: string
@@ -194,6 +202,7 @@ const NAV_LINKS: NavLink[] = [
   { href: '/attendance', label: 'Attendance', capability: 'hr.attendance.view', icon: ClockIcon },
   { href: '/reports/sales', label: 'Sales Report', capability: 'reports.sales.view', icon: BarChartIcon },
   { href: '/reports/inventory', label: 'Stock Report', capability: 'reports.inventory.view', icon: ChartLineIcon },
+  { href: '/appointments', label: 'Appointments', capability: 'clinical.appointments.manage', icon: StethoscopeIcon },
 ]
 
 // 'persistent' = the always-mounted md+ sidebar (icon-only at md, full at
