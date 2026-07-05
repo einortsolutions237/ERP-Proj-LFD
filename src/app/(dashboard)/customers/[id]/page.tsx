@@ -7,6 +7,7 @@ import DeleteCustomerButton from '@/components/customers/DeleteCustomerButton'
 import { getPatientTreatments } from '@/lib/clinical/getPatientTreatments'
 import { getAppointments } from '@/lib/clinical/getAppointments'
 import { getLabRecords } from '@/lib/clinical/getLabRecords'
+import { getSeminarAttendance } from '@/lib/clinical/getSeminarAttendance'
 import ClinicalSection from '@/components/clinical/ClinicalSection'
 import LabSection from '@/components/clinical/LabSection'
 import type { Customer } from '@/lib/types/customer'
@@ -73,6 +74,10 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   const canManageLab = hasCapability(user.role, 'clinical.lab.manage')
   const labOrders = canViewLab ? await getLabRecords(id, user) : []
   const treatments = canViewClinical ? await getPatientTreatments(id, user) : []
+  const canViewSeminarAttendance = hasCapability(user.role, 'seminars.attendance.view')
+  const seminarAttendance = canViewSeminarAttendance
+    ? await getSeminarAttendance({ customerId: id }, user)
+    : []
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-8">
@@ -143,8 +148,15 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
       </div>
       )}
 
-      {canViewClinical && (
-        <ClinicalSection customerId={id} treatments={treatments} canCreate={canCreateTreatment} />
+      {(canViewClinical || canViewSeminarAttendance) && (
+        <ClinicalSection
+          customerId={id}
+          treatments={treatments}
+          canCreate={canCreateTreatment}
+          canViewClinical={canViewClinical}
+          seminarAttendance={seminarAttendance}
+          canViewSeminarAttendance={canViewSeminarAttendance}
+        />
       )}
 
       {canManageAppointments && (
