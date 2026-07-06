@@ -100,7 +100,12 @@ export async function POST(request: Request) {
     const normalized = normalizeCartLines(rawLines)
     const movementRefs = new Map(normalized.productLines.map((pl) => [pl.itemId, db.collection('stockMovements').doc()]))
 
-    let committed: { resolvedLineItems: SaleLineItem[]; subtotal: number; total: number }
+    let committed: {
+      resolvedLineItems: SaleLineItem[]
+      subtotal: number
+      total: number
+      backorders: { itemId: string; name: string; quantityTaken: number; quantityOwed: number }[]
+    }
 
     try {
       committed = await db.runTransaction(async (tx) => {
@@ -158,12 +163,21 @@ export async function POST(request: Request) {
           stockSnaps.set(pl.itemId, await tx.get(stockRefs.get(pl.itemId)!))
         }
 
+        const quantityTakenMap = new Map<string, number>()
+        const backorders: { itemId: string; name: string; quantityTaken: number; quantityOwed: number }[] = []
         for (const pl of normalized.productLines) {
           const currentQuantity = (stockSnaps.get(pl.itemId)!.data()?.quantity as number | undefined) ?? 0
-          if (currentQuantity - pl.quantity < 0) {
+          const quantityTaken = Math.min(currentQuantity, pl.quantity)
+          quantityTakenMap.set(pl.itemId, quantityTaken)
+          const quantityOwed = pl.quantity - quantityTaken
+          if (quantityOwed > 0) {
             const name = itemSnaps.get(pl.itemId)!.data()!.name as string
-            throw new AuthError(`Insufficient stock for ${name}`, 409)
+            backorders.push({ itemId: pl.itemId, name, quantityTaken, quantityOwed })
           }
+        }
+
+        if (backorders.length > 0 && !customerId) {
+          throw new AuthError('A sale with a backordered item must have a customer attached', 409)
         }
 
         // ---- WRITES ----
@@ -184,16 +198,17 @@ export async function POST(request: Request) {
         })
 
         for (const pl of normalized.productLines) {
+          const quantityTaken = quantityTakenMap.get(pl.itemId)!
           tx.set(
             stockRefs.get(pl.itemId)!,
-            { branchId: user.branchId, productId: pl.itemId, quantity: FieldValue.increment(-pl.quantity), updatedAt: new Date() },
+            { branchId: user.branchId, productId: pl.itemId, quantity: FieldValue.increment(-quantityTaken), updatedAt: new Date() },
             { merge: true }
           )
           tx.set(movementRefs.get(pl.itemId)!, {
             productId: pl.itemId,
             branchId: user.branchId,
             type: 'sale',
-            quantityDelta: -pl.quantity,
+            quantityDelta: -quantityTaken,
             reason: null,
             actorUid: user.uid,
             createdAt: new Date(),
@@ -202,7 +217,22 @@ export async function POST(request: Request) {
           })
         }
 
-        return { resolvedLineItems, subtotal, total }
+        const pendingDeliveryRefs = new Map(backorders.map((b) => [b.itemId, db.collection('pendingDeliveries').doc()] as const))
+        for (const b of backorders) {
+          tx.set(pendingDeliveryRefs.get(b.itemId)!, {
+            saleId: saleRef.id,
+            productId: b.itemId,
+            customerId: customerId as string,
+            branchId: user.branchId,
+            quantityOwed: b.quantityOwed,
+            status: 'pending',
+            fulfilledBy: null,
+            fulfilledAt: null,
+            createdAt: new Date(),
+          })
+        }
+
+        return { resolvedLineItems, subtotal, total, backorders }
       })
     } catch (err) {
       if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status })
@@ -223,6 +253,7 @@ export async function POST(request: Request) {
         total: committed.total,
         payments,
         customerId,
+        backorders: committed.backorders,
       },
     })
 
