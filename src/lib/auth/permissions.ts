@@ -46,6 +46,7 @@ export type Capability =
   | 'clinical.lab.manage' | 'clinical.lab.view'
   | 'seminars.manage'
   | 'seminars.attendance.record' | 'seminars.attendance.view'
+  | 'pos.delivery.fulfill'
   // accounting.* — no capabilities defined yet;
   // add them here when the module is actually built.
 
@@ -85,6 +86,7 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'seminars.manage': 'seminars',
   'seminars.attendance.record': 'seminars',
   'seminars.attendance.view': 'seminars',
+  'pos.delivery.fulfill': 'pos',
 }
 
 const ALL_ROLES: RoleId[] = [...ROLES]
@@ -188,6 +190,15 @@ const SEMINAR_RECORD_ROLES: RoleId[] = ['super_admin', 'protocol']
 // admin -> general_manager swap in Phase 17 (both explicitly named).
 const SEMINAR_VIEW_ROLES: RoleId[] = ['super_admin', 'general_manager', 'doctor', 'medical_secretary', 'protocol']
 
+// Backs pos.delivery.fulfill — fulfilling (or viewing) a pending delivery
+// is deliberately low-trust/operational, same reasoning as why cashier
+// never needed void-level scrutiny for this kind of confirmation: there's
+// no way to profit from falsely marking a delivery fulfilled. admin is
+// deliberately absent, consistent with Phase 17's narrowing — this is
+// exactly the capability that would have needed a retrofit had Phase 18
+// shipped before Phase 17's roles restructuring.
+const POS_DELIVERY_FULFILL_ROLES: RoleId[] = ['super_admin', 'general_manager', 'branch_manager', 'cashier']
+
 export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'admin.staff.view': GENERAL_MANAGER_HR,
   'admin.staff.create': ADMIN_HR,
@@ -224,6 +235,7 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'seminars.manage': SEMINAR_MANAGE_ROLES,
   'seminars.attendance.record': SEMINAR_RECORD_ROLES,
   'seminars.attendance.view': SEMINAR_VIEW_ROLES,
+  'pos.delivery.fulfill': POS_DELIVERY_FULFILL_ROLES,
 }
 
 export function hasCapability(role: RoleId, capability: Capability): boolean {

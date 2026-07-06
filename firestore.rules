@@ -91,6 +91,9 @@ service cloud.firestore {
     match /seminarAttendance/{attendanceId} {
       allow read, write: if false; // all access goes through /api/seminar-attendance — clinical-adjacent attendance data, same fully-closed treatment as seminars, plus every read is separately audit-logged server-side
     }
+    match /pendingDeliveries/{deliveryId} {
+      allow read, write: if false; // all access goes through /api/sales (create, inside the sale transaction) and /api/pending-deliveries/[id]/fulfill — stock/sales-adjacent operational data, same fully-closed treatment as treatments/appointments/labOrders/seminars
+    }
     match /{document=**} {
       allow read, write: if false;
     }

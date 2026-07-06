@@ -14,6 +14,7 @@ export type AuditAction =
   | 'appointment_create' | 'appointment_update' | 'appointment_view'
   | 'lab_order_create' | 'lab_result_create' | 'lab_view'
   | 'seminar_create' | 'seminar_edit' | 'seminar_attendance_record' | 'seminar_attendance_view'
+  | 'pending_delivery_fulfilled'
 
 export interface AuditLogEntry {
   id: string
