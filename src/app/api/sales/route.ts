@@ -95,21 +95,50 @@ export async function POST(request: Request) {
       customerId = body.customerId.trim()
     }
 
+    let clientIdempotencyKey: string | null = null
+    if ('clientIdempotencyKey' in body && body.clientIdempotencyKey !== undefined && body.clientIdempotencyKey !== null) {
+      if (!isNonEmptyString(body.clientIdempotencyKey)) {
+        return NextResponse.json({ error: 'clientIdempotencyKey must be a non-empty string or null' }, { status: 400 })
+      }
+      clientIdempotencyKey = body.clientIdempotencyKey.trim()
+    }
+
     const db = getAdminFirestore()
     const saleRef = db.collection('sales').doc()
     const normalized = normalizeCartLines(rawLines)
     const movementRefs = new Map(normalized.productLines.map((pl) => [pl.itemId, db.collection('stockMovements').doc()]))
 
-    let committed: {
-      resolvedLineItems: SaleLineItem[]
-      subtotal: number
-      total: number
-      backorders: { itemId: string; name: string; quantityTaken: number; quantityOwed: number }[]
-    }
+    let committed:
+      | { existing: true; id: string; subtotal: number; total: number }
+      | {
+          existing: false
+          resolvedLineItems: SaleLineItem[]
+          subtotal: number
+          total: number
+          backorders: { itemId: string; name: string; quantityTaken: number; quantityOwed: number }[]
+        }
 
     try {
       committed = await db.runTransaction(async (tx) => {
         // ---- READS (all must happen before any writes) ----
+        // Idempotency check first, before any other read — a replayed
+        // request (the offline sync queue retrying after a lost response)
+        // must short-circuit here rather than re-resolving prices/stock/
+        // backorders a second time. tx.get() on a Query (not just a
+        // DocumentReference) is already an established pattern in this
+        // codebase — see api/sales/[id]/void/route.ts's stockMovements
+        // lookup.
+        if (clientIdempotencyKey) {
+          const existingSnap = await tx.get(
+            db.collection('sales').where('clientIdempotencyKey', '==', clientIdempotencyKey).limit(1)
+          )
+          if (!existingSnap.empty) {
+            const existing = existingSnap.docs[0]
+            const data = existing.data()
+            return { existing: true, id: existing.id, subtotal: data.subtotal as number, total: data.total as number }
+          }
+        }
+
         const distinctItemIds = Array.from(new Set(rawLines.map((l) => l.itemId)))
         const itemRefs = new Map(
           rawLines.map((l) => [l.itemId, db.collection(l.type === 'product' ? 'products' : 'services').doc(l.itemId)] as const)
@@ -191,6 +220,7 @@ export async function POST(request: Request) {
           payments,
           cashierUid: user.uid,
           customerId,
+          clientIdempotencyKey,
           voidedAt: null,
           voidedBy: null,
           voidReason: null,
@@ -232,11 +262,18 @@ export async function POST(request: Request) {
           })
         }
 
-        return { resolvedLineItems, subtotal, total, backorders }
+        return { existing: false, resolvedLineItems, subtotal, total, backorders }
       })
     } catch (err) {
       if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status })
       throw err
+    }
+
+    if (committed.existing) {
+      // Replayed request (matched an already-processed clientIdempotencyKey)
+      // — the original request already wrote the sale_create audit entry;
+      // writing a second one here would misrepresent a replay as a new sale.
+      return NextResponse.json({ id: committed.id, subtotal: committed.subtotal, total: committed.total }, { status: 200 })
     }
 
     await writeAuditLog({
