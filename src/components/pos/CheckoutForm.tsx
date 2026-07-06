@@ -213,7 +213,15 @@ export default function CheckoutForm({ products, services, customers, branchId }
     setError(null)
     setSubmitting(true)
 
-    const idempotencyKey = crypto.randomUUID()
+    let idempotencyKey: string
+    try {
+      idempotencyKey = crypto.randomUUID()
+    } catch {
+      setError('Sale could not be completed — check your connection and try again.')
+      setSubmitting(false)
+      return
+    }
+
     const payload = {
       lineItems: cart.map((line) => ({ type: line.type, itemId: line.itemId, quantity: line.quantity })),
       discountAmount: discount,
