@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Sidebar from './Sidebar'
 import type { SessionUser } from '@/lib/auth/server-guard'
 import NotificationBell from '@/components/notifications/NotificationBell'
+import QueueStatusIndicator from '@/components/pos/QueueStatusIndicator'
 
 function HamburgerIcon({ className }: { className?: string }) {
   return (
@@ -64,6 +65,7 @@ export default function NavShell({ user, children }: { user: SessionUser; childr
           <span className="text-sm text-slate truncate">
             {user.email} &middot; <span className="font-medium text-ink">{user.role}</span>
           </span>
+          {(user.role === 'cashier' || user.role === 'branch_manager') && <QueueStatusIndicator />}
           <NotificationBell />
           <button
             onClick={handleLogout}
