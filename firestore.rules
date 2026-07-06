@@ -8,10 +8,10 @@ service cloud.firestore {
       allow write: if false; // Admin SDK bypasses rules entirely; no client path, ever
     }
     match /staff/{staffId} {
-      // keep in sync with ROLE_CAPABILITIES['admin.staff.view'] (ADMIN_HR) in src/lib/auth/permissions.ts
+      // keep in sync with ROLE_CAPABILITIES['admin.staff.view'] (GENERAL_MANAGER_HR) in src/lib/auth/permissions.ts — moved off admin in Phase 17's roles restructuring
       allow read: if request.auth != null
         && request.auth.token.branchId == resource.data.branchId
-        && request.auth.token.role in ['super_admin', 'admin', 'hr_admin'];
+        && request.auth.token.role in ['super_admin', 'general_manager', 'hr_admin'];
       allow create, update, delete: if false; // all writes go through Admin SDK via /api/staff
     }
     match /departments/{departmentId} {
