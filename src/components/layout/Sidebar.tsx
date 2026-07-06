@@ -176,10 +176,17 @@ const StethoscopeIcon: IconComponent = ({ className }) => (
   </svg>
 )
 
+const MegaphoneIcon: IconComponent = ({ className }) => (
+  <svg {...ICON_SVG_PROPS} className={className}>
+    <path d="M3 10v4h3l7 4V6l-7 4H3z" />
+    <path d="M15 8.5a3.5 3.5 0 010 7M17.5 6a6.5 6.5 0 010 12" />
+  </svg>
+)
+
 interface NavLink {
   href: string
   label: string
-  capability: Capability
+  capability: Capability | Capability[]
   icon: IconComponent
 }
 
@@ -203,6 +210,12 @@ const NAV_LINKS: NavLink[] = [
   { href: '/reports/sales', label: 'Sales Report', capability: 'reports.sales.view', icon: BarChartIcon },
   { href: '/reports/inventory', label: 'Stock Report', capability: 'reports.inventory.view', icon: ChartLineIcon },
   { href: '/appointments', label: 'Appointments', capability: 'clinical.appointments.manage', icon: StethoscopeIcon },
+  {
+    href: '/seminars',
+    label: 'Seminars',
+    capability: ['seminars.manage', 'seminars.attendance.record', 'seminars.attendance.view'],
+    icon: MegaphoneIcon,
+  },
 ]
 
 // 'persistent' = the always-mounted md+ sidebar (icon-only at md, full at
@@ -238,7 +251,9 @@ export default function Sidebar({ role, variant = 'persistent' }: { role: RoleId
         <span className={labelClassName}>Dashboard</span>
       </Link>
 
-      {NAV_LINKS.filter((link) => hasCapability(role, link.capability)).map((link) => (
+      {NAV_LINKS.filter((link) =>
+        (Array.isArray(link.capability) ? link.capability : [link.capability]).some((c) => hasCapability(role, c))
+      ).map((link) => (
         <Link key={link.href} href={link.href} title={link.label} className={linkClassName}>
           <link.icon className={iconClassName} />
           <span className={labelClassName}>{link.label}</span>

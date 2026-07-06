@@ -1,5 +1,5 @@
 export const ROLES = [
-  'super_admin', 'admin', 'branch_manager', 'hr_admin', 'finance_admin', 'it_admin', 'cashier', 'doctor', 'medical_secretary',
+  'super_admin', 'admin', 'branch_manager', 'hr_admin', 'finance_admin', 'it_admin', 'cashier', 'doctor', 'medical_secretary', 'protocol',
 ] as const
 
 export type RoleId = typeof ROLES[number]
@@ -42,7 +42,8 @@ export type Capability =
   | 'clinical.record.create' | 'clinical.record.view'
   | 'clinical.appointments.manage'
   | 'clinical.lab.manage' | 'clinical.lab.view'
-  | 'seminars.attendance.view'
+  | 'seminars.manage'
+  | 'seminars.attendance.record' | 'seminars.attendance.view'
   // accounting.* — no capabilities defined yet;
   // add them here when the module is actually built.
 
@@ -79,6 +80,8 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'clinical.appointments.manage': 'clinical',
   'clinical.lab.manage': 'clinical',
   'clinical.lab.view': 'clinical',
+  'seminars.manage': 'seminars',
+  'seminars.attendance.record': 'seminars',
   'seminars.attendance.view': 'seminars',
 }
 
@@ -110,6 +113,17 @@ const CRM_VIEW_ROLES: RoleId[] = ['super_admin', 'admin', 'branch_manager', 'cas
 // read access. Not added yet: general_manager doesn't exist in ROLES.
 // admin is deliberately absent — see CLINICAL_ROLES' comment above.
 const CLINICAL_VIEW_ROLES: RoleId[] = ['super_admin', 'doctor', 'medical_secretary']
+
+// Seminars is genuinely disjoint from the clinical wall above — protocol
+// and admin both appear here but neither appears in CLINICAL_ROLES/
+// CLINICAL_VIEW_ROLES, and medical_secretary/doctor split across manage
+// vs record in the opposite way they split for lab. None of these three
+// lists may be composed from CLINICAL_ROLES/CLINICAL_VIEW_ROLES/
+// CRM_VIEW_ROLES — each is spelled out explicitly so it can't silently
+// inherit an unrelated role change to one of those constants.
+const SEMINAR_MANAGE_ROLES: RoleId[] = ['super_admin', 'admin', 'medical_secretary']
+const SEMINAR_RECORD_ROLES: RoleId[] = ['super_admin', 'admin', 'protocol']
+const SEMINAR_VIEW_ROLES: RoleId[] = ['super_admin', 'admin', 'doctor', 'medical_secretary', 'protocol']
 
 export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'admin.staff.view': ADMIN_HR,
@@ -144,7 +158,9 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'clinical.appointments.manage': CLINICAL_VIEW_ROLES,
   'clinical.lab.manage': CLINICAL_ROLES,
   'clinical.lab.view': CLINICAL_VIEW_ROLES,
-  'seminars.attendance.view': [],
+  'seminars.manage': SEMINAR_MANAGE_ROLES,
+  'seminars.attendance.record': SEMINAR_RECORD_ROLES,
+  'seminars.attendance.view': SEMINAR_VIEW_ROLES,
 }
 
 export function hasCapability(role: RoleId, capability: Capability): boolean {
