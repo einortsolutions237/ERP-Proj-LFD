@@ -10,6 +10,8 @@ import { getLabRecords } from '@/lib/clinical/getLabRecords'
 import { getSeminarAttendance } from '@/lib/clinical/getSeminarAttendance'
 import ClinicalSection from '@/components/clinical/ClinicalSection'
 import LabSection from '@/components/clinical/LabSection'
+import PendingDeliveriesSection from '@/components/pos/PendingDeliveriesSection'
+import { getPendingDeliveries } from '@/lib/pos/getPendingDeliveries'
 import type { Customer } from '@/lib/types/customer'
 import type { Sale } from '@/lib/types/sale'
 
@@ -77,6 +79,10 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   const canViewSeminarAttendance = hasCapability(user.role, 'seminars.attendance.view')
   const seminarAttendance = canViewSeminarAttendance
     ? await getSeminarAttendance({ customerId: id }, user)
+    : []
+  const canFulfillDeliveries = hasCapability(user.role, 'pos.delivery.fulfill')
+  const pendingDeliveries = canFulfillDeliveries
+    ? await getPendingDeliveries(id, user)
     : []
 
   return (
@@ -194,6 +200,10 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
       {canViewLab && (
         <LabSection customerId={id} orders={labOrders} canManage={canManageLab} />
+      )}
+
+      {canFulfillDeliveries && (
+        <PendingDeliveriesSection deliveries={pendingDeliveries} />
       )}
     </div>
   )
