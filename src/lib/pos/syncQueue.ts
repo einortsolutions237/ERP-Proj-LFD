@@ -43,7 +43,14 @@ export async function runSync(): Promise<void> {
       }
 
       if (res.ok) {
-        const body = await res.json()
+        const body = await res.json().catch(() => null)
+        if (!body || !body.id) {
+          await updateQueuedSale(item.idempotencyKey, {
+            status: 'needs_attention',
+            lastError: 'Server accepted the sale but returned an unreadable response',
+          })
+          continue
+        }
         await updateQueuedSale(item.idempotencyKey, { status: 'synced', serverSaleId: body.id })
       } else {
         const body = await res.json().catch(() => ({}))
