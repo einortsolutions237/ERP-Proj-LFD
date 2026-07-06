@@ -1,6 +1,10 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { enqueueSale, type QueuedSaleReceipt as QueuedSaleReceiptData } from '@/lib/pos/offlineQueue'
+import { saveCatalogCache, loadCatalogCache } from '@/lib/pos/catalogCache'
+import { useOnlineStatus } from '@/hooks/useOnlineStatus'
+import QueuedSaleReceipt from './QueuedSaleReceipt'
 
 type CartLineType = 'product' | 'service'
 type PaymentMethod = 'cash' | 'mtn_momo' | 'orange_money'
@@ -70,8 +74,11 @@ function TenderGlyph({ method, className }: { method: 'mtn_momo' | 'orange_money
   )
 }
 
-export default function CheckoutForm({ products, services, customers }: CheckoutFormProps) {
+export default function CheckoutForm({ products, services, customers, branchId }: CheckoutFormProps) {
   const router = useRouter()
+  const isOnline = useOnlineStatus()
+  const [queuedReceipt, setQueuedReceipt] = useState<QueuedSaleReceiptData | null>(null)
+  const [catalogCachedAt, setCatalogCachedAt] = useState<number | null>(null)
 
   const [search, setSearch] = useState('')
   const [cart, setCart] = useState<CartLine[]>([])
@@ -94,6 +101,24 @@ export default function CheckoutForm({ products, services, customers }: Checkout
   ])
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+
+  // Whenever this page loads online, the props are fresh — record that as
+  // the new "last synced" point. Whenever it doesn't, read back whatever
+  // was last recorded so the offline banner (below) can say when the
+  // catalog/stock numbers it's showing actually came from — see the
+  // brief's "make clear in the UI... these numbers are from the last
+  // successful sync, not live."
+  useEffect(() => {
+    if (navigator.onLine) {
+      const cachedAt = Date.now()
+      saveCatalogCache({ branchId, products, services, cachedAt })
+      setCatalogCachedAt(cachedAt)
+    } else {
+      loadCatalogCache(branchId).then((entry) => {
+        if (entry) setCatalogCachedAt(entry.cachedAt)
+      })
+    }
+  }, [branchId, products, services])
 
   const query = search.trim().toLowerCase()
   const filteredProducts = products.filter((p) => p.name.toLowerCase().includes(query))
@@ -187,18 +212,55 @@ export default function CheckoutForm({ products, services, customers }: Checkout
     e.preventDefault()
     setError(null)
     setSubmitting(true)
+
+    const idempotencyKey = crypto.randomUUID()
+    const payload = {
+      lineItems: cart.map((line) => ({ type: line.type, itemId: line.itemId, quantity: line.quantity })),
+      discountAmount: discount,
+      payments: payments
+        .filter((p) => Number(p.amount) > 0)
+        .map((p) => ({ method: p.method, amount: Number(p.amount), reference: p.reference.trim() || null })),
+      customerId: customerId ?? null,
+    }
+
+    async function queueOffline() {
+      const receiptSnapshot = {
+        lineItems: cart.map((line) => ({
+          type: line.type,
+          itemId: line.itemId,
+          name: line.name,
+          unitPrice: line.unitPrice,
+          quantity: line.quantity,
+          lineTotal: line.unitPrice * line.quantity,
+        })),
+        subtotal,
+        total,
+        payments: payload.payments,
+        createdAtLocal: Date.now(),
+      }
+      await enqueueSale({
+        idempotencyKey,
+        payload,
+        receiptSnapshot,
+        status: 'queued',
+        lastError: null,
+        serverSaleId: null,
+        createdAt: Date.now(),
+      })
+      setSubmitting(false)
+      setQueuedReceipt(receiptSnapshot)
+    }
+
+    if (!navigator.onLine) {
+      await queueOffline()
+      return
+    }
+
     try {
       const res = await fetch('/api/sales', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lineItems: cart.map((line) => ({ type: line.type, itemId: line.itemId, quantity: line.quantity })),
-          discountAmount: discount,
-          payments: payments
-            .filter((p) => Number(p.amount) > 0)
-            .map((p) => ({ method: p.method, amount: Number(p.amount), reference: p.reference.trim() || null })),
-          ...(customerId ? { customerId } : {}),
-        }),
+        body: JSON.stringify({ ...payload, clientIdempotencyKey: idempotencyKey }),
       })
       const body = await res.json()
       if (!res.ok) {
@@ -208,15 +270,46 @@ export default function CheckoutForm({ products, services, customers }: Checkout
       }
       router.push(`/pos/sales/${body.id}`)
     } catch {
-      setError('Sale could not be completed — check your connection and try again.')
-      setSubmitting(false)
+      // fetch() itself threw — a genuine network-level failure despite
+      // navigator.onLine reporting true. Falls back to the same queued
+      // path, using the SAME idempotencyKey: if this request actually
+      // reached the server and committed before the connection dropped,
+      // the eventual queued retry's clientIdempotencyKey match returns
+      // that same sale instead of creating a second one (see Task 2).
+      await queueOffline()
     }
   }
 
   const submitDisabled = submitting || cart.length === 0 || Math.abs(balanceDue) >= 0.01
 
+  if (queuedReceipt) {
+    return (
+      <QueuedSaleReceipt
+        receipt={queuedReceipt}
+        onNewSale={() => {
+          setQueuedReceipt(null)
+          setCart([])
+          setCustomerId(null)
+          setDiscountAmount('')
+          setPayments([
+            { method: 'cash', amount: '', reference: '' },
+            { method: 'mtn_momo', amount: '', reference: '' },
+            { method: 'orange_money', amount: '', reference: '' },
+          ])
+        }}
+      />
+    )
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="grid gap-6 pb-24 md:grid-cols-2 md:pb-0">
+    <>
+      {!isOnline && (
+        <div className="mb-4 rounded-md border border-tender-orange bg-tender-orange/10 px-3 py-2 text-sm text-ink">
+          Offline — catalog and stock shown as of last sync
+          {catalogCachedAt ? ` (${new Date(catalogCachedAt).toLocaleString()})` : ''}, not live.
+        </div>
+      )}
+      <form onSubmit={handleSubmit} className="grid gap-6 pb-24 md:grid-cols-2 md:pb-0">
       <div className="space-y-3">
         <div>
           <label className="block text-sm font-medium text-ink">Search</label>
@@ -499,5 +592,6 @@ export default function CheckoutForm({ products, services, customers }: Checkout
         </button>
       </div>
     </form>
+    </>
   )
 }
