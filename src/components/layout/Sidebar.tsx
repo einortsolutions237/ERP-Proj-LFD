@@ -189,6 +189,14 @@ const ChatIcon: IconComponent = ({ className }) => (
   </svg>
 )
 
+const ClipboardIcon: IconComponent = ({ className }) => (
+  <svg {...ICON_SVG_PROPS} className={className}>
+    <rect x="6" y="4" width="12" height="17" rx="1" />
+    <rect x="9" y="2.5" width="6" height="3" rx="1" />
+    <path d="M9 11h6M9 15h6" />
+  </svg>
+)
+
 interface NavLink {
   href: string
   label: string
@@ -222,6 +230,12 @@ const NAV_LINKS: NavLink[] = [
     label: 'Seminars',
     capability: ['seminars.manage', 'seminars.attendance.record', 'seminars.attendance.view'],
     icon: MegaphoneIcon,
+  },
+  {
+    href: '/intake-questionnaire',
+    label: 'Intake Questionnaire',
+    capability: 'clinical.questionnaire.manage',
+    icon: ClipboardIcon,
   },
 ]
 
