@@ -183,6 +183,12 @@ const MegaphoneIcon: IconComponent = ({ className }) => (
   </svg>
 )
 
+const ChatIcon: IconComponent = ({ className }) => (
+  <svg {...ICON_SVG_PROPS} className={className}>
+    <path d="M4 5.5h16v10H9l-4 3.5v-3.5H4z" />
+  </svg>
+)
+
 interface NavLink {
   href: string
   label: string
@@ -191,6 +197,7 @@ interface NavLink {
 }
 
 const NAV_LINKS: NavLink[] = [
+  { href: '/messages', label: 'Messages', capability: 'messaging.access', icon: ChatIcon },
   { href: '/staff', label: 'Staff', capability: 'admin.staff.view', icon: UserIcon },
   { href: '/roles', label: 'Roles', capability: 'admin.roles.view', icon: BadgeIcon },
   { href: '/departments', label: 'Departments', capability: 'admin.departments.manage', icon: GridIcon },
