@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface ThreadMessage {
   id: string
@@ -22,13 +22,12 @@ export default function ThreadView({ peerUid, ownUid }: { peerUid: string; ownUi
   const [draft, setDraft] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const notFound = useRef(false)
+  const [notFound, setNotFound] = useState(false)
 
   async function load() {
-    if (notFound.current) return
     const res = await fetch(`/api/messaging/messages?peerUid=${encodeURIComponent(peerUid)}`)
     if (res.status === 404) {
-      notFound.current = true
+      setNotFound(true)
       return
     }
     if (!res.ok) return
@@ -61,7 +60,7 @@ export default function ThreadView({ peerUid, ownUid }: { peerUid: string; ownUi
     await load()
   }
 
-  if (notFound.current) return <p className="text-sm text-slate">This contact is not reachable.</p>
+  if (notFound) return <p className="text-sm text-slate">This contact is not reachable.</p>
   if (!thread) return <p className="text-sm text-slate">Loading…</p>
 
   return (
