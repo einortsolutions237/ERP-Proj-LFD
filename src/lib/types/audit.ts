@@ -15,6 +15,10 @@ export type AuditAction =
   | 'lab_order_create' | 'lab_result_create' | 'lab_view'
   | 'seminar_create' | 'seminar_edit' | 'seminar_attendance_record' | 'seminar_attendance_view'
   | 'pending_delivery_fulfilled'
+  | 'patient_demographics_record'
+  | 'nursing_visit_record'
+  | 'intake_questionnaire_edit'
+  | 'intake_view'
   | 'message_create'
 
 export interface AuditLogEntry {

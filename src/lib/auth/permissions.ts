@@ -1,5 +1,5 @@
 export const ROLES = [
-  'super_admin', 'admin', 'branch_manager', 'hr_admin', 'finance_admin', 'it_admin', 'cashier', 'doctor', 'medical_secretary', 'protocol', 'general_manager', 'inventory_manager',
+  'super_admin', 'admin', 'branch_manager', 'hr_admin', 'finance_admin', 'it_admin', 'cashier', 'doctor', 'medical_secretary', 'protocol', 'general_manager', 'inventory_manager', 'nurse',
 ] as const
 
 export type RoleId = typeof ROLES[number]
@@ -47,6 +47,15 @@ export type Capability =
   | 'seminars.manage'
   | 'seminars.attendance.record' | 'seminars.attendance.view'
   | 'pos.delivery.fulfill'
+  // Phase 19.1 — nurse & patient intake. Each of these three is backed by
+  // its own standalone role list below (INTAKE_RECORD_ROLES/
+  // QUESTIONNAIRE_MANAGE_ROLES/INTAKE_VIEW_ROLES), never CLINICAL_ROLES/
+  // CLINICAL_VIEW_ROLES by reference — those also back clinical.record.*/
+  // clinical.appointments.manage, and reusing them here would silently
+  // grant nurse full diagnosis/treatment/appointment access.
+  | 'clinical.intake.record'
+  | 'clinical.questionnaire.manage'
+  | 'clinical.intake.view'
   // Gates baseline access to the messaging feature only (i.e. "is this a
   // valid staff account"). It does NOT decide who a given sender can reach —
   // that is canMessage()'s job, re-evaluated per-recipient on every list/read/
@@ -94,6 +103,9 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'seminars.attendance.record': 'seminars',
   'seminars.attendance.view': 'seminars',
   'pos.delivery.fulfill': 'pos',
+  'clinical.intake.record': 'clinical',
+  'clinical.questionnaire.manage': 'clinical',
+  'clinical.intake.view': 'clinical',
   'messaging.access': 'messaging',
 }
 
@@ -207,6 +219,25 @@ const SEMINAR_VIEW_ROLES: RoleId[] = ['super_admin', 'general_manager', 'doctor'
 // shipped before Phase 17's roles restructuring.
 const POS_DELIVERY_FULFILL_ROLES: RoleId[] = ['super_admin', 'general_manager', 'branch_manager', 'cashier']
 
+// Phase 19.1 — nurse & patient intake. Deliberately three separate,
+// explicitly-spelled-out lists rather than composed from CLINICAL_ROLES/
+// CLINICAL_VIEW_ROLES — see the Capability union's own comment above for
+// why. doctor appears in both INTAKE_RECORD_ROLES and INTAKE_VIEW_ROLES:
+// the doctor needs to gather or correct this data directly when the nurse
+// isn't available, not just view what's already there, so this is not the
+// narrow nurse-only specialist shape clinical.lab.manage has.
+const INTAKE_RECORD_ROLES: RoleId[] = ['super_admin', 'doctor', 'nurse']
+// admin/general_manager get this one (template configuration is a
+// business-operations concern, same reasoning as seminars.manage), nurse
+// gets it too since nurse is the one actually using the template day to
+// day and is best placed to know when a question needs changing.
+const QUESTIONNAIRE_MANAGE_ROLES: RoleId[] = ['super_admin', 'general_manager', 'admin', 'nurse']
+// medical_secretary/general_manager get read access matching their
+// existing clinical-view-adjacent role elsewhere; nurse does NOT get
+// clinical.record.view in the other direction — confirm this holds via
+// live verification, not just that this capability works.
+const INTAKE_VIEW_ROLES: RoleId[] = ['super_admin', 'doctor', 'medical_secretary', 'general_manager', 'nurse']
+
 export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'admin.staff.view': GENERAL_MANAGER_HR,
   'admin.staff.create': ADMIN_HR,
@@ -244,6 +275,9 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'seminars.attendance.record': SEMINAR_RECORD_ROLES,
   'seminars.attendance.view': SEMINAR_VIEW_ROLES,
   'pos.delivery.fulfill': POS_DELIVERY_FULFILL_ROLES,
+  'clinical.intake.record': INTAKE_RECORD_ROLES,
+  'clinical.questionnaire.manage': QUESTIONNAIRE_MANAGE_ROLES,
+  'clinical.intake.view': INTAKE_VIEW_ROLES,
   'messaging.access': ALL_ROLES,
 }
 
