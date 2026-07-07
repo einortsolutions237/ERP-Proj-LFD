@@ -100,6 +100,15 @@ service cloud.firestore {
     match /messages/{messageId} {
       allow read, write: if false; // all access goes through /api/messaging
     }
+    match /patientDemographics/{customerId} {
+      allow read, write: if false; // all access goes through /api/patient-intake — clinical-adjacent data, same fully-closed treatment as treatments/appointments/labOrders, plus every read is separately audit-logged server-side
+    }
+    match /nursingVisits/{visitId} {
+      allow read, write: if false; // all access goes through /api/patient-intake — same fully-closed treatment as patientDemographics
+    }
+    match /intakeQuestionnaire/{docId} {
+      allow read, write: if false; // all access goes through /api/intake-questionnaire — shared configuration, not patient data itself, but closed the same way as every other collection in this app
+    }
     match /{document=**} {
       allow read, write: if false;
     }
