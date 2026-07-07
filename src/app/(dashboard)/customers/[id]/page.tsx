@@ -12,6 +12,8 @@ import ClinicalSection from '@/components/clinical/ClinicalSection'
 import LabSection from '@/components/clinical/LabSection'
 import PendingDeliveriesSection from '@/components/pos/PendingDeliveriesSection'
 import { getPendingDeliveries } from '@/lib/pos/getPendingDeliveries'
+import { getPatientIntake } from '@/lib/clinical/getPatientIntake'
+import IntakeSection from '@/components/clinical/IntakeSection'
 import type { Customer } from '@/lib/types/customer'
 import type { Sale } from '@/lib/types/sale'
 
@@ -33,7 +35,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
   let user
   try {
-    user = await requireAnyCapability(['crm.customer.view', 'clinical.record.view', 'seminars.attendance.view'])
+    user = await requireAnyCapability(['crm.customer.view', 'clinical.record.view', 'seminars.attendance.view', 'clinical.intake.view'])
   } catch (err) {
     if (err instanceof AuthError) redirect('/dashboard?error=not-authorized')
     throw err
@@ -84,6 +86,9 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   const pendingDeliveries = canFulfillDeliveries
     ? await getPendingDeliveries(id, user)
     : []
+  const canViewIntake = hasCapability(user.role, 'clinical.intake.view')
+  const canRecordIntake = hasCapability(user.role, 'clinical.intake.record')
+  const intake = canViewIntake ? await getPatientIntake(id, user) : { demographics: null, visits: [] }
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-8">
@@ -204,6 +209,15 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
       {canFulfillDeliveries && (
         <PendingDeliveriesSection deliveries={pendingDeliveries} />
+      )}
+
+      {canViewIntake && (
+        <IntakeSection
+          customerId={id}
+          demographics={intake.demographics}
+          visits={intake.visits}
+          canRecord={canRecordIntake}
+        />
       )}
     </div>
   )
