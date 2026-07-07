@@ -13,6 +13,7 @@ export default function NursingVisitForm({ customerId, onDone }: NursingVisitFor
   const [weight, setWeight] = useState('')
   const [bloodPressure, setBloodPressure] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
@@ -22,6 +23,7 @@ export default function NursingVisitForm({ customerId, onDone }: NursingVisitFor
         setQuestions(body.questions)
         setAnswers(new Array(body.questions.length).fill(''))
       })
+      .catch(() => setLoadError('Failed to load the intake questionnaire.'))
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
@@ -53,6 +55,7 @@ export default function NursingVisitForm({ customerId, onDone }: NursingVisitFor
     }
   }
 
+  if (loadError) return <p className="text-sm text-danger">{loadError}</p>
   if (questions === null) return <p className="text-sm text-slate">Loading questionnaire…</p>
 
   return (
