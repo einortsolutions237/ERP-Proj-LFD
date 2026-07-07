@@ -57,3 +57,17 @@ Tracked deviations, deferred hardening, and known limitations accepted during a 
 **Proposed enhancement (for whenever this gets prioritized):** either (a) have `GET /api/messaging/conversations` also iterate `conversations` docs with no matching `staff` doc and emit them using the conversation's own denormalized `participantNames`/`participantRoles`, with `canReply: false` and a placeholder like "(former staff member)", and extend `GET /api/messaging/messages` to serve message history for such a peer using the same denormalized data instead of a live claims fetch when `getMessagingParty` returns `null` but a conversation doc exists; or (b) add a dependent-collection check to `DELETE /api/staff/[staffId]` mirroring TD-3's pattern, if a future product decision concludes staff deletion should be blocked by unresolved conversation history.
 
 **Constraints for the fix (per project decision):** whichever approach is chosen, it should be a deliberate decision made by a phase that actually needs it, not a byproduct of unrelated work — same discipline TD-3's soft-delete/archive question is held to.
+
+## TD-5: Deactivated (disabled, not deleted) staff remain fully messageable
+
+**Deferred to:** Not scheduled — accepted as a known limitation for Phase 19 (Messaging), per explicit user decision, 2026-07-07.
+
+**Found during:** Phase 19 (Messaging) final whole-branch review, 2026-07-07.
+
+**Current state:** `PATCH /api/staff/[staffId]` deactivation sets `employment.status: 'inactive'` and calls `auth.updateUser(uid, { disabled: true })`, but leaves the `staff` Firestore doc and the account's Firebase Auth custom claims fully intact — only sign-in is blocked. Neither `GET /api/messaging/conversations` (candidate query has no `employment.status` filter) nor `getMessagingParty()` (`getAuth().getUser(uid)` succeeds and returns claims for a disabled account without error) treats a disabled account any differently from an active one. Net effect: a deactivated `branch_manager`/`it_admin`/etc. still appears as a reachable contact, `canMessage` still passes, and a message can still be sent to them — triggering a real `message_received` notification for an account that can no longer log in to ever read it. This is distinct from TD-4 above, which covers *deleted* staff (`getMessagingParty` returns `null`, thread 404s) — deactivation is a different, unhandled state.
+
+**Why not fixed now:** low risk (a dead-letter notification, not a forbidden relationship opening) and, per project decision, this class of gap gets a tracked tech-debt entry rather than expanding a messaging phase into an unplanned audit of every staff-lifecycle interaction.
+
+**Proposed enhancement (for whenever this gets prioritized):** exclude `employment.status === 'inactive'` staff from the candidate set in `GET /api/messaging/conversations`, and have `getMessagingParty()` also read the `staff` doc's `employment.status` and return `null` (or a distinct "recipient inactive" signal) when it's `'inactive'`, so `canMessage` correctly stops passing for a deactivated recipient the same way it already does for a deleted one.
+
+**Constraints for the fix (per project decision):** should be resolved deliberately, same discipline as TD-3/TD-4 — not as a byproduct of unrelated staff-lifecycle work.
