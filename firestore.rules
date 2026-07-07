@@ -94,6 +94,12 @@ service cloud.firestore {
     match /pendingDeliveries/{deliveryId} {
       allow read, write: if false; // all access goes through /api/sales (create, inside the sale transaction) and /api/pending-deliveries/[id]/fulfill — stock/sales-adjacent operational data, same fully-closed treatment as treatments/appointments/labOrders/seminars
     }
+    match /conversations/{conversationId} {
+      allow read, write: if false; // all access goes through /api/messaging — private staff communication, same fully-closed treatment as leaveRequests/notifications
+    }
+    match /messages/{messageId} {
+      allow read, write: if false; // all access goes through /api/messaging
+    }
     match /{document=**} {
       allow read, write: if false;
     }

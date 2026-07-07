@@ -13,7 +13,7 @@ export const STRICT_AUDIT_ROLES: RoleId[] = ['super_admin', 'admin', 'general_ma
 // Every future module the permission system will gate. Phase 1 only implements
 // capabilities for 'admin' — the other modules are reserved so the shape exists
 // without building screens ahead of scope.
-export const MODULES = ['admin', 'pos', 'inventory', 'crm', 'accounting', 'hr', 'reporting', 'clinical', 'seminars'] as const
+export const MODULES = ['admin', 'pos', 'inventory', 'crm', 'accounting', 'hr', 'reporting', 'clinical', 'seminars', 'messaging'] as const
 
 export type ModuleId = typeof MODULES[number]
 
@@ -47,6 +47,13 @@ export type Capability =
   | 'seminars.manage'
   | 'seminars.attendance.record' | 'seminars.attendance.view'
   | 'pos.delivery.fulfill'
+  // Gates baseline access to the messaging feature only (i.e. "is this a
+  // valid staff account"). It does NOT decide who a given sender can reach —
+  // that is canMessage()'s job, re-evaluated per-recipient on every list/read/
+  // send, never cached. Granted to every role because everyone has at least
+  // one reachable contact (their own branch's branch_manager, at minimum, or
+  // the IT support line).
+  | 'messaging.access'
   // accounting.* — no capabilities defined yet;
   // add them here when the module is actually built.
 
@@ -87,6 +94,7 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'seminars.attendance.record': 'seminars',
   'seminars.attendance.view': 'seminars',
   'pos.delivery.fulfill': 'pos',
+  'messaging.access': 'messaging',
 }
 
 const ALL_ROLES: RoleId[] = [...ROLES]
@@ -236,6 +244,7 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'seminars.attendance.record': SEMINAR_RECORD_ROLES,
   'seminars.attendance.view': SEMINAR_VIEW_ROLES,
   'pos.delivery.fulfill': POS_DELIVERY_FULFILL_ROLES,
+  'messaging.access': ALL_ROLES,
 }
 
 export function hasCapability(role: RoleId, capability: Capability): boolean {
