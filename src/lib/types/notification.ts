@@ -1,4 +1,4 @@
-export type NotificationType = 'low_stock' | 'leave_request_submitted' | 'leave_request_reviewed' | 'appointment_scheduled' | 'lab_result_entered' | 'pending_delivery'
+export type NotificationType = 'low_stock' | 'leave_request_submitted' | 'leave_request_reviewed' | 'appointment_scheduled' | 'lab_result_entered' | 'pending_delivery' | 'message_received'
 
 export interface Notification {
   id: string

@@ -3,3 +3,4 @@ export { onLeaveRequestSubmitted, onLeaveRequestReviewed } from './leaveNotifica
 export { onAppointmentScheduled } from './appointmentNotifications'
 export { onLabResultEntered } from './labResultNotifications'
 export { onPendingDeliveryCreated } from './pendingDeliveryNotifications'
+export { onMessageSent } from './messageNotifications'

@@ -20,6 +20,7 @@ const NOTIFICATION_LINKS: Record<NotificationType, (relatedId: string) => string
   appointment_scheduled: () => '/appointments',
   lab_result_entered: (relatedId) => `/customers/${relatedId}`,
   pending_delivery: (relatedId) => `/customers/${relatedId}`,
+  message_received: (relatedId) => `/messages/${relatedId}`,
 }
 
 export default function NotificationBell() {
