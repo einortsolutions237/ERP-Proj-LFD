@@ -22,7 +22,7 @@ export interface LabOrderRow {
   instructions: string | null
   status: LabOrderStatus
   orderedAt: string
-  result: { values: LabResultValueRow[]; enteredBy: string; enteredByName: string; enteredAt: string } | null
+  result: { values: LabResultValueRow[]; notes: string | null; enteredBy: string; enteredByName: string; enteredAt: string } | null
 }
 
 // Called by both GET /api/lab-orders and the customer detail page's Lab
@@ -74,6 +74,7 @@ export async function getLabRecords(customerId: string, viewer: SessionUser): Pr
           const r = resultDoc.data() as LabResult
           return {
             values: r.values,
+            notes: r.notes,
             enteredBy: r.enteredBy,
             enteredByName: enteredByNames[r.enteredBy] ?? r.enteredBy,
             enteredAt: r.enteredAt.toDate().toISOString(),
