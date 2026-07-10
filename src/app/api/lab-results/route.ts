@@ -20,7 +20,7 @@ interface RawValue {
 
 export async function POST(request: Request) {
   try {
-    const user = await requireCapability('clinical.lab.manage')
+    const user = await requireCapability('clinical.lab.results.enter')
     const body = await request.json()
 
     if (!isNonEmptyString(body.labOrderId)) {
@@ -47,6 +47,14 @@ export async function POST(request: Request) {
       if (v.flag !== undefined && v.flag !== null && !FLAGS.includes(v.flag as LabResultFlag)) {
         return NextResponse.json({ error: 'flag must be normal, low, high, or null' }, { status: 400 })
       }
+    }
+
+    let notes: string | null = null
+    if ('notes' in body && body.notes !== undefined && body.notes !== null && body.notes !== '') {
+      if (!isNonEmptyString(body.notes)) {
+        return NextResponse.json({ error: 'notes must be a string or null' }, { status: 400 })
+      }
+      notes = body.notes.trim()
     }
 
     const values = rawValues.map((v) => ({
@@ -76,6 +84,7 @@ export async function POST(request: Request) {
         tx.set(resultRef, {
           labOrderId,
           values,
+          notes,
           enteredBy: user.uid,
           enteredAt: new Date(),
         })
