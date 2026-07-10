@@ -197,6 +197,13 @@ const ClipboardIcon: IconComponent = ({ className }) => (
   </svg>
 )
 
+const FlaskIcon: IconComponent = ({ className }) => (
+  <svg {...ICON_SVG_PROPS} className={className}>
+    <path d="M9 2.5h6M10 3v6.5L4.5 19a1.5 1.5 0 0 0 1.3 2.3h12.4a1.5 1.5 0 0 0 1.3-2.3L14 9.5V3" />
+    <path d="M7.5 15h9" />
+  </svg>
+)
+
 interface NavLink {
   href: string
   label: string
@@ -236,6 +243,12 @@ const NAV_LINKS: NavLink[] = [
     label: 'Intake Questionnaire',
     capability: 'clinical.questionnaire.manage',
     icon: ClipboardIcon,
+  },
+  {
+    href: '/lab-orders/pending',
+    label: 'Pending Lab Orders',
+    capability: 'clinical.lab.results.enter',
+    icon: FlaskIcon,
   },
 ]
 
