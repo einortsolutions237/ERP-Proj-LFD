@@ -1,5 +1,5 @@
 export const ROLES = [
-  'super_admin', 'admin', 'branch_manager', 'hr_admin', 'finance_admin', 'it_admin', 'cashier', 'doctor', 'medical_secretary', 'protocol', 'general_manager', 'inventory_manager', 'nurse',
+  'super_admin', 'admin', 'branch_manager', 'hr_admin', 'finance_admin', 'it_admin', 'cashier', 'doctor', 'medical_secretary', 'protocol', 'general_manager', 'inventory_manager', 'nurse', 'lab_staff',
 ] as const
 
 export type RoleId = typeof ROLES[number]
@@ -43,7 +43,12 @@ export type Capability =
   | 'reports.inventory.view'
   | 'clinical.record.create' | 'clinical.record.view'
   | 'clinical.appointments.manage'
-  | 'clinical.lab.manage' | 'clinical.lab.view'
+  // Phase 19.2 — split Phase 15's combined lab-management capability.
+  // Two standalone lists, not composed from CLINICAL_ROLES, for the same
+  // future-proofing reason clinical.intake.view had to stand alone in
+  // Phase 19.1: ordering (a clinical decision) and results-entry
+  // (a specialist-plus-fallback grant) are genuinely different actor sets.
+  | 'clinical.lab.order' | 'clinical.lab.results.enter' | 'clinical.lab.view'
   | 'seminars.manage'
   | 'seminars.attendance.record' | 'seminars.attendance.view'
   | 'pos.delivery.fulfill'
@@ -97,7 +102,8 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'clinical.record.create': 'clinical',
   'clinical.record.view': 'clinical',
   'clinical.appointments.manage': 'clinical',
-  'clinical.lab.manage': 'clinical',
+  'clinical.lab.order': 'clinical',
+  'clinical.lab.results.enter': 'clinical',
   'clinical.lab.view': 'clinical',
   'seminars.manage': 'seminars',
   'seminars.attendance.record': 'seminars',
@@ -194,6 +200,22 @@ const CRM_VIEW_ROLES: RoleId[] = ['super_admin', 'branch_manager', 'cashier', 'm
 // admin is deliberately absent — see CLINICAL_ROLES' comment above.
 const CLINICAL_VIEW_ROLES: RoleId[] = ['super_admin', 'doctor', 'medical_secretary', 'general_manager']
 
+// Phase 19.2 — clinical.lab.manage (Phase 15) splits into ordering vs.
+// results-entry. clinical.lab.order is a standalone list, not a reference
+// to CLINICAL_ROLES, even though membership currently matches — same
+// future-proofing reason clinical.intake.view had to stand alone.
+const LAB_ORDER_ROLES: RoleId[] = ['super_admin', 'doctor']
+// doctor's inclusion here is a fallback/oversight grant, the same shape
+// as doctor also holding clinical.intake.record alongside nurse — not
+// the narrow single-specialist shape clinical.lab.manage used to be.
+const LAB_RESULTS_ENTER_ROLES: RoleId[] = ['super_admin', 'doctor', 'lab_staff']
+// clinical.lab.view can no longer be backed by CLINICAL_VIEW_ROLES by
+// reference (Phase 15's original wiring) — that constant also backs
+// clinical.record.view/clinical.appointments.manage, and lab_staff/nurse
+// must NOT gain those. Standalone list, confirmed exact final membership
+// per Phase 19.2's spec.
+const LAB_VIEW_ROLES: RoleId[] = ['super_admin', 'doctor', 'medical_secretary', 'general_manager', 'lab_staff', 'nurse']
+
 // Seminars is genuinely disjoint from the clinical wall above — protocol
 // appears here but not in CLINICAL_ROLES/CLINICAL_VIEW_ROLES, and
 // medical_secretary/doctor split across manage vs record in the opposite
@@ -269,8 +291,9 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'clinical.record.create': CLINICAL_ROLES,
   'clinical.record.view': CLINICAL_VIEW_ROLES,
   'clinical.appointments.manage': CLINICAL_VIEW_ROLES,
-  'clinical.lab.manage': CLINICAL_ROLES,
-  'clinical.lab.view': CLINICAL_VIEW_ROLES,
+  'clinical.lab.order': LAB_ORDER_ROLES,
+  'clinical.lab.results.enter': LAB_RESULTS_ENTER_ROLES,
+  'clinical.lab.view': LAB_VIEW_ROLES,
   'seminars.manage': SEMINAR_MANAGE_ROLES,
   'seminars.attendance.record': SEMINAR_RECORD_ROLES,
   'seminars.attendance.view': SEMINAR_VIEW_ROLES,

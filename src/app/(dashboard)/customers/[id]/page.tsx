@@ -75,7 +75,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
     ? await getAppointments({ customerId: id, upcomingOnly: true }, user)
     : []
   const canViewLab = hasCapability(user.role, 'clinical.lab.view')
-  const canManageLab = hasCapability(user.role, 'clinical.lab.manage')
+  const canManageLab = hasCapability(user.role, 'clinical.lab.order')
   const labOrders = canViewLab ? await getLabRecords(id, user) : []
   const treatments = canViewClinical ? await getPatientTreatments(id, user) : []
   const canViewSeminarAttendance = hasCapability(user.role, 'seminars.attendance.view')
