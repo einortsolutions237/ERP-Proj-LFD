@@ -92,6 +92,14 @@
       ]
     },
     {
+      "collectionGroup": "labOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "orderedAt", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "seminarAttendance",
       "queryScope": "COLLECTION",
       "fields": [
