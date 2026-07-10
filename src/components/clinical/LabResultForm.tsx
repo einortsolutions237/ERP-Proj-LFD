@@ -18,6 +18,7 @@ export interface LabResultFormProps {
 
 export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps) {
   const [rows, setRows] = useState<ValueRow[]>([{ ...EMPTY_ROW }])
+  const [notes, setNotes] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -47,6 +48,7 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
         referenceRange: row.referenceRange.trim() || null,
         flag: row.flag || null,
       })),
+      notes: notes.trim() || null,
     }
 
     try {
@@ -138,6 +140,14 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
       >
         + Add row
       </button>
+      <div>
+        <label className="block text-xs font-medium text-ink">Feedback / review note (optional)</label>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          className="w-full rounded-md border border-mist bg-paper px-2 py-1 text-sm text-ink focus:border-marine"
+        />
+      </div>
       {error && <p className="text-sm text-danger">{error}</p>}
       <div>
         <button

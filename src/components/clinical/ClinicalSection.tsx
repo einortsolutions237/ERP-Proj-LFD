@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import TreatmentForm from './TreatmentForm'
+import LabOrderForm from './LabOrderForm'
 import type { TreatmentRow } from '@/lib/clinical/getPatientTreatments'
 import type { SeminarAttendanceRow } from '@/lib/clinical/getSeminarAttendance'
 
@@ -12,6 +13,7 @@ export interface ClinicalSectionProps {
   treatments: TreatmentRow[]
   canCreate: boolean
   canViewClinical: boolean
+  canOrderLab: boolean
   seminarAttendance: SeminarAttendanceRow[]
   canViewSeminarAttendance: boolean
 }
@@ -21,11 +23,13 @@ export default function ClinicalSection({
   treatments,
   canCreate,
   canViewClinical,
+  canOrderLab,
   seminarAttendance,
   canViewSeminarAttendance,
 }: ClinicalSectionProps) {
   const router = useRouter()
   const [showForm, setShowForm] = useState(false)
+  const [orderingForTreatmentId, setOrderingForTreatmentId] = useState<string | null>(null)
 
   return (
     <div className="space-y-3">
@@ -35,25 +39,49 @@ export default function ClinicalSection({
           {treatments.length === 0 ? (
             <p className="text-sm text-slate">No treatments recorded yet.</p>
           ) : (
-            <div className="overflow-hidden rounded-md border border-mist">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-mist/40">
-                    <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Date</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Doctor</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Diagnosis</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-mist">
-                  {treatments.map((row) => (
-                    <tr key={row.id} className="hover:bg-mist/40 transition-colors">
-                      <td className="px-3 py-2 text-ink">{row.date}</td>
-                      <td className="px-3 py-2 text-ink">{row.doctorName}</td>
-                      <td className="px-3 py-2 text-ink">{row.diagnosis}</td>
+            <div className="space-y-2">
+              <div className="overflow-hidden rounded-md border border-mist">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-mist/40">
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Date</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Doctor</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Diagnosis</th>
+                      {canOrderLab && <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate" />}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-mist">
+                    {treatments.map((row) => (
+                      <tr key={row.id} className="hover:bg-mist/40 transition-colors">
+                        <td className="px-3 py-2 text-ink">{row.date}</td>
+                        <td className="px-3 py-2 text-ink">{row.doctorName}</td>
+                        <td className="px-3 py-2 text-ink">{row.diagnosis}</td>
+                        {canOrderLab && (
+                          <td className="px-3 py-2 text-ink">
+                            <button
+                              type="button"
+                              onClick={() => setOrderingForTreatmentId((prev) => (prev === row.id ? null : row.id))}
+                              className="rounded-md border border-mist px-2 py-1 text-xs text-ink transition-colors hover:bg-mist"
+                            >
+                              Order lab test
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {canOrderLab && orderingForTreatmentId && (
+                <LabOrderForm
+                  customerId={customerId}
+                  treatmentId={orderingForTreatmentId}
+                  onDone={() => {
+                    setOrderingForTreatmentId(null)
+                    router.refresh()
+                  }}
+                />
+              )}
             </div>
           )}
 

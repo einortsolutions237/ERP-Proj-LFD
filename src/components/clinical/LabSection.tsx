@@ -8,10 +8,11 @@ import type { LabOrderRow } from '@/lib/clinical/getLabRecords'
 export interface LabSectionProps {
   customerId: string
   orders: LabOrderRow[]
-  canManage: boolean
+  canOrder: boolean
+  canEnterResults: boolean
 }
 
-export default function LabSection({ customerId, orders, canManage }: LabSectionProps) {
+export default function LabSection({ customerId, orders, canOrder, canEnterResults }: LabSectionProps) {
   const router = useRouter()
   const [showOrderForm, setShowOrderForm] = useState(false)
   const [resultsOrderId, setResultsOrderId] = useState<string | null>(null)
@@ -33,7 +34,7 @@ export default function LabSection({ customerId, orders, canManage }: LabSection
                   </div>
                   {order.instructions && <div className="text-xs text-slate">Instructions: {order.instructions}</div>}
                 </div>
-                {canManage && order.status === 'ordered' && (
+                {canEnterResults && order.status === 'ordered' && (
                   <button
                     type="button"
                     onClick={() => setResultsOrderId((prev) => (prev === order.id ? null : order.id))}
@@ -67,6 +68,9 @@ export default function LabSection({ customerId, orders, canManage }: LabSection
                       ))}
                     </tbody>
                   </table>
+                  {order.result.notes && (
+                    <p className="border-t border-mist px-3 py-2 text-xs text-ink">Note: {order.result.notes}</p>
+                  )}
                   <p className="px-3 py-2 text-xs text-slate">
                     Entered {new Date(order.result.enteredAt).toLocaleString()} by {order.result.enteredByName}
                   </p>
@@ -87,7 +91,7 @@ export default function LabSection({ customerId, orders, canManage }: LabSection
         </div>
       )}
 
-      {canManage && (
+      {canOrder && (
         <div className="space-y-3">
           <button
             type="button"

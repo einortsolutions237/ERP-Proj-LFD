@@ -3,10 +3,14 @@ import { useState } from 'react'
 
 export interface LabOrderFormProps {
   customerId: string
+  // Set when ordering from within a specific treatment record (Task 7's
+  // per-treatment-row action in ClinicalSection); omitted/null for
+  // standalone ordering from the customer's lab section.
+  treatmentId?: string | null
   onDone: () => void
 }
 
-export default function LabOrderForm({ customerId, onDone }: LabOrderFormProps) {
+export default function LabOrderForm({ customerId, treatmentId, onDone }: LabOrderFormProps) {
   const [testName, setTestName] = useState('')
   const [instructions, setInstructions] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -21,6 +25,7 @@ export default function LabOrderForm({ customerId, onDone }: LabOrderFormProps) 
       customerId,
       testName,
       instructions: instructions.trim() || null,
+      treatmentId: treatmentId ?? null,
     }
 
     try {

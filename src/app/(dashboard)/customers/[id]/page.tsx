@@ -35,7 +35,11 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
   let user
   try {
-    user = await requireAnyCapability(['crm.customer.view', 'clinical.record.view', 'seminars.attendance.view', 'clinical.intake.view'])
+    // clinical.lab.view added here (Phase 19.2) for the same reason
+    // seminars.attendance.view was added in Phase 16: lab_staff can hold
+    // every capability it needs and still never reach this page if the
+    // top-level guard doesn't independently admit it.
+    user = await requireAnyCapability(['crm.customer.view', 'clinical.record.view', 'seminars.attendance.view', 'clinical.intake.view', 'clinical.lab.view'])
   } catch (err) {
     if (err instanceof AuthError) redirect('/dashboard?error=not-authorized')
     throw err
@@ -75,7 +79,8 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
     ? await getAppointments({ customerId: id, upcomingOnly: true }, user)
     : []
   const canViewLab = hasCapability(user.role, 'clinical.lab.view')
-  const canManageLab = hasCapability(user.role, 'clinical.lab.order')
+  const canOrderLab = hasCapability(user.role, 'clinical.lab.order')
+  const canEnterLabResults = hasCapability(user.role, 'clinical.lab.results.enter')
   const labOrders = canViewLab ? await getLabRecords(id, user) : []
   const treatments = canViewClinical ? await getPatientTreatments(id, user) : []
   const canViewSeminarAttendance = hasCapability(user.role, 'seminars.attendance.view')
@@ -165,6 +170,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           treatments={treatments}
           canCreate={canCreateTreatment}
           canViewClinical={canViewClinical}
+          canOrderLab={canOrderLab}
           seminarAttendance={seminarAttendance}
           canViewSeminarAttendance={canViewSeminarAttendance}
         />
@@ -204,7 +210,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
       )}
 
       {canViewLab && (
-        <LabSection customerId={id} orders={labOrders} canManage={canManageLab} />
+        <LabSection customerId={id} orders={labOrders} canOrder={canOrderLab} canEnterResults={canEnterLabResults} />
       )}
 
       {canFulfillDeliveries && (
