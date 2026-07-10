@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const user = await requireCapability('clinical.lab.manage')
+    const user = await requireCapability('clinical.lab.order')
     const body = await request.json()
 
     if (!isNonEmptyString(body.customerId)) {
@@ -51,12 +51,29 @@ export async function POST(request: Request) {
       instructions = body.instructions.trim()
     }
 
+    // Optional link to the treatment/consultation that requested this
+    // test. Nullable — standalone ordering (no active consultation
+    // context) must stay possible. If provided, it must reference a real
+    // treatment belonging to the same customer.
+    let treatmentId: string | null = null
+    if ('treatmentId' in body && body.treatmentId !== undefined && body.treatmentId !== null && body.treatmentId !== '') {
+      if (!isNonEmptyString(body.treatmentId)) {
+        return NextResponse.json({ error: 'treatmentId must be a string or null' }, { status: 400 })
+      }
+      const treatmentSnap = await db.collection('treatments').doc(body.treatmentId.trim()).get()
+      if (!treatmentSnap.exists || (treatmentSnap.data()!.customerId as string) !== customerId) {
+        return NextResponse.json({ error: 'treatmentId does not reference a treatment belonging to this customer' }, { status: 400 })
+      }
+      treatmentId = body.treatmentId.trim()
+    }
+
     const orderData = {
       customerId,
       doctorUid: user.uid,
       branchId: user.branchId,
       testName: body.testName.trim(),
       instructions,
+      treatmentId,
       status: 'ordered' as const,
       orderedAt: new Date(),
       createdAt: new Date(),
