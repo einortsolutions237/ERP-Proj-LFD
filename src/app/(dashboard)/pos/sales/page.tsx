@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
+import { isBranchLocked } from '@/lib/auth/permissions'
 import SalesTable, { type SaleRow } from '@/components/pos/SalesTable'
 
 export default async function SalesLogPage() {
@@ -12,11 +13,10 @@ export default async function SalesLogPage() {
     throw err
   }
 
-  const snap = await getAdminFirestore()
-    .collection('sales')
-    .where('branchId', '==', user.branchId)
-    .orderBy('createdAt', 'desc')
-    .get()
+  const db = getAdminFirestore()
+  const snap = isBranchLocked(user.role)
+    ? await db.collection('sales').where('branchId', '==', user.branchId).orderBy('createdAt', 'desc').get()
+    : await db.collection('sales').orderBy('createdAt', 'desc').get()
 
   const sales: SaleRow[] = snap.docs.map((d) => {
     const { voidedAt, ...data } = d.data()
