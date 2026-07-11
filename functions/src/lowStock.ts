@@ -8,10 +8,11 @@ export const onLowStock = onDocumentCreated(
     const movement = event.data?.data()
     if (!movement) return
 
-    const { productId, branchId, quantityDelta } = movement as {
+    const { productId, branchId, quantityDelta, resultingQuantity } = movement as {
       productId: string
       branchId: string
       quantityDelta: number
+      resultingQuantity?: number
     }
 
     const db = getFunctionsFirestore()
@@ -24,18 +25,20 @@ export const onLowStock = onDocumentCreated(
     if (!productSnap.exists || !stockSnap.exists) return
 
     const reorderThreshold = productSnap.data()!.reorderThreshold as number
-    const quantityAfter = stockSnap.data()!.quantity as number
-    // The movement's own transaction already incremented productStock by
-    // the time this trigger fires (same atomic write), so subtracting this
-    // movement's own delta reconstructs the pre-movement quantity. Known,
-    // documented limitation (tracked as TD-2 in docs/tech-debt.md): if a
-    // second movement for the same product+branch lands between that
-    // transaction committing and this handler's read, quantityAfter
-    // reflects BOTH movements, not just this one — the "before" value
-    // would be off. Accepted for this phase's traffic level; there is no
-    // other way to reconstruct it without storing a quantity snapshot on
-    // stockMovements itself, which would mean touching the already-audited
-    // write path this phase must not touch.
+    // TD-2, resolved: the movement's own transaction (api/stock/movements,
+    // api/stock/transfer, api/sales) now snapshots the actual post-movement
+    // quantity onto the movement doc itself as `resultingQuantity`, read
+    // directly here — no reconstruction, no race window, for every
+    // movement written after this phase shipped. `resultingQuantity` is
+    // only absent for a movement that predates this phase, or for a `void`
+    // reversal (api/sales/[id]/void/route.ts, deliberately not touched —
+    // its quantityDelta is always positive, so it can never trip the
+    // crossing check below regardless of precision). For those cases only,
+    // fall back to the original reconstruction, which carries the
+    // documented race-window limitation but is provably irrelevant for
+    // void's always-positive delta and immaterial for aged historical data.
+    const quantityAfter =
+      typeof resultingQuantity === 'number' ? resultingQuantity : (stockSnap.data()!.quantity as number)
     const quantityBefore = quantityAfter - quantityDelta
 
     const newlyCrossed = quantityAfter <= reorderThreshold && quantityBefore > reorderThreshold
