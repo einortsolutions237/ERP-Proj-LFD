@@ -2,9 +2,11 @@
 
 Tracked deviations, deferred hardening, and known limitations accepted during a phase — each item names the phase it was deferred to.
 
-## TD-1: Audit log before/after snapshots for update operations
+## TD-1: Audit log before/after snapshots for update operations — RESOLVED (Phase 20, 2026-07-11)
 
 **Deferred to:** Phase 2.1 or Phase 3 Hardening (not blocking Phase 2 completion — accepted as a known limitation, see `docs/superpowers/plans/2026-07-01-phase-2-uat-checklist.md`).
+
+**Resolution:** `PATCH /api/products/[id]`, `PATCH /api/services/[id]`, and `PATCH /api/suppliers/[id]` now write `details: { before, after }` to their `product_edit`/`service_edit`/`supplier_edit` audit entries, capturing **only the fields actually part of the whitelisted edit** (each route already reads the existing doc for its partial-update merge, so the `before` snapshot was close to free — no new read was added). `POST /api/customers` now writes the full creation payload (`name`/`phone`/`email`/`address`/`notes`/`registeredBranchId`) to its `customer_create` `details`, reusing the exact object it persists so the log and the write can never drift. Backwards compatible: existing entries without `details.before`/`details.after` remain valid, and the audit-log viewer does not assume they exist. `_delete` actions were left as-is per the original scope (delete's "after" is just "gone"). Live-verified in Phase 20: a price-only product edit produced `{ before: { price: 500 }, after: { price: 525 } }` with the untouched `reorderThreshold` absent from both, and a customer create produced `details` matching its payload exactly. See `docs/superpowers/plans/2026-07-11-phase-20-tech-debt-resolution-completion.md`.
 
 **Found during:** Phase 2 (Catalog & Inventory) live UAT prep, 2026-07-02.
 
@@ -18,9 +20,11 @@ Tracked deviations, deferred hardening, and known limitations accepted during a 
 - Scope to "where practical" — a route already has the pre-write doc read in hand for `PATCH` handlers (e.g. suppliers'/products' partial-update pattern already reads `existing` before merging), so the "before" snapshot is close to free; "after" is just the fields actually written. Don't add a new read solely to support this if a route doesn't already read the existing doc.
 - Not required for `_create`/`_delete` actions — create has no "before", delete's "after" is just "gone"; only `_edit` actions are in scope for this enhancement.
 
-## TD-2: Low-stock notification's "quantity before this movement" has a race window
+## TD-2: Low-stock notification's "quantity before this movement" has a race window — RESOLVED (Phase 20, 2026-07-11)
 
 **Deferred to:** Not scheduled — accepted as a known limitation for Phase 6 (not blocking Phase 6 completion; see `docs/superpowers/plans/2026-07-02-phase-6-notifications.md`).
+
+**Resolution:** every `stockMovements` write from a sale/adjustment/transfer now snapshots the actual post-movement quantity as `resultingQuantity`, computed **inside the same transaction** that increments `productStock.quantity` (the transaction already reads the current quantity to guard against a negative result, so the resulting value is known there without a `FieldValue.increment` read-back). Touched exactly the three named write-path files — `api/sales/route.ts`, `api/stock/movements/route.ts`, `api/stock/transfer/route.ts` (the transfer writes both `resultingSourceQuantity` and `resultingDestQuantity` onto its two movement docs) — under the Opus-tier review rigor this note required. `functions/src/lowStock.ts`'s `onLowStock` now reads `resultingQuantity` directly off the movement doc instead of reconstructing "quantity before this movement" from a live `productStock` read, eliminating the race entirely; it falls back to the original reconstruction only when `resultingQuantity` is absent — i.e. for a `void` reversal (deliberately not touched; its always-positive delta can never trip the crossing check) or a pre-phase historical movement, both cases where the fallback is provably harmless. Live-verified in Phase 20 by forcing the race directly: two rapid same-product waste movements (M1 −6 crossing, M2 −1 not crossing) where live `productStock` was already polluted to 3 by M2 by the time the trigger read — M1's notification correctly reported its own `resultingQuantity` of "4 units", not the polluted "3 units" the old logic would have produced. See `docs/superpowers/plans/2026-07-11-phase-20-tech-debt-resolution-completion.md`.
 
 **Found during:** Phase 6 (In-App Notifications) planning, 2026-07-02.
 
