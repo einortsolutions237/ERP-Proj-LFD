@@ -45,6 +45,15 @@ export async function POST(request: Request) {
     const phone = body.phone.trim()
     const newCustomerRef = db.collection('customers').doc()
 
+    const creationPayload = {
+      name: body.name.trim(),
+      phone,
+      email: isNonEmptyString(body.email) ? body.email.trim() : null,
+      address: isNonEmptyString(body.address) ? body.address.trim() : null,
+      notes: isNonEmptyString(body.notes) ? body.notes.trim() : null,
+      registeredBranchId: user.branchId,
+    }
+
     try {
       await db.runTransaction(async (tx) => {
         const phoneSnap = await tx.get(db.collection('customers').where('phone', '==', phone).limit(1))
@@ -52,12 +61,7 @@ export async function POST(request: Request) {
           throw new AuthError('A customer with this phone number already exists', 409)
         }
         tx.set(newCustomerRef, {
-          name: body.name.trim(),
-          phone,
-          email: isNonEmptyString(body.email) ? body.email.trim() : null,
-          address: isNonEmptyString(body.address) ? body.address.trim() : null,
-          notes: isNonEmptyString(body.notes) ? body.notes.trim() : null,
-          registeredBranchId: user.branchId,
+          ...creationPayload,
           createdAt: new Date(),
           updatedAt: new Date(),
         })
@@ -67,7 +71,14 @@ export async function POST(request: Request) {
       throw err
     }
 
-    await writeAuditLog({ action: 'customer_create', actorUid: user.uid, actorEmail: user.email, targetUid: newCustomerRef.id, branchId: null })
+    await writeAuditLog({
+      action: 'customer_create',
+      actorUid: user.uid,
+      actorEmail: user.email,
+      targetUid: newCustomerRef.id,
+      branchId: null,
+      details: creationPayload,
+    })
 
     return NextResponse.json({ id: newCustomerRef.id }, { status: 201 })
   } catch (err) {

@@ -43,6 +43,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
 
     const updates: Record<string, unknown> = { updatedAt: new Date() }
+    const before: Record<string, unknown> = {}
+    const after: Record<string, unknown> = {}
     for (const field of EDITABLE_FIELDS) {
       if (!(field in body)) continue
       if (field === 'name') {
@@ -69,10 +71,19 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         }
         updates.contact = newContact
       }
+      before[field] = existing[field] ?? null
+      after[field] = updates[field]
     }
     await docRef.update(updates)
 
-    await writeAuditLog({ action: 'supplier_edit', actorUid: user.uid, actorEmail: user.email, targetUid: id, branchId: null })
+    await writeAuditLog({
+      action: 'supplier_edit',
+      actorUid: user.uid,
+      actorEmail: user.email,
+      targetUid: id,
+      branchId: null,
+      details: { before, after },
+    })
 
     return NextResponse.json({ ok: true })
   } catch (err) {
