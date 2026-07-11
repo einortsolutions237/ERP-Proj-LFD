@@ -233,6 +233,8 @@ export async function POST(request: Request) {
 
         for (const pl of normalized.productLines) {
           const quantityTaken = quantityTakenMap.get(pl.itemId)!
+          const currentQuantity = (stockSnaps.get(pl.itemId)!.data()?.quantity as number | undefined) ?? 0
+          const resultingQuantity = currentQuantity - quantityTaken
           tx.set(
             stockRefs.get(pl.itemId)!,
             { branchId: user.branchId, productId: pl.itemId, quantity: FieldValue.increment(-quantityTaken), updatedAt: new Date() },
@@ -243,6 +245,7 @@ export async function POST(request: Request) {
             branchId: user.branchId,
             type: 'sale',
             quantityDelta: -quantityTaken,
+            resultingQuantity,
             reason: null,
             actorUid: user.uid,
             createdAt: new Date(),

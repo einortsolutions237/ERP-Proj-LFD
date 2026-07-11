@@ -90,6 +90,7 @@ export async function POST(request: Request) {
           branchId,
           type,
           quantityDelta,
+          resultingQuantity,
           reason,
           actorUid: user.uid,
           createdAt: new Date(),

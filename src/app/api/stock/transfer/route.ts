@@ -70,13 +70,15 @@ export async function POST(request: Request) {
         // all four writes (two stock updates, two movement creates) happen
         // together below.
         const sourceSnap = await tx.get(sourceStockRef)
-        await tx.get(destStockRef)
+        const destSnap = await tx.get(destStockRef)
 
         const sourceQuantity = (sourceSnap.data()?.quantity as number | undefined) ?? 0
         const resultingSourceQuantity = sourceQuantity - quantity
         if (resultingSourceQuantity < 0) {
           throw new AuthError('Insufficient stock at source branch for this transfer', 409)
         }
+        const destQuantity = (destSnap.data()?.quantity as number | undefined) ?? 0
+        const resultingDestQuantity = destQuantity + quantity
 
         tx.set(
           sourceStockRef,
@@ -93,6 +95,7 @@ export async function POST(request: Request) {
           branchId: sourceBranchId,
           type: 'transfer_out',
           quantityDelta: -quantity,
+          resultingQuantity: resultingSourceQuantity,
           reason,
           actorUid: user.uid,
           createdAt: new Date(),
@@ -103,6 +106,7 @@ export async function POST(request: Request) {
           branchId: destBranchId,
           type: 'transfer_in',
           quantityDelta: quantity,
+          resultingQuantity: resultingDestQuantity,
           reason,
           actorUid: user.uid,
           createdAt: new Date(),
