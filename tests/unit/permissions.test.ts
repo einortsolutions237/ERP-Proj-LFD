@@ -1,0 +1,101 @@
+import { describe, it, expect } from 'vitest'
+import {
+  ROLES,
+  ROLE_CAPABILITIES,
+  BRANCH_LOCKED_ROLES,
+  hasCapability,
+  isBranchLocked,
+  type Capability,
+} from '@/lib/auth/permissions'
+
+const CAPABILITIES = Object.keys(ROLE_CAPABILITIES) as Capability[]
+
+describe('role x capability matrix', () => {
+  it('matches the exact grant table for every role x every capability', () => {
+    const matrix: Record<string, Record<string, boolean>> = {}
+    for (const role of ROLES) {
+      matrix[role] = {}
+      for (const capability of CAPABILITIES) {
+        matrix[role][capability] = hasCapability(role, capability)
+      }
+    }
+    expect(matrix).toMatchSnapshot()
+  })
+
+  it('super_admin holds every capability', () => {
+    for (const capability of CAPABILITIES) {
+      expect(hasCapability('super_admin', capability)).toBe(true)
+    }
+  })
+
+  it('clinical.record.create is exactly [super_admin, doctor]', () => {
+    expect(ROLE_CAPABILITIES['clinical.record.create'].slice().sort()).toEqual(['doctor', 'super_admin'])
+  })
+
+  it('general_manager does not hold crm.customer.view (no commercial view)', () => {
+    expect(hasCapability('general_manager', 'crm.customer.view')).toBe(false)
+  })
+
+  it('general_manager does not hold clinical.record.create (no clinical authoring)', () => {
+    expect(hasCapability('general_manager', 'clinical.record.create')).toBe(false)
+  })
+
+  it('general_manager does not hold seminars.attendance.record (no attendance recording)', () => {
+    expect(hasCapability('general_manager', 'seminars.attendance.record')).toBe(false)
+  })
+
+  it('branch-locked roles are exactly [branch_manager, cashier, inventory_manager]', () => {
+    expect(BRANCH_LOCKED_ROLES.slice().sort()).toEqual(['branch_manager', 'cashier', 'inventory_manager'])
+    for (const role of ROLES) {
+      expect(isBranchLocked(role)).toBe(BRANCH_LOCKED_ROLES.includes(role))
+    }
+  })
+
+  it('admin holds exactly its nine granted capabilities: five Phase 17 system/access-administration items, three universal ALL_ROLES items, and clinical.questionnaire.manage', () => {
+    const adminCapabilities = CAPABILITIES.filter((c) => hasCapability('admin', c)).sort()
+    expect(adminCapabilities).toEqual([
+      'admin.auditLog.view',
+      'admin.roles.assign',
+      'admin.roles.view',
+      'admin.settings.manage',
+      'admin.staff.create',
+      'clinical.questionnaire.manage',
+      'hr.attendance.self',
+      'hr.leave.request',
+      'messaging.access',
+    ])
+  })
+
+  it('admin holds no deep clinical capability (diagnosis/treatment/appointments/lab/intake) despite holding clinical.questionnaire.manage', () => {
+    const deepClinicalCapabilities: Capability[] = [
+      'clinical.record.create',
+      'clinical.record.view',
+      'clinical.appointments.manage',
+      'clinical.lab.order',
+      'clinical.lab.results.enter',
+      'clinical.lab.view',
+      'clinical.intake.record',
+      'clinical.intake.view',
+    ]
+    for (const capability of deepClinicalCapabilities) {
+      expect(hasCapability('admin', capability)).toBe(false)
+    }
+    // The one deliberate exception: template configuration is a
+    // business-operations concern, not clinical authoring (Phase 19.1).
+    expect(hasCapability('admin', 'clinical.questionnaire.manage')).toBe(true)
+  })
+
+  it('lab_staff holds clinical.lab.results.enter and clinical.lab.view but not clinical.lab.order', () => {
+    expect(hasCapability('lab_staff', 'clinical.lab.results.enter')).toBe(true)
+    expect(hasCapability('lab_staff', 'clinical.lab.view')).toBe(true)
+    expect(hasCapability('lab_staff', 'clinical.lab.order')).toBe(false)
+  })
+
+  it('nurse holds clinical.intake.record/view but not clinical.record.view/appointments/lab.order', () => {
+    expect(hasCapability('nurse', 'clinical.intake.record')).toBe(true)
+    expect(hasCapability('nurse', 'clinical.intake.view')).toBe(true)
+    expect(hasCapability('nurse', 'clinical.record.view')).toBe(false)
+    expect(hasCapability('nurse', 'clinical.appointments.manage')).toBe(false)
+    expect(hasCapability('nurse', 'clinical.lab.order')).toBe(false)
+  })
+})
