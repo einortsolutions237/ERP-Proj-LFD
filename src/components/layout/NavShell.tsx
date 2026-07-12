@@ -45,18 +45,18 @@ export default function NavShell({ user, children }: { user: SessionUser; childr
       {mobileNavOpen && (
         <div className="md:hidden fixed inset-0 z-40 flex">
           <div className="absolute inset-0 bg-ink/40" onClick={() => setMobileNavOpen(false)} aria-hidden="true" />
-          <div className="relative z-50 shadow-xl" onClick={() => setMobileNavOpen(false)}>
+          <div className="relative z-50 shadow-[var(--shadow-card)]" onClick={() => setMobileNavOpen(false)}>
             <Sidebar role={user.role} variant="drawer" />
           </div>
         </div>
       )}
 
       <div className="flex flex-1 flex-col min-w-0">
-        <header className="flex items-center justify-between gap-2 border-b border-mist bg-paper px-4 md:px-6 py-3">
+        <header className="flex items-center justify-between gap-2 border-b border-mist bg-surface px-4 md:px-6 py-3.5 sticky top-0 z-30">
           <button
             type="button"
             onClick={() => setMobileNavOpen((v) => !v)}
-            className="md:hidden rounded-md border border-mist px-3 py-1.5 text-sm text-ink transition-colors hover:bg-mist"
+            className="md:hidden rounded-lg border border-mist px-3 py-1.5 text-sm text-ink transition-colors duration-200 hover:bg-mist"
             aria-label="Toggle navigation"
             aria-expanded={mobileNavOpen}
           >
@@ -69,7 +69,7 @@ export default function NavShell({ user, children }: { user: SessionUser; childr
           <NotificationBell />
           <button
             onClick={handleLogout}
-            className="shrink-0 rounded-md border border-mist px-3 py-1.5 text-sm font-medium text-ink transition-colors hover:border-marine hover:bg-marine hover:text-paper"
+            className="shrink-0 rounded-lg border border-mist px-3 py-1.5 text-sm font-medium text-ink transition-colors duration-200 hover:border-marine hover:bg-marine hover:text-paper"
           >
             Sign out
           </button>

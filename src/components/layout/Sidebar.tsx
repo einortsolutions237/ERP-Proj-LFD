@@ -260,16 +260,16 @@ export default function Sidebar({ role, variant = 'persistent' }: { role: RoleId
   const isDrawer = variant === 'drawer'
 
   const navClassName = isDrawer
-    ? 'flex h-full w-64 flex-col gap-1 bg-paper p-4'
-    : 'flex h-full w-16 shrink-0 flex-col items-center gap-1 border-r border-mist bg-paper p-2 lg:w-60 lg:items-stretch lg:p-4'
+    ? 'flex h-full w-64 flex-col gap-1.5 bg-paper p-5 sticky top-0'
+    : 'flex h-full w-16 shrink-0 flex-col items-center gap-1.5 border-r border-mist bg-paper p-3 lg:w-60 lg:items-stretch lg:p-5'
 
   const sectionLabelClassName = isDrawer
-    ? 'px-3 pb-2 pt-1'
-    : 'hidden px-3 pb-2 pt-1 lg:block'
+    ? 'px-3 pb-2.5 pt-1.5'
+    : 'hidden px-3 pb-2.5 pt-1.5 lg:block'
 
   const linkClassName = isDrawer
-    ? 'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-ink transition-colors hover:bg-marine/10 hover:text-marine'
-    : 'flex items-center justify-center gap-0 rounded-md px-2 py-2 text-sm font-medium text-ink transition-colors hover:bg-marine/10 hover:text-marine lg:justify-start lg:gap-3 lg:px-3'
+    ? 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink transition-colors duration-200 hover:bg-marine/10 hover:text-marine'
+    : 'flex items-center justify-center gap-0 rounded-lg px-2 py-2.5 text-sm font-medium text-ink transition-colors duration-200 hover:bg-marine/10 hover:text-marine lg:justify-start lg:gap-3 lg:px-3'
 
   const labelClassName = isDrawer ? 'truncate' : 'hidden truncate lg:inline'
   const iconClassName = 'h-5 w-5 shrink-0'
