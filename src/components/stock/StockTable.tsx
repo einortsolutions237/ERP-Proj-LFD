@@ -37,7 +37,7 @@ export default function StockTable({ rows, branches, canAdjust, canTransfer }: S
 
   return (
     <div className="space-y-3">
-      <div className="overflow-hidden rounded-md border border-mist">
+      <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-mist/40">
@@ -52,11 +52,11 @@ export default function StockTable({ rows, branches, canAdjust, canTransfer }: S
           <tbody className="divide-y divide-mist">
             {rows.map((row) => (
               <Fragment key={row.id}>
-                <tr className="hover:bg-mist/40 transition-colors">
+                <tr className="hover:bg-mist/40 transition-colors duration-200">
                   <td className="px-3 py-2 text-ink">{row.productName}</td>
                   <td className="px-3 py-2 text-ink">{row.sku}</td>
-                  <td className="px-3 py-2 font-mono text-ink">{row.quantity}</td>
-                  <td className="px-3 py-2 font-mono text-ink">{row.reorderThreshold}</td>
+                  <td className="px-3 py-2 font-mono text-right text-ink">{row.quantity}</td>
+                  <td className="px-3 py-2 font-mono text-right text-ink">{row.reorderThreshold}</td>
                   <td className="px-3 py-2 text-ink">
                     {row.lowStock ? (
                       <span className="inline-block rounded-full bg-danger/10 px-2 py-0.5 text-xs font-medium text-danger">
@@ -80,7 +80,7 @@ export default function StockTable({ rows, branches, canAdjust, canTransfer }: S
                                 : { productId: row.productId, kind: 'adjust' }
                             )
                           }
-                          className="rounded-md border border-mist px-2 py-1 text-sm text-ink transition-colors hover:bg-mist"
+                          className="rounded-lg border border-mist px-2 py-1 text-sm text-ink transition-colors duration-200 hover:bg-mist"
                         >
                           Adjust
                         </button>
@@ -95,7 +95,7 @@ export default function StockTable({ rows, branches, canAdjust, canTransfer }: S
                                 : { productId: row.productId, kind: 'transfer' }
                             )
                           }
-                          className="rounded-md border border-mist px-2 py-1 text-sm text-ink transition-colors hover:bg-mist"
+                          className="rounded-lg border border-mist px-2 py-1 text-sm text-ink transition-colors duration-200 hover:bg-mist"
                         >
                           Transfer
                         </button>

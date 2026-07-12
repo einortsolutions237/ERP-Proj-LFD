@@ -60,7 +60,7 @@ export default function StockAdjustForm({ productId, branchId, onDone }: StockAd
         <select
           value={type}
           onChange={(e) => setType(e.target.value as typeof type)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
         >
           <option value="restock">Restock</option>
           <option value="adjustment">Adjustment</option>
@@ -73,7 +73,7 @@ export default function StockAdjustForm({ productId, branchId, onDone }: StockAd
           <select
             value={direction}
             onChange={(e) => setDirection(e.target.value as AdjustDirection)}
-            className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
           >
             <option value="increase">Increase</option>
             <option value="decrease">Decrease</option>
@@ -89,7 +89,7 @@ export default function StockAdjustForm({ productId, branchId, onDone }: StockAd
           step={1}
           value={magnitude}
           onChange={(e) => setMagnitude(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 font-mono text-ink focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink focus:border-marine"
         />
       </div>
       <div>
@@ -97,14 +97,14 @@ export default function StockAdjustForm({ productId, branchId, onDone }: StockAd
         <input
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
         />
       </div>
       {error && <p className="text-sm text-danger">{error}</p>}
       <button
         type="submit"
         disabled={submitting}
-        className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+        className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
       >
         Submit
       </button>

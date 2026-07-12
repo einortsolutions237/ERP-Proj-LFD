@@ -68,7 +68,7 @@ export default function StockTransferForm({
           required
           value={destBranchId}
           onChange={(e) => setDestBranchId(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
         >
           <option value="" disabled>
             Select a branch…
@@ -89,7 +89,7 @@ export default function StockTransferForm({
           step={1}
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 font-mono text-ink focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink focus:border-marine"
         />
       </div>
       <div>
@@ -97,14 +97,14 @@ export default function StockTransferForm({
         <input
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
         />
       </div>
       {error && <p className="text-sm text-danger">{error}</p>}
       <button
         type="submit"
         disabled={submitting}
-        className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+        className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
       >
         Submit
       </button>
