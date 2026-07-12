@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "firebase emulators:exec --config firebase.testing.json --only firestore,auth --project demo-erp-lfd \"vitest run\"",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "firebase": "^12.15.0",
@@ -23,6 +25,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^2.1.9"
   }
 }

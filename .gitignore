@@ -37,6 +37,12 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 !.env.local.example
+!.env.test
+
+# firebase emulator (Phase 20.1 test suite)
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
 
 # vercel
 .vercel
