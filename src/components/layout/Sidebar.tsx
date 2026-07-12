@@ -260,8 +260,8 @@ export default function Sidebar({ role, variant = 'persistent' }: { role: RoleId
   const isDrawer = variant === 'drawer'
 
   const navClassName = isDrawer
-    ? 'flex h-full w-64 flex-col gap-1.5 bg-paper p-5 sticky top-0'
-    : 'flex h-full w-16 shrink-0 flex-col items-center gap-1.5 border-r border-mist bg-paper p-3 lg:w-60 lg:items-stretch lg:p-5'
+    ? 'flex h-full w-64 flex-col gap-1.5 bg-paper p-5'
+    : 'flex h-full w-16 shrink-0 flex-col items-center gap-1.5 border-r border-mist bg-paper p-3 sticky top-0 lg:w-60 lg:items-stretch lg:p-5'
 
   const sectionLabelClassName = isDrawer
     ? 'px-3 pb-2.5 pt-1.5'
