@@ -1,23 +1,27 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-ink: #1a1d22;
-  --color-paper: #f7f6f3;
+  --color-ink: #0f172a;
+  --color-paper: #f8fafc;
+  --color-surface: #ffffff;
   --color-marine: #0f5c66;
   --color-brass: #c08a28;
-  --color-mist: #e4e7e9;
-  --color-slate: #5b6470;
-  --color-success: #1e7a4c;
-  --color-danger: #b23a3a;
-  --color-tender-orange: #e8631b;
+  --color-mist: #e2e8f0;
+  --color-slate: #475569;
+  --color-success: #16a34a;
+  --color-danger: #dc2626;
+  --color-warning: #d97706;
+  --color-info: #2563eb;
 
   /* Conventional Tailwind v4 names other utilities may already reference. */
   --color-background: var(--color-paper);
   --color-foreground: var(--color-ink);
 
-  --font-display: var(--font-display-space-grotesk);
-  --font-sans: var(--font-sans-ibm-plex);
-  --font-mono: var(--font-mono-ibm-plex);
+  --font-display: var(--font-inter);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+
+  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 1px rgb(15 23 42 / 0.06);
 }
 
 body {
