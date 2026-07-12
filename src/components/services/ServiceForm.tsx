@@ -61,7 +61,7 @@ export default function ServiceForm({ mode, serviceId, initial }: ServiceFormPro
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       <div>
@@ -70,7 +70,7 @@ export default function ServiceForm({ mode, serviceId, initial }: ServiceFormPro
           required
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       <div>
@@ -82,7 +82,7 @@ export default function ServiceForm({ mode, serviceId, initial }: ServiceFormPro
           step={0.01}
           value={price}
           onChange={(e) => setPrice(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 font-mono text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       <div>
@@ -94,7 +94,7 @@ export default function ServiceForm({ mode, serviceId, initial }: ServiceFormPro
           step={1}
           value={durationMinutes}
           onChange={(e) => setDurationMinutes(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 font-mono text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       <div>
@@ -102,7 +102,7 @@ export default function ServiceForm({ mode, serviceId, initial }: ServiceFormPro
         <textarea
           value={description ?? ''}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       {mode === 'edit' && (
@@ -111,7 +111,7 @@ export default function ServiceForm({ mode, serviceId, initial }: ServiceFormPro
           <select
             value={active ? 'active' : 'inactive'}
             onChange={(e) => setActive(e.target.value === 'active')}
-            className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
           >
             <option value="active">active</option>
             <option value="inactive">inactive</option>
@@ -122,7 +122,7 @@ export default function ServiceForm({ mode, serviceId, initial }: ServiceFormPro
       <button
         type="submit"
         disabled={submitting}
-        className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+        className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
       >
         {mode === 'create' ? 'Create service' : 'Save changes'}
       </button>
