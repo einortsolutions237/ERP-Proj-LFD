@@ -6,6 +6,7 @@ import {
   hasCapability,
   isBranchLocked,
   type Capability,
+  type RoleId,
 } from '@/lib/auth/permissions'
 
 const CAPABILITIES = Object.keys(ROLE_CAPABILITIES) as Capability[]
@@ -97,5 +98,16 @@ describe('role x capability matrix', () => {
     expect(hasCapability('nurse', 'clinical.record.view')).toBe(false)
     expect(hasCapability('nurse', 'clinical.appointments.manage')).toBe(false)
     expect(hasCapability('nurse', 'clinical.lab.order')).toBe(false)
+  })
+
+  it('dashboard.activity.view is exactly [super_admin, general_manager, branch_manager]', () => {
+    expect(ROLE_CAPABILITIES['dashboard.activity.view'].slice().sort()).toEqual(['branch_manager', 'general_manager', 'super_admin'])
+  })
+
+  it('dashboard.activity.view is not held by cashier, admin, finance_admin, or any clinical/lab/seminar role', () => {
+    const excluded: RoleId[] = ['cashier', 'admin', 'finance_admin', 'hr_admin', 'it_admin', 'doctor', 'medical_secretary', 'protocol', 'nurse', 'lab_staff', 'inventory_manager']
+    for (const role of excluded) {
+      expect(hasCapability(role, 'dashboard.activity.view')).toBe(false)
+    }
   })
 })

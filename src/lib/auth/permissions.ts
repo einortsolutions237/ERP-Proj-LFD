@@ -13,7 +13,7 @@ export const STRICT_AUDIT_ROLES: RoleId[] = ['super_admin', 'admin', 'general_ma
 // Every future module the permission system will gate. Phase 1 only implements
 // capabilities for 'admin' — the other modules are reserved so the shape exists
 // without building screens ahead of scope.
-export const MODULES = ['admin', 'pos', 'inventory', 'crm', 'accounting', 'hr', 'reporting', 'clinical', 'seminars', 'messaging'] as const
+export const MODULES = ['admin', 'pos', 'inventory', 'crm', 'accounting', 'hr', 'reporting', 'clinical', 'seminars', 'messaging', 'dashboard'] as const
 
 export type ModuleId = typeof MODULES[number]
 
@@ -68,6 +68,12 @@ export type Capability =
   // one reachable contact (their own branch's branch_manager, at minimum, or
   // the IT support line).
   | 'messaging.access'
+  // Phase 23 — dashboard recent-activity widget. Deliberately NOT
+  // admin.auditLog.view (that stayed narrow to admin/it_admin/super_admin in
+  // Phase 17 for the full, unfiltered audit trail); this is a curated,
+  // business-relevant activity summary for management-level oversight,
+  // scoped to a standalone role list — see DASHBOARD_ACTIVITY_ROLES below.
+  | 'dashboard.activity.view'
   // accounting.* — no capabilities defined yet;
   // add them here when the module is actually built.
 
@@ -113,6 +119,7 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'clinical.questionnaire.manage': 'clinical',
   'clinical.intake.view': 'clinical',
   'messaging.access': 'messaging',
+  'dashboard.activity.view': 'dashboard',
 }
 
 const ALL_ROLES: RoleId[] = [...ROLES]
@@ -241,6 +248,16 @@ const SEMINAR_VIEW_ROLES: RoleId[] = ['super_admin', 'general_manager', 'doctor'
 // shipped before Phase 17's roles restructuring.
 const POS_DELIVERY_FULFILL_ROLES: RoleId[] = ['super_admin', 'general_manager', 'branch_manager', 'cashier']
 
+// Phase 23 — dashboard recent-activity widget. Membership currently matches
+// GENERAL_MANAGER_BRANCH_MGR (admin.departments.manage/pos.sale.void) but the
+// two capabilities are semantically unrelated — standalone so a future
+// change to department-management or sale-void authority can't silently
+// also change dashboard-activity visibility. branch_manager sees only their
+// own branch's activity (plus org-wide/null-branchId entries); general_manager
+// and super_admin see everything — enforced inside getRecentActivity, not
+// here (this list only decides who gets the widget at all).
+const DASHBOARD_ACTIVITY_ROLES: RoleId[] = ['super_admin', 'general_manager', 'branch_manager']
+
 // Phase 19.1 — nurse & patient intake. Deliberately three separate,
 // explicitly-spelled-out lists rather than composed from CLINICAL_ROLES/
 // CLINICAL_VIEW_ROLES — see the Capability union's own comment above for
@@ -302,6 +319,7 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'clinical.questionnaire.manage': QUESTIONNAIRE_MANAGE_ROLES,
   'clinical.intake.view': INTAKE_VIEW_ROLES,
   'messaging.access': ALL_ROLES,
+  'dashboard.activity.view': DASHBOARD_ACTIVITY_ROLES,
 }
 
 export function hasCapability(role: RoleId, capability: Capability): boolean {
