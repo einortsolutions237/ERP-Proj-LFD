@@ -53,7 +53,7 @@ export default function BranchForm({ mode, branchId, initial }: BranchFormProps)
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       <div>
@@ -62,7 +62,7 @@ export default function BranchForm({ mode, branchId, initial }: BranchFormProps)
           required
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       <div>
@@ -70,7 +70,7 @@ export default function BranchForm({ mode, branchId, initial }: BranchFormProps)
         <input
           value={phone ?? ''}
           onChange={(e) => setPhone(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       {mode === 'edit' && (
@@ -79,7 +79,7 @@ export default function BranchForm({ mode, branchId, initial }: BranchFormProps)
           <select
             value={active ? 'active' : 'inactive'}
             onChange={(e) => setActive(e.target.value === 'active')}
-            className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
           >
             <option value="active">active</option>
             <option value="inactive">inactive</option>
@@ -90,7 +90,7 @@ export default function BranchForm({ mode, branchId, initial }: BranchFormProps)
       <button
         type="submit"
         disabled={submitting}
-        className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+        className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
       >
         {mode === 'create' ? 'Create branch' : 'Save changes'}
       </button>
