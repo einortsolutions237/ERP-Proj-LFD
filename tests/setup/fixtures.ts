@@ -63,7 +63,7 @@ export async function seedStaff(input: { role: RoleId; branchId: string; email: 
   return { uid: userRecord.uid, sessionCookie }
 }
 
-export async function seedProduct(input: { name: string; price: number; active?: boolean }): Promise<{ id: string }> {
+export async function seedProduct(input: { name: string; price: number; active?: boolean; reorderThreshold?: number; unitCost?: number }): Promise<{ id: string }> {
   const db = getAdminFirestore()
   const ref = db.collection('products').doc()
   await ref.set({
@@ -71,6 +71,9 @@ export async function seedProduct(input: { name: string; price: number; active?:
     price: input.price,
     active: input.active ?? true,
     sku: `SKU-${ref.id}`,
+    unitCost: input.unitCost ?? 0,
+    reorderThreshold: input.reorderThreshold ?? 5,
+    supplierId: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   })
