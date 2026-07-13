@@ -135,3 +135,18 @@ export async function seedPendingDelivery(input: { branchId: string; productId: 
   })
   return { id: ref.id }
 }
+
+export async function seedAuditLogEntry(input: { action: string; branchId: string | null; createdAt: Date; actorEmail?: string }): Promise<{ id: string }> {
+  const db = getAdminFirestore()
+  const ref = db.collection('auditLogs').doc()
+  await ref.set({
+    action: input.action,
+    actorUid: 'test-actor',
+    actorEmail: input.actorEmail ?? 'actor@test.local',
+    targetUid: null,
+    branchId: input.branchId,
+    details: null,
+    createdAt: input.createdAt,
+  })
+  return { id: ref.id }
+}
