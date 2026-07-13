@@ -40,7 +40,18 @@ describe('getDashboardPendingDeliveries', () => {
 
   it('general_manager sees pending deliveries across both branches', async () => {
     const summary = await getDashboardPendingDeliveries(generalManagerUser)
-    expect(summary.totalCount).toBe(2)
+    // Branch-membership + >=, not an exact total: this integration suite
+    // shares one Firestore emulator across concurrently-run test files, and
+    // this query is org-wide (unfiltered by branch) for general_manager —
+    // sales.test.ts's insufficient-stock-sale test creates a real
+    // status:'pending' pendingDeliveries doc via the actual POST /api/sales
+    // route, which would inflate an exact-count assertion here. Same idiom
+    // already used for this exact bug class in dashboardLowStock.test.ts and
+    // dashboardRevenueTrend.test.ts.
+    const branchesSeen = new Set(summary.rows.map((r) => r.branchName))
+    expect(branchesSeen.has('Dashboard Pending Deliveries Branch A')).toBe(true)
+    expect(branchesSeen.has('Dashboard Pending Deliveries Branch B')).toBe(true)
+    expect(summary.totalCount).toBeGreaterThanOrEqual(2)
   })
 
   it('rejects hr_admin, which does not hold pos.delivery.fulfill', async () => {
