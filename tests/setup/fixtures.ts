@@ -93,3 +93,25 @@ export async function seedCustomer(input: { name: string; phone: string }): Prom
   await ref.set({ name: input.name, phone: input.phone, email: null, address: null, notes: null, createdAt: new Date(), updatedAt: new Date() })
   return { id: ref.id }
 }
+
+export async function seedSale(input: { branchId: string; total: number; createdAt: Date; voidedAt?: Date | null }): Promise<{ id: string }> {
+  const db = getAdminFirestore()
+  const ref = db.collection('sales').doc()
+  await ref.set({
+    branchId: input.branchId,
+    lineItems: [],
+    subtotal: input.total,
+    discountAmount: 0,
+    taxAmount: 0,
+    total: input.total,
+    payments: [{ method: 'cash', amount: input.total, reference: null }],
+    cashierUid: 'test-cashier',
+    customerId: null,
+    clientIdempotencyKey: null,
+    voidedAt: input.voidedAt ?? null,
+    voidedBy: input.voidedAt ? 'test-voider' : null,
+    voidReason: input.voidedAt ? 'test void' : null,
+    createdAt: input.createdAt,
+  })
+  return { id: ref.id }
+}
