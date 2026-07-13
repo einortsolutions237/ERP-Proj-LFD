@@ -40,7 +40,7 @@ export default function StaffTable({ staff }: { staff: StaffRow[] }) {
   return (
     <div className="space-y-3">
       {error && <p className="text-sm text-danger">{error}</p>}
-      <div className="overflow-hidden rounded-2xl border border-mist shadow-[var(--shadow-card)] bg-surface">
+      <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-mist/40">
