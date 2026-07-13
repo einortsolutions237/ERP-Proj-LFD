@@ -94,10 +94,10 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
           Staff account created. Share this temporary password with the new staff member securely
           — it will not be shown again:
         </p>
-        <code className="block rounded-md bg-mist/40 px-3 py-2 font-mono text-ink break-all">{tempPassword}</code>
+        <code className="block rounded-lg bg-mist/40 px-3 py-2 font-mono text-ink break-all">{tempPassword}</code>
         <button
           type="button"
-          className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+          className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
           onClick={() => router.push('/staff')}
         >
           Done
@@ -114,7 +114,7 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       <div>
@@ -125,7 +125,7 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
           disabled={mode === 'edit'}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       <div>
@@ -134,13 +134,13 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
           <input
             disabled
             value="super_admin (protected — cannot be changed here)"
-            className="w-full rounded-md border border-mist bg-mist/40 px-3 py-2 text-ink"
+            className="w-full rounded-lg border border-mist bg-mist/40 px-3 py-2 text-ink"
           />
         ) : (
           <select
             value={role}
             onChange={(e) => setRole(e.target.value as RoleId)}
-            className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
           >
             {ASSIGNABLE_ROLES.map((r) => (
               <option key={r} value={r}>
@@ -155,7 +155,7 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
         <input
           value={department}
           onChange={(e) => setDepartment(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       <div>
@@ -163,7 +163,7 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
         <input
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       <div>
@@ -171,28 +171,28 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
         <input
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
-      <fieldset className="rounded-md border border-mist p-3 space-y-2">
+      <fieldset className="rounded-2xl border border-mist shadow-[var(--shadow-card)] bg-surface p-3 space-y-2">
         <legend className="text-sm font-medium text-ink px-1">Emergency contact</legend>
         <input
           placeholder="Name"
           value={emergencyName}
           onChange={(e) => setEmergencyName(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
         <input
           placeholder="Phone"
           value={emergencyPhone}
           onChange={(e) => setEmergencyPhone(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
         <input
           placeholder="Relationship"
           value={emergencyRelationship}
           onChange={(e) => setEmergencyRelationship(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </fieldset>
       <div>
@@ -201,7 +201,7 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       {mode === 'edit' && (
@@ -211,13 +211,13 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
             <input
               disabled
               value="active (protected — cannot be deactivated here)"
-              className="w-full rounded-md border border-mist bg-mist/40 px-3 py-2 text-ink"
+              className="w-full rounded-lg border border-mist bg-mist/40 px-3 py-2 text-ink"
             />
           ) : (
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as 'active' | 'inactive')}
-              className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+              className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
             >
               <option value="active">active</option>
               <option value="inactive">inactive</option>
@@ -230,14 +230,14 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
         <input
           value={qualifications}
           onChange={(e) => setQualifications(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       {error && <p className="text-sm text-danger">{error}</p>}
       <button
         type="submit"
         disabled={submitting}
-        className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+        className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
       >
         {mode === 'create' ? 'Create staff member' : 'Save changes'}
       </button>
