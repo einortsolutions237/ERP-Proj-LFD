@@ -39,7 +39,19 @@ describe('getDashboardLowStock', () => {
 
   it('super_admin sees low-stock rows across both branches', async () => {
     const summary = await getDashboardLowStock(superAdminUser)
-    expect(summary.totalCount).toBe(3) // 2 in branch A + 1 in branch B
+    // >=, not ===, and a branch-membership check rather than an exact total:
+    // this integration suite shares one Firestore emulator across
+    // concurrently-run test files, and seedProduct's own reorderThreshold
+    // default can make another file's unrelated stock fixture newly
+    // low-stock too (the same class of cross-file pollution Task 2's
+    // revenueTrend org-wide test hit, and the same branch-membership idiom
+    // branch-scoping.test.ts already uses for "org-wide role sees all
+    // branches" assertions) — so this checks this file's own known branches
+    // are represented, not that the collection contains nothing else.
+    const branchesSeen = new Set(summary.rows.map((r) => r.branchId))
+    expect(branchesSeen.has(branchA)).toBe(true)
+    expect(branchesSeen.has(branchB)).toBe(true)
+    expect(summary.totalCount).toBeGreaterThanOrEqual(3) // this file's own 2 branch-A + 1 branch-B low-stock rows
   })
 
   it('rejects general_manager, which does not hold inventory.stock.view', async () => {
