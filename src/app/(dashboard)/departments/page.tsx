@@ -32,7 +32,7 @@ export default async function DepartmentsPage() {
     <div className="max-w-4xl mx-auto mt-12 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-semibold text-ink">Departments</h1>
-        <Link href="/departments/new" className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50">
+        <Link href="/departments/new" className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50">
           Add department
         </Link>
       </div>

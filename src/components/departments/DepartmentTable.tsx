@@ -39,7 +39,7 @@ export default function DepartmentTable({ departments }: { departments: Departme
   return (
     <div className="space-y-3">
       {error && <p className="text-sm text-danger">{error}</p>}
-      <div className="overflow-hidden rounded-md border border-mist">
+      <div className="overflow-hidden rounded-2xl border border-mist shadow-[var(--shadow-card)] bg-surface">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-mist/40">
@@ -50,7 +50,7 @@ export default function DepartmentTable({ departments }: { departments: Departme
           </thead>
           <tbody className="divide-y divide-mist">
             {departments.map((row) => (
-              <tr key={row.id} className="hover:bg-mist/40 transition-colors">
+              <tr key={row.id} className="hover:bg-mist/40 transition-colors duration-200">
                 <td className="px-3 py-2 text-ink">{row.name}</td>
                 <td className="px-3 py-2 text-ink">
                   {row.active ? (
