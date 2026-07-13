@@ -66,11 +66,11 @@ export default function AttendanceWidget() {
           type="button"
           onClick={handleCheckIn}
           disabled={submitting}
-          className="bg-black text-white rounded px-3 py-2 text-sm disabled:opacity-50"
+          className="rounded-lg bg-ink px-3 py-2 text-sm text-paper transition-colors duration-200 hover:bg-ink/90 disabled:opacity-50"
         >
           Check In
         </button>
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
       </div>
     )
   }
@@ -78,24 +78,24 @@ export default function AttendanceWidget() {
   if (record.status === 'checked_in') {
     return (
       <div className="space-y-2">
-        <p className="text-sm text-zinc-600">Checked in at {formatTime(record.checkInAt)}</p>
+        <p className="text-sm text-slate">Checked in at {formatTime(record.checkInAt)}</p>
         <button
           type="button"
           onClick={handleCheckOut}
           disabled={submitting}
-          className="bg-black text-white rounded px-3 py-2 text-sm disabled:opacity-50"
+          className="rounded-lg bg-ink px-3 py-2 text-sm text-paper transition-colors duration-200 hover:bg-ink/90 disabled:opacity-50"
         >
           Check Out
         </button>
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
       </div>
     )
   }
 
   return (
     <div className="space-y-1">
-      <p className="text-sm text-zinc-600">Done for today.</p>
-      <p className="text-sm text-zinc-600">
+      <p className="text-sm text-slate">Done for today.</p>
+      <p className="text-sm text-slate">
         Checked in at {formatTime(record.checkInAt)} &middot; Checked out at {formatTime(record.checkOutAt)}
       </p>
     </div>
