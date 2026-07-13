@@ -133,6 +133,23 @@
       ]
     },
     {
+      "collectionGroup": "pendingDeliveries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "pendingDeliveries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "branchId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "messages",
       "queryScope": "COLLECTION",
       "fields": [

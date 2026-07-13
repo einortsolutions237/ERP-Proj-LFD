@@ -118,3 +118,20 @@ export async function seedSale(input: { branchId: string; total: number; created
   })
   return { id: ref.id }
 }
+
+export async function seedPendingDelivery(input: { branchId: string; productId: string; customerId: string; saleId: string; status?: 'pending' | 'fulfilled'; createdAt?: Date }): Promise<{ id: string }> {
+  const db = getAdminFirestore()
+  const ref = db.collection('pendingDeliveries').doc()
+  await ref.set({
+    saleId: input.saleId,
+    productId: input.productId,
+    customerId: input.customerId,
+    branchId: input.branchId,
+    quantityOwed: 2,
+    status: input.status ?? 'pending',
+    fulfilledBy: null,
+    fulfilledAt: null,
+    createdAt: input.createdAt ?? new Date(),
+  })
+  return { id: ref.id }
+}
