@@ -132,7 +132,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         {purchases.length === 0 ? (
           <p className="text-sm text-slate">No purchases yet.</p>
         ) : (
-          <div className="overflow-hidden rounded-md border border-mist">
+          <div className="overflow-hidden rounded-2xl border border-mist shadow-[var(--shadow-card)] bg-surface">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-mist/40">
@@ -145,10 +145,10 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
               </thead>
               <tbody className="divide-y divide-mist">
                 {purchases.map((row) => (
-                  <tr key={row.id} className="hover:bg-mist/40 transition-colors">
+                  <tr key={row.id} className="hover:bg-mist/40 transition-colors duration-200">
                     <td className="px-3 py-2 text-ink">{row.createdAt ? new Date(row.createdAt).toLocaleString() : ''}</td>
-                    <td className="px-3 py-2 text-ink">{row.itemCount}</td>
-                    <td className="px-3 py-2 font-mono text-ink">{row.total.toFixed(2)}</td>
+                    <td className="px-3 py-2 font-mono text-right text-ink">{row.itemCount}</td>
+                    <td className="px-3 py-2 font-mono text-right text-ink">{row.total.toFixed(2)}</td>
                     <td className="px-3 py-2 text-ink">{row.payments}</td>
                     <td className="px-3 py-2 text-ink">
                       <Link href={`/pos/sales/${row.id}`} className="text-marine underline-offset-2 hover:underline">

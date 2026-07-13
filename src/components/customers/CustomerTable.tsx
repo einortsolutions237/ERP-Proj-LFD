@@ -26,9 +26,9 @@ export default function CustomerTable({ customers }: { customers: CustomerRow[] 
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search by name or phone…"
-        className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
       />
-      <div className="overflow-hidden rounded-md border border-mist">
+      <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-mist/40">
@@ -40,7 +40,7 @@ export default function CustomerTable({ customers }: { customers: CustomerRow[] 
           </thead>
           <tbody className="divide-y divide-mist">
             {filtered.map((row) => (
-              <tr key={row.id} className="hover:bg-mist/40 transition-colors">
+              <tr key={row.id} className="hover:bg-mist/40 transition-colors duration-200">
                 <td className="px-3 py-2 text-ink">{row.name}</td>
                 <td className="px-3 py-2 text-ink">{row.phone}</td>
                 <td className="px-3 py-2 text-ink">{row.email ?? '—'}</td>
