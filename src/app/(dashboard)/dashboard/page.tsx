@@ -50,7 +50,7 @@ export default async function DashboardPage() {
           <span className="font-medium text-ink">{user.branchId}</span>
         </p>
       </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 items-start">
         <DashboardCard title="Check In" icon={ClockIcon} tone="marine">
           <AttendanceWidget />
         </DashboardCard>
