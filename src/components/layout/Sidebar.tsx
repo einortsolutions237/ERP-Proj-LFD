@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import type { ReactElement } from 'react'
 import { hasCapability, type Capability, type RoleId } from '@/lib/auth/permissions'
 
@@ -258,6 +261,8 @@ const NAV_LINKS: NavLink[] = [
 // labels since it's already an explicit, deliberately-opened overlay.
 export default function Sidebar({ role, variant = 'persistent' }: { role: RoleId; variant?: 'persistent' | 'drawer' }) {
   const isDrawer = variant === 'drawer'
+  const pathname = usePathname()
+  const isActive = (href: string) => pathname === href
 
   const navClassName = isDrawer
     ? 'flex h-full w-64 flex-col gap-1.5 bg-paper p-5'
@@ -271,6 +276,10 @@ export default function Sidebar({ role, variant = 'persistent' }: { role: RoleId
     ? 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink transition-colors duration-200 hover:bg-marine/10 hover:text-marine'
     : 'flex items-center justify-center gap-0 rounded-lg px-2 py-2.5 text-sm font-medium text-ink transition-colors duration-200 hover:bg-marine/10 hover:text-marine lg:justify-start lg:gap-3 lg:px-3'
 
+  const activeLinkClassName = isDrawer
+    ? 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium bg-marine text-white transition-colors duration-200'
+    : 'flex items-center justify-center gap-0 rounded-lg px-2 py-2.5 text-sm font-medium bg-marine text-white transition-colors duration-200 lg:justify-start lg:gap-3 lg:px-3'
+
   const labelClassName = isDrawer ? 'truncate' : 'hidden truncate lg:inline'
   const iconClassName = 'h-5 w-5 shrink-0'
 
@@ -280,7 +289,7 @@ export default function Sidebar({ role, variant = 'persistent' }: { role: RoleId
         <span className="font-display text-xs font-semibold uppercase tracking-wider text-slate">Menu</span>
       </div>
 
-      <Link href="/dashboard" title="Dashboard" className={linkClassName}>
+      <Link href="/dashboard" title="Dashboard" className={isActive('/dashboard') ? activeLinkClassName : linkClassName}>
         <HomeIcon className={iconClassName} />
         <span className={labelClassName}>Dashboard</span>
       </Link>
@@ -288,7 +297,7 @@ export default function Sidebar({ role, variant = 'persistent' }: { role: RoleId
       {NAV_LINKS.filter((link) =>
         (Array.isArray(link.capability) ? link.capability : [link.capability]).some((c) => hasCapability(role, c))
       ).map((link) => (
-        <Link key={link.href} href={link.href} title={link.label} className={linkClassName}>
+        <Link key={link.href} href={link.href} title={link.label} className={isActive(link.href) ? activeLinkClassName : linkClassName}>
           <link.icon className={iconClassName} />
           <span className={labelClassName}>{link.label}</span>
         </Link>
