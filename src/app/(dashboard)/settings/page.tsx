@@ -27,7 +27,7 @@ export default async function SettingsPage() {
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Settings</h1>
+        <h1 className="font-display text-2xl font-semibold text-ink">Settings</h1>
       </div>
       <SettingsTable settings={settings} />
     </div>

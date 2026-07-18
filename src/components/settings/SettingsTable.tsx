@@ -117,19 +117,19 @@ export default function SettingsTable({ settings }: { settings: SettingRow[] }) 
 
   return (
     <div className="space-y-4">
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
-      <div className="border rounded p-4 space-y-2">
-        <h2 className="text-sm font-medium">Add setting</h2>
+      <div className="rounded-2xl border border-mist bg-surface p-4 shadow-[var(--shadow-card)] space-y-3">
+        <h2 className="text-sm font-medium text-ink">Add setting</h2>
         <div className="flex gap-2 items-center flex-wrap">
           <input
-            className="border rounded px-2 py-1 text-sm"
+            className="rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink placeholder:text-slate focus:border-marine"
             placeholder="key (e.g. business.timezone)"
             value={newKey}
             onChange={(e) => setNewKey(e.target.value)}
           />
           <select
-            className="border rounded px-2 py-1 text-sm"
+            className="rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink focus:border-marine"
             value={newType}
             onChange={(e) => setNewType(e.target.value as ValueType)}
           >
@@ -139,7 +139,7 @@ export default function SettingsTable({ settings }: { settings: SettingRow[] }) 
           </select>
           {newType === 'boolean' ? (
             <select
-              className="border rounded px-2 py-1 text-sm"
+              className="rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink focus:border-marine"
               value={newValue}
               onChange={(e) => setNewValue(e.target.value)}
             >
@@ -149,7 +149,7 @@ export default function SettingsTable({ settings }: { settings: SettingRow[] }) 
             </select>
           ) : (
             <input
-              className="border rounded px-2 py-1 text-sm"
+              className="rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink placeholder:text-slate focus:border-marine"
               placeholder="value"
               value={newValue}
               onChange={(e) => setNewValue(e.target.value)}
@@ -159,81 +159,94 @@ export default function SettingsTable({ settings }: { settings: SettingRow[] }) 
             type="button"
             disabled={busyKey !== null}
             onClick={handleAdd}
-            className="bg-black text-white rounded px-3 py-1 text-sm disabled:bg-gray-400"
+            className="rounded-lg bg-marine px-3 py-2 text-sm text-paper transition-opacity duration-200 disabled:opacity-50"
           >
             Add
           </button>
         </div>
       </div>
 
-      <table className="w-full text-sm border-collapse">
-        <thead>
-          <tr className="text-left border-b">
-            <th className="py-2 pr-4">Key</th>
-            <th className="py-2 pr-4">Value</th>
-            <th className="py-2 pr-4">Updated</th>
-            <th className="py-2 pr-4" />
-          </tr>
-        </thead>
-        <tbody>
-          {settings.map((row) => (
-            <tr key={row.key} className="border-b">
-              <td className="py-2 pr-4 font-mono">{row.key}</td>
-              <td className="py-2 pr-4">
-                {editingKey === row.key ? (
-                  <input
-                    className="border rounded px-2 py-1 text-sm"
-                    value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
-                  />
-                ) : (
-                  String(row.value)
-                )}
-              </td>
-              <td className="py-2 pr-4 text-gray-500">{row.updatedAt}</td>
-              <td className="py-2 pr-4 space-x-2">
-                {editingKey === row.key ? (
-                  <>
-                    <button
-                      type="button"
-                      disabled={busyKey === row.key}
-                      onClick={() => handleSaveEdit(row)}
-                      className="underline disabled:text-gray-400"
-                    >
-                      Save
-                    </button>
-                    <button type="button" onClick={() => setEditingKey(null)} className="underline">
-                      Cancel
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingKey(row.key)
-                        setEditValue(String(row.value))
-                        setError(null)
-                      }}
-                      className="underline"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      disabled={busyKey === row.key}
-                      onClick={() => handleDelete(row)}
-                      className="text-red-600 underline disabled:text-gray-400 disabled:no-underline"
-                    >
-                      Delete
-                    </button>
-                  </>
-                )}
-              </td>
+      <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-mist/40">
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Key</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Value</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Updated</th>
+              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate" />
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-mist">
+            {settings.map((row) => (
+              <tr key={row.key} className="hover:bg-mist/40 transition-colors duration-200">
+                <td className="px-3 py-2 font-mono text-ink">{row.key}</td>
+                <td className="px-3 py-2 text-ink">
+                  {editingKey === row.key ? (
+                    <input
+                      className="rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink focus:border-marine"
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                    />
+                  ) : (
+                    String(row.value)
+                  )}
+                </td>
+                <td className="px-3 py-2 text-slate">{row.updatedAt}</td>
+                <td className="px-3 py-2 space-x-3">
+                  {editingKey === row.key ? (
+                    <>
+                      <button
+                        type="button"
+                        disabled={busyKey === row.key}
+                        onClick={() => handleSaveEdit(row)}
+                        className="text-marine underline-offset-2 hover:underline disabled:text-slate disabled:no-underline"
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingKey(null)}
+                        className="text-marine underline-offset-2 hover:underline"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingKey(row.key)
+                          setEditValue(String(row.value))
+                          setError(null)
+                        }}
+                        className="text-marine underline-offset-2 hover:underline"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busyKey === row.key}
+                        onClick={() => handleDelete(row)}
+                        className="text-danger underline-offset-2 hover:underline disabled:text-slate disabled:no-underline"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {settings.length === 0 && (
+              <tr>
+                <td colSpan={4} className="px-3 py-4 text-center text-slate">
+                  No settings configured yet
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
