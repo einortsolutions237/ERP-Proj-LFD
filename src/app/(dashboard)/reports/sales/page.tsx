@@ -76,154 +76,160 @@ export default async function SalesReportPage({
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-8">
-      <h1 className="text-xl font-semibold">Sales report</h1>
+      <h1 className="font-display text-2xl font-semibold text-ink">Sales report</h1>
 
       <form method="GET" className="flex items-end gap-2">
         <div>
-          <label className="block text-sm font-medium">Start date</label>
+          <label className="block text-sm font-medium text-ink">Start date</label>
           <input
             type="date"
             name="startDate"
             defaultValue={startValue}
-            className="border rounded px-3 py-2 text-sm"
+            className="rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink focus:border-marine"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium">End date</label>
+          <label className="block text-sm font-medium text-ink">End date</label>
           <input
             type="date"
             name="endDate"
             defaultValue={endValue}
-            className="border rounded px-3 py-2 text-sm"
+            className="rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink focus:border-marine"
           />
         </div>
-        <button type="submit" className="bg-black text-white rounded px-3 py-2 text-sm">
+        <button type="submit" className="rounded-lg bg-marine px-3 py-2 text-sm text-paper transition-opacity duration-200 disabled:opacity-50">
           View
         </button>
       </form>
 
-      {rangeError && <p className="text-sm text-red-600">{rangeError}</p>}
+      {rangeError && <p className="text-sm text-danger">{rangeError}</p>}
 
       {report && (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-            <div className="border rounded p-3">
-              <div className="text-xs text-gray-500">Revenue</div>
-              <div className="text-lg font-semibold">{report.revenueTotal.toFixed(2)}</div>
+            <div className="rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
+              <div className="text-xs text-slate">Revenue</div>
+              <div className="font-mono text-lg font-semibold text-ink">{report.revenueTotal.toFixed(2)}</div>
             </div>
-            <div className="border rounded p-3">
-              <div className="text-xs text-gray-500">Sales</div>
-              <div className="text-lg font-semibold">{report.nonVoidedCount}</div>
+            <div className="rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
+              <div className="text-xs text-slate">Sales</div>
+              <div className="font-mono text-lg font-semibold text-ink">{report.nonVoidedCount}</div>
             </div>
-            <div className="border rounded p-3">
-              <div className="text-xs text-gray-500">Average sale</div>
-              <div className="text-lg font-semibold">{report.averageSaleValue.toFixed(2)}</div>
+            <div className="rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
+              <div className="text-xs text-slate">Average sale</div>
+              <div className="font-mono text-lg font-semibold text-ink">{report.averageSaleValue.toFixed(2)}</div>
             </div>
-            <div className="border rounded p-3">
-              <div className="text-xs text-gray-500">Voided count</div>
-              <div className="text-lg font-semibold">{report.voidedCount}</div>
+            <div className="rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
+              <div className="text-xs text-slate">Voided count</div>
+              <div className="font-mono text-lg font-semibold text-ink">{report.voidedCount}</div>
             </div>
-            <div className="border rounded p-3">
-              <div className="text-xs text-gray-500">Voided total</div>
-              <div className="text-lg font-semibold">{report.voidedTotal.toFixed(2)}</div>
+            <div className="rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
+              <div className="text-xs text-slate">Voided total</div>
+              <div className="font-mono text-lg font-semibold text-ink">{report.voidedTotal.toFixed(2)}</div>
             </div>
           </div>
 
           <DownloadCsvButton filename="sales-report.csv" csv={csv} />
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">By branch</h2>
+            <h2 className="text-lg font-medium text-ink mb-2">By branch</h2>
             {report.byBranch.length === 0 ? (
-              <p className="text-sm text-gray-500">No sales in this range.</p>
+              <p className="text-sm text-slate">No sales in this range.</p>
             ) : (
-              <table className="w-full text-sm border-collapse">
-                <thead>
-                  <tr className="text-left border-b">
-                    <th className="py-2 pr-4">Branch</th>
-                    <th className="py-2 pr-4">Revenue</th>
-                    <th className="py-2 pr-4">Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {report.byBranch.map((row) => (
-                    <tr key={row.branchId} className="border-b">
-                      <td className="py-2 pr-4">{row.branchName}</td>
-                      <td className="py-2 pr-4">{row.revenue.toFixed(2)}</td>
-                      <td className="py-2 pr-4">{row.count}</td>
+              <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-mist/40">
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Branch</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Revenue</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Count</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-mist">
+                    {report.byBranch.map((row) => (
+                      <tr key={row.branchId} className="hover:bg-mist/40 transition-colors duration-200">
+                        <td className="px-3 py-2 text-ink">{row.branchName}</td>
+                        <td className="px-3 py-2 font-mono text-right text-ink">{row.revenue.toFixed(2)}</td>
+                        <td className="px-3 py-2 font-mono text-right text-ink">{row.count}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">By payment method</h2>
+            <h2 className="text-lg font-medium text-ink mb-2">By payment method</h2>
             {report.byPaymentMethod.length === 0 ? (
-              <p className="text-sm text-gray-500">No payments in this range.</p>
+              <p className="text-sm text-slate">No payments in this range.</p>
             ) : (
-              <table className="w-full text-sm border-collapse">
-                <thead>
-                  <tr className="text-left border-b">
-                    <th className="py-2 pr-4">Method</th>
-                    <th className="py-2 pr-4">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {report.byPaymentMethod.map((row) => (
-                    <tr key={row.method} className="border-b">
-                      <td className="py-2 pr-4">{row.method}</td>
-                      <td className="py-2 pr-4">{row.amount.toFixed(2)}</td>
+              <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-mist/40">
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Method</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Amount</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-mist">
+                    {report.byPaymentMethod.map((row) => (
+                      <tr key={row.method} className="hover:bg-mist/40 transition-colors duration-200">
+                        <td className="px-3 py-2 text-ink">{row.method}</td>
+                        <td className="px-3 py-2 font-mono text-right text-ink">{row.amount.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">Top sellers</h2>
-            <p className="text-sm mb-2">
+            <h2 className="text-lg font-medium text-ink mb-2">Top sellers</h2>
+            <p className="text-sm text-slate mb-2">
               Sort by:{' '}
               {sortBy === 'revenue' ? (
-                <span>Revenue</span>
+                <span className="font-medium text-ink">Revenue</span>
               ) : (
-                <Link href={sortLinkParams('revenue')} className="underline">
+                <Link href={sortLinkParams('revenue')} className="text-marine underline-offset-2 hover:underline">
                   Revenue
                 </Link>
               )}
               {' | '}
               {sortBy === 'quantity' ? (
-                <span>Quantity</span>
+                <span className="font-medium text-ink">Quantity</span>
               ) : (
-                <Link href={sortLinkParams('quantity')} className="underline">
+                <Link href={sortLinkParams('quantity')} className="text-marine underline-offset-2 hover:underline">
                   Quantity
                 </Link>
               )}
             </p>
             {sortedTopSellers.length === 0 ? (
-              <p className="text-sm text-gray-500">No items sold in this range.</p>
+              <p className="text-sm text-slate">No items sold in this range.</p>
             ) : (
-              <table className="w-full text-sm border-collapse">
-                <thead>
-                  <tr className="text-left border-b">
-                    <th className="py-2 pr-4">Type</th>
-                    <th className="py-2 pr-4">Name</th>
-                    <th className="py-2 pr-4">Quantity</th>
-                    <th className="py-2 pr-4">Revenue</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedTopSellers.map((row) => (
-                    <tr key={`${row.type}:${row.itemId}`} className="border-b">
-                      <td className="py-2 pr-4">{row.type}</td>
-                      <td className="py-2 pr-4">{row.name}</td>
-                      <td className="py-2 pr-4">{row.quantity}</td>
-                      <td className="py-2 pr-4">{row.revenue.toFixed(2)}</td>
+              <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-mist/40">
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Type</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Name</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Quantity</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Revenue</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-mist">
+                    {sortedTopSellers.map((row) => (
+                      <tr key={`${row.type}:${row.itemId}`} className="hover:bg-mist/40 transition-colors duration-200">
+                        <td className="px-3 py-2 text-ink">{row.type}</td>
+                        <td className="px-3 py-2 text-ink">{row.name}</td>
+                        <td className="px-3 py-2 font-mono text-right text-ink">{row.quantity}</td>
+                        <td className="px-3 py-2 font-mono text-right text-ink">{row.revenue.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </section>
         </>

@@ -10,7 +10,11 @@ export default function DownloadCsvButton({ filename, csv }: { filename: string;
     URL.revokeObjectURL(url)
   }
   return (
-    <button type="button" onClick={handleClick} className="rounded border px-3 py-1.5 text-sm hover:bg-zinc-100">
+    <button
+      type="button"
+      onClick={handleClick}
+      className="rounded-lg border border-mist px-3 py-1.5 text-sm text-ink transition-colors duration-200 hover:bg-mist"
+    >
       Download CSV
     </button>
   )
