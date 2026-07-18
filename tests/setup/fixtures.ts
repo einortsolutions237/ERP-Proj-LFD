@@ -171,3 +171,18 @@ export async function seedLeaveRequest(input: { staffId: string; branchId: strin
   })
   return { id: ref.id }
 }
+
+export async function seedExpense(input: { branchId: string; date: Date; category: string; amount: number; description?: string; recordedBy?: string }): Promise<{ id: string }> {
+  const db = getAdminFirestore()
+  const ref = db.collection('expenses').doc()
+  await ref.set({
+    date: input.date,
+    category: input.category,
+    amount: input.amount,
+    description: input.description ?? 'Test expense',
+    branchId: input.branchId,
+    recordedBy: input.recordedBy ?? 'test-finance-admin',
+    createdAt: new Date(),
+  })
+  return { id: ref.id }
+}
