@@ -37,12 +37,22 @@ const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
 }
 
 // Tender-chip background per payment method — cash stays deliberately quiet
-// (neutral default), the two mobile-money brands lean on their approved
-// tokens for real color identity (see design brief, Phase 9 Task 3).
+// (neutral default). Phase 25 replaced MTN MoMo/Orange Money's solid brand
+// fills with the same /10-badge, /5-wash tint idiom DashboardCard's
+// TONE_STYLES established in Phase 24, instead of flooding the section
+// with a loud solid color block.
 const TENDER_CHIP_CARD: Record<PaymentMethod, string> = {
   cash: 'bg-mist text-ink',
-  mtn_momo: 'bg-brass text-ink',
-  orange_money: 'bg-info text-white',
+  mtn_momo: 'bg-brass/5 text-ink border border-brass/30',
+  orange_money: 'bg-info/5 text-ink border border-info/30',
+}
+
+// Icon color per method — carries the brand identity that used to come
+// from the solid fill; the label text stays neutral ink, matching
+// DashboardCard's badge-icon-colored/title-neutral split.
+const TENDER_GLYPH_COLOR: Record<'mtn_momo' | 'orange_money', string> = {
+  mtn_momo: 'text-brass',
+  orange_money: 'text-info',
 }
 
 // Small geometric glyphs — not the real MTN/Orange logos, just an abstract
@@ -558,7 +568,9 @@ export default function CheckoutForm({ products, services, customers, branchId }
                     />
                   )}
                   <div className="mb-2 flex items-center gap-1.5">
-                    {p.method !== 'cash' && <TenderGlyph method={p.method} className="h-4 w-4 opacity-70" />}
+                    {p.method !== 'cash' && (
+                      <TenderGlyph method={p.method} className={`h-4 w-4 ${TENDER_GLYPH_COLOR[p.method]}`} />
+                    )}
                     <span className="text-sm font-medium">{PAYMENT_METHOD_LABELS[p.method]}</span>
                   </div>
                   <input
