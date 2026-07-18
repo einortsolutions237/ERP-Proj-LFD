@@ -7,10 +7,16 @@ import RevenueTrendChart from '@/components/dashboard/RevenueTrendChart'
 import LowStockWidget from '@/components/dashboard/LowStockWidget'
 import PendingDeliveriesWidget from '@/components/dashboard/PendingDeliveriesWidget'
 import RecentActivityWidget from '@/components/dashboard/RecentActivityWidget'
+import UpcomingAppointmentsWidget from '@/components/dashboard/UpcomingAppointmentsWidget'
+import PendingLabOrdersWidget from '@/components/dashboard/PendingLabOrdersWidget'
+import PendingLeaveApprovalsWidget from '@/components/dashboard/PendingLeaveApprovalsWidget'
 import { buildRevenueTrend } from '@/lib/dashboard/revenueTrend'
 import { getDashboardLowStock } from '@/lib/dashboard/lowStockSummary'
 import { getDashboardPendingDeliveries } from '@/lib/dashboard/pendingDeliveriesSummary'
 import { getRecentActivity } from '@/lib/dashboard/recentActivity'
+import { getAppointments } from '@/lib/clinical/getAppointments'
+import { getPendingLabOrders } from '@/lib/clinical/getPendingLabOrders'
+import { getPendingLeaveApprovals } from '@/lib/dashboard/pendingLeaveApprovals'
 
 export default async function DashboardPage() {
   const user = await getSessionUser()
@@ -20,12 +26,18 @@ export default async function DashboardPage() {
   const canViewLowStock = hasCapability(user.role, 'inventory.stock.view')
   const canViewDeliveries = hasCapability(user.role, 'pos.delivery.fulfill')
   const canViewActivity = hasCapability(user.role, 'dashboard.activity.view')
+  const canViewAppointments = hasCapability(user.role, 'clinical.appointments.manage')
+  const canViewLabOrders = hasCapability(user.role, 'clinical.lab.results.enter')
+  const canViewLeaveApprovals = hasCapability(user.role, 'hr.leave.approve')
 
-  const [revenueTrend, lowStock, deliveries, activity] = await Promise.all([
+  const [revenueTrend, lowStock, deliveries, activity, appointments, labOrders, leaveApprovals] = await Promise.all([
     canViewRevenue ? buildRevenueTrend(user) : Promise.resolve(null),
     canViewLowStock ? getDashboardLowStock(user) : Promise.resolve(null),
     canViewDeliveries ? getDashboardPendingDeliveries(user) : Promise.resolve(null),
     canViewActivity ? getRecentActivity(user) : Promise.resolve(null),
+    canViewAppointments ? getAppointments({ upcomingOnly: true }, user) : Promise.resolve(null),
+    canViewLabOrders ? getPendingLabOrders(user) : Promise.resolve(null),
+    canViewLeaveApprovals ? getPendingLeaveApprovals(user) : Promise.resolve(null),
   ])
 
   return (
@@ -59,6 +71,21 @@ export default async function DashboardPage() {
         {canViewActivity && activity && (
           <DashboardCard title="Recent activity">
             <RecentActivityWidget items={activity} />
+          </DashboardCard>
+        )}
+        {canViewAppointments && appointments && (
+          <DashboardCard title="Upcoming appointments">
+            <UpcomingAppointmentsWidget appointments={appointments} />
+          </DashboardCard>
+        )}
+        {canViewLabOrders && labOrders && (
+          <DashboardCard title="Pending lab orders">
+            <PendingLabOrdersWidget orders={labOrders} />
+          </DashboardCard>
+        )}
+        {canViewLeaveApprovals && leaveApprovals && (
+          <DashboardCard title="Pending leave approvals">
+            <PendingLeaveApprovalsWidget requests={leaveApprovals} />
           </DashboardCard>
         )}
       </div>
