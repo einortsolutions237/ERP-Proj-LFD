@@ -207,6 +207,24 @@ const FlaskIcon: IconComponent = ({ className }) => (
   </svg>
 )
 
+const CoinsIcon: IconComponent = ({ className }) => (
+  <svg {...ICON_SVG_PROPS} className={className}>
+    <ellipse cx="9" cy="7" rx="5.5" ry="3" />
+    <path d="M3.5 7v4c0 1.66 2.46 3 5.5 3s5.5-1.34 5.5-3V7" />
+    <path d="M3.5 11v4c0 1.66 2.46 3 5.5 3 .53 0 1.04-.04 1.53-.12" />
+    <ellipse cx="16.5" cy="14" rx="4" ry="2.2" />
+  </svg>
+)
+
+const ScaleIcon: IconComponent = ({ className }) => (
+  <svg {...ICON_SVG_PROPS} className={className}>
+    <path d="M12 3v18M8 21h8" />
+    <path d="M5 7h5M14 7h5" />
+    <path d="M2.5 7 5 12.5a2.6 2.6 0 005 0L12.5 7" />
+    <path d="M11.5 7 14 12.5a2.6 2.6 0 005 0L21.5 7" />
+  </svg>
+)
+
 interface NavLink {
   href: string
   label: string
@@ -234,6 +252,8 @@ const NAV_LINKS: NavLink[] = [
   { href: '/attendance', label: 'Attendance', capability: 'hr.attendance.view', icon: ClockIcon },
   { href: '/reports/sales', label: 'Sales Report', capability: 'reports.sales.view', icon: BarChartIcon },
   { href: '/reports/inventory', label: 'Stock Report', capability: 'reports.inventory.view', icon: ChartLineIcon },
+  { href: '/expenses', label: 'Expenses', capability: 'accounting.expense.view', icon: CoinsIcon },
+  { href: '/reports/pnl', label: 'P&L Report', capability: 'accounting.pnl.view', icon: ScaleIcon },
   { href: '/appointments', label: 'Appointments', capability: 'clinical.appointments.manage', icon: StethoscopeIcon },
   {
     href: '/seminars',
