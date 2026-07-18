@@ -3,6 +3,9 @@
 exports[`role x capability matrix > matches the exact grant table for every role x every capability 1`] = `
 {
   "admin": {
+    "accounting.expense.create": false,
+    "accounting.expense.view": false,
+    "accounting.pnl.view": false,
     "admin.auditLog.view": true,
     "admin.branches.manage": false,
     "admin.departments.manage": false,
@@ -47,6 +50,9 @@ exports[`role x capability matrix > matches the exact grant table for every role
     "seminars.manage": false,
   },
   "branch_manager": {
+    "accounting.expense.create": false,
+    "accounting.expense.view": false,
+    "accounting.pnl.view": false,
     "admin.auditLog.view": false,
     "admin.branches.manage": false,
     "admin.departments.manage": true,
@@ -91,6 +97,9 @@ exports[`role x capability matrix > matches the exact grant table for every role
     "seminars.manage": false,
   },
   "cashier": {
+    "accounting.expense.create": false,
+    "accounting.expense.view": false,
+    "accounting.pnl.view": false,
     "admin.auditLog.view": false,
     "admin.branches.manage": false,
     "admin.departments.manage": false,
@@ -135,6 +144,9 @@ exports[`role x capability matrix > matches the exact grant table for every role
     "seminars.manage": false,
   },
   "doctor": {
+    "accounting.expense.create": false,
+    "accounting.expense.view": false,
+    "accounting.pnl.view": false,
     "admin.auditLog.view": false,
     "admin.branches.manage": false,
     "admin.departments.manage": false,
@@ -179,6 +191,9 @@ exports[`role x capability matrix > matches the exact grant table for every role
     "seminars.manage": false,
   },
   "finance_admin": {
+    "accounting.expense.create": true,
+    "accounting.expense.view": true,
+    "accounting.pnl.view": true,
     "admin.auditLog.view": false,
     "admin.branches.manage": false,
     "admin.departments.manage": false,
@@ -223,6 +238,9 @@ exports[`role x capability matrix > matches the exact grant table for every role
     "seminars.manage": false,
   },
   "general_manager": {
+    "accounting.expense.create": false,
+    "accounting.expense.view": true,
+    "accounting.pnl.view": true,
     "admin.auditLog.view": false,
     "admin.branches.manage": true,
     "admin.departments.manage": true,
@@ -267,6 +285,9 @@ exports[`role x capability matrix > matches the exact grant table for every role
     "seminars.manage": true,
   },
   "hr_admin": {
+    "accounting.expense.create": false,
+    "accounting.expense.view": false,
+    "accounting.pnl.view": false,
     "admin.auditLog.view": false,
     "admin.branches.manage": false,
     "admin.departments.manage": false,
@@ -311,6 +332,9 @@ exports[`role x capability matrix > matches the exact grant table for every role
     "seminars.manage": false,
   },
   "inventory_manager": {
+    "accounting.expense.create": false,
+    "accounting.expense.view": false,
+    "accounting.pnl.view": false,
     "admin.auditLog.view": false,
     "admin.branches.manage": false,
     "admin.departments.manage": false,
@@ -355,6 +379,9 @@ exports[`role x capability matrix > matches the exact grant table for every role
     "seminars.manage": false,
   },
   "it_admin": {
+    "accounting.expense.create": false,
+    "accounting.expense.view": false,
+    "accounting.pnl.view": false,
     "admin.auditLog.view": true,
     "admin.branches.manage": false,
     "admin.departments.manage": false,
@@ -399,6 +426,9 @@ exports[`role x capability matrix > matches the exact grant table for every role
     "seminars.manage": false,
   },
   "lab_staff": {
+    "accounting.expense.create": false,
+    "accounting.expense.view": false,
+    "accounting.pnl.view": false,
     "admin.auditLog.view": false,
     "admin.branches.manage": false,
     "admin.departments.manage": false,
@@ -443,6 +473,9 @@ exports[`role x capability matrix > matches the exact grant table for every role
     "seminars.manage": false,
   },
   "medical_secretary": {
+    "accounting.expense.create": false,
+    "accounting.expense.view": false,
+    "accounting.pnl.view": false,
     "admin.auditLog.view": false,
     "admin.branches.manage": false,
     "admin.departments.manage": false,
@@ -487,6 +520,9 @@ exports[`role x capability matrix > matches the exact grant table for every role
     "seminars.manage": true,
   },
   "nurse": {
+    "accounting.expense.create": false,
+    "accounting.expense.view": false,
+    "accounting.pnl.view": false,
     "admin.auditLog.view": false,
     "admin.branches.manage": false,
     "admin.departments.manage": false,
@@ -531,6 +567,9 @@ exports[`role x capability matrix > matches the exact grant table for every role
     "seminars.manage": false,
   },
   "protocol": {
+    "accounting.expense.create": false,
+    "accounting.expense.view": false,
+    "accounting.pnl.view": false,
     "admin.auditLog.view": false,
     "admin.branches.manage": false,
     "admin.departments.manage": false,
@@ -575,6 +614,9 @@ exports[`role x capability matrix > matches the exact grant table for every role
     "seminars.manage": false,
   },
   "super_admin": {
+    "accounting.expense.create": true,
+    "accounting.expense.view": true,
+    "accounting.pnl.view": true,
     "admin.auditLog.view": true,
     "admin.branches.manage": true,
     "admin.departments.manage": true,

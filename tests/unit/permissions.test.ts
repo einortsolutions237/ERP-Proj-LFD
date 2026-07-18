@@ -114,4 +114,28 @@ describe('role x capability matrix', () => {
   it('nurse does not hold clinical.appointments.manage (dashboard visibility must not widen scheduling access)', () => {
     expect(hasCapability('nurse', 'clinical.appointments.manage')).toBe(false)
   })
+
+  it('accounting.expense.create is exactly [super_admin, finance_admin]', () => {
+    expect(ROLE_CAPABILITIES['accounting.expense.create'].slice().sort()).toEqual(['finance_admin', 'super_admin'])
+  })
+
+  it('accounting.expense.view and accounting.pnl.view are both exactly [super_admin, finance_admin, general_manager]', () => {
+    expect(ROLE_CAPABILITIES['accounting.expense.view'].slice().sort()).toEqual(['finance_admin', 'general_manager', 'super_admin'])
+    expect(ROLE_CAPABILITIES['accounting.pnl.view'].slice().sort()).toEqual(['finance_admin', 'general_manager', 'super_admin'])
+  })
+
+  it('general_manager can view expenses/P&L but cannot record an expense', () => {
+    expect(hasCapability('general_manager', 'accounting.expense.view')).toBe(true)
+    expect(hasCapability('general_manager', 'accounting.pnl.view')).toBe(true)
+    expect(hasCapability('general_manager', 'accounting.expense.create')).toBe(false)
+  })
+
+  it('no non-accounting role holds any of the three accounting capabilities', () => {
+    const excluded: RoleId[] = ['admin', 'branch_manager', 'cashier', 'hr_admin', 'it_admin', 'doctor', 'medical_secretary', 'protocol', 'nurse', 'lab_staff', 'inventory_manager']
+    for (const role of excluded) {
+      expect(hasCapability(role, 'accounting.expense.create')).toBe(false)
+      expect(hasCapability(role, 'accounting.expense.view')).toBe(false)
+      expect(hasCapability(role, 'accounting.pnl.view')).toBe(false)
+    }
+  })
 })

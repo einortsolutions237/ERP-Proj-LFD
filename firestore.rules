@@ -109,6 +109,9 @@ service cloud.firestore {
     match /intakeQuestionnaire/{docId} {
       allow read, write: if false; // all access goes through /api/intake-questionnaire — shared configuration, not patient data itself, but closed the same way as every other collection in this app
     }
+    match /expenses/{expenseId} {
+      allow read, write: if false; // all access goes through /api/expenses — financial record-keeping data, same fully-closed treatment as every other collection in this app
+    }
     match /{document=**} {
       allow read, write: if false;
     }

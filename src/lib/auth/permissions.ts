@@ -74,8 +74,14 @@ export type Capability =
   // business-relevant activity summary for management-level oversight,
   // scoped to a standalone role list — see DASHBOARD_ACTIVITY_ROLES below.
   | 'dashboard.activity.view'
-  // accounting.* — no capabilities defined yet;
-  // add them here when the module is actually built.
+  // Phase 26 — Accounting Foundation. Create is narrower than view:
+  // finance_admin records expenses; general_manager/super_admin get full
+  // oversight (expenses + P&L) without authoring, the same create-vs-view
+  // split already established for crm.customer.create/.view and
+  // pos.sale.create/.view.
+  | 'accounting.expense.create'
+  | 'accounting.expense.view'
+  | 'accounting.pnl.view'
 
 export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'admin.staff.view': 'admin',
@@ -120,6 +126,9 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'clinical.intake.view': 'clinical',
   'messaging.access': 'messaging',
   'dashboard.activity.view': 'dashboard',
+  'accounting.expense.create': 'accounting',
+  'accounting.expense.view': 'accounting',
+  'accounting.pnl.view': 'accounting',
 }
 
 const ALL_ROLES: RoleId[] = [...ROLES]
@@ -258,6 +267,16 @@ const POS_DELIVERY_FULFILL_ROLES: RoleId[] = ['super_admin', 'general_manager', 
 // here (this list only decides who gets the widget at all).
 const DASHBOARD_ACTIVITY_ROLES: RoleId[] = ['super_admin', 'general_manager', 'branch_manager']
 
+// Phase 26 — Accounting Foundation. finance_admin's first substantial
+// feature set since Phase 1.
+const ACCOUNTING_EXPENSE_CREATE_ROLES: RoleId[] = ['super_admin', 'finance_admin']
+// Backs both accounting.expense.view and accounting.pnl.view by shared
+// reference. Unlike the clinical-wall capabilities, there is no risk of
+// this silently widening into unrelated access — both capabilities are the
+// same "accounting oversight" concern for the same three roles, not two
+// capabilities that only happen to currently coincide.
+const ACCOUNTING_VIEW_ROLES: RoleId[] = ['super_admin', 'finance_admin', 'general_manager']
+
 // Phase 19.1 — nurse & patient intake. Deliberately three separate,
 // explicitly-spelled-out lists rather than composed from CLINICAL_ROLES/
 // CLINICAL_VIEW_ROLES — see the Capability union's own comment above for
@@ -320,6 +339,9 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'clinical.intake.view': INTAKE_VIEW_ROLES,
   'messaging.access': ALL_ROLES,
   'dashboard.activity.view': DASHBOARD_ACTIVITY_ROLES,
+  'accounting.expense.create': ACCOUNTING_EXPENSE_CREATE_ROLES,
+  'accounting.expense.view': ACCOUNTING_VIEW_ROLES,
+  'accounting.pnl.view': ACCOUNTING_VIEW_ROLES,
 }
 
 export function hasCapability(role: RoleId, capability: Capability): boolean {

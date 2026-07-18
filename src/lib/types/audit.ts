@@ -20,6 +20,7 @@ export type AuditAction =
   | 'intake_questionnaire_edit'
   | 'intake_view'
   | 'message_create'
+  | 'expense_create'
 
 export interface AuditLogEntry {
   id: string
