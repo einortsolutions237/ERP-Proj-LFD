@@ -17,6 +17,7 @@ import { getRecentActivity } from '@/lib/dashboard/recentActivity'
 import { getAppointments } from '@/lib/clinical/getAppointments'
 import { getPendingLabOrders } from '@/lib/clinical/getPendingLabOrders'
 import { getPendingLeaveApprovals } from '@/lib/dashboard/pendingLeaveApprovals'
+import { ClockIcon, ChartLineIcon, BoxIcon, TruckIcon, ActivityIcon, CalendarCheckIcon, FlaskIcon, ClipboardCheckIcon } from '@/components/dashboard/icons'
 
 export default async function DashboardPage() {
   const user = await getSessionUser()
@@ -50,41 +51,41 @@ export default async function DashboardPage() {
         </p>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <DashboardCard title="Check In">
+        <DashboardCard title="Check In" icon={ClockIcon} tone="marine">
           <AttendanceWidget />
         </DashboardCard>
         {canViewRevenue && revenueTrend && (
-          <DashboardCard title="Revenue — last 30 days">
+          <DashboardCard title="Revenue — last 30 days" icon={ChartLineIcon} tone="marine">
             <RevenueTrendChart data={revenueTrend} />
           </DashboardCard>
         )}
         {canViewLowStock && lowStock && (
-          <DashboardCard title="Low stock">
+          <DashboardCard title="Low stock" icon={BoxIcon} tone="danger">
             <LowStockWidget summary={lowStock} />
           </DashboardCard>
         )}
         {canViewDeliveries && deliveries && (
-          <DashboardCard title="Pending deliveries">
+          <DashboardCard title="Pending deliveries" icon={TruckIcon} tone="brass">
             <PendingDeliveriesWidget summary={deliveries} />
           </DashboardCard>
         )}
         {canViewActivity && activity && (
-          <DashboardCard title="Recent activity">
+          <DashboardCard title="Recent activity" icon={ActivityIcon} tone="marine">
             <RecentActivityWidget items={activity} />
           </DashboardCard>
         )}
         {canViewAppointments && appointments && (
-          <DashboardCard title="Upcoming appointments">
+          <DashboardCard title="Upcoming appointments" icon={CalendarCheckIcon} tone="info">
             <UpcomingAppointmentsWidget appointments={appointments} />
           </DashboardCard>
         )}
         {canViewLabOrders && labOrders && (
-          <DashboardCard title="Pending lab orders">
+          <DashboardCard title="Pending lab orders" icon={FlaskIcon} tone="warning">
             <PendingLabOrdersWidget orders={labOrders} />
           </DashboardCard>
         )}
         {canViewLeaveApprovals && leaveApprovals && (
-          <DashboardCard title="Pending leave approvals">
+          <DashboardCard title="Pending leave approvals" icon={ClipboardCheckIcon} tone="warning">
             <PendingLeaveApprovalsWidget requests={leaveApprovals} />
           </DashboardCard>
         )}
