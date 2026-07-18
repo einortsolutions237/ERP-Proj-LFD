@@ -66,7 +66,7 @@ export default function AttendanceWidget() {
           type="button"
           onClick={handleCheckIn}
           disabled={submitting}
-          className="rounded-lg bg-ink px-3 py-2 text-sm text-paper transition-colors duration-200 hover:bg-ink/90 disabled:opacity-50"
+          className="rounded-lg bg-marine px-3 py-2 text-sm text-paper transition-colors duration-200 hover:bg-marine/90 disabled:opacity-50"
         >
           Check In
         </button>
@@ -83,7 +83,7 @@ export default function AttendanceWidget() {
           type="button"
           onClick={handleCheckOut}
           disabled={submitting}
-          className="rounded-lg bg-ink px-3 py-2 text-sm text-paper transition-colors duration-200 hover:bg-ink/90 disabled:opacity-50"
+          className="rounded-lg bg-marine px-3 py-2 text-sm text-paper transition-colors duration-200 hover:bg-marine/90 disabled:opacity-50"
         >
           Check Out
         </button>
