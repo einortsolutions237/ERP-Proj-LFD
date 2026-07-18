@@ -150,3 +150,24 @@ export async function seedAuditLogEntry(input: { action: string; branchId: strin
   })
   return { id: ref.id }
 }
+
+export async function seedLeaveRequest(input: { staffId: string; branchId: string; type: 'annual' | 'sick' | 'unpaid' | 'other'; status?: 'pending' | 'approved' | 'rejected'; startDate?: Date; endDate?: Date; createdAt?: Date }): Promise<{ id: string }> {
+  const db = getAdminFirestore()
+  const ref = db.collection('leaveRequests').doc()
+  const start = input.startDate ?? new Date()
+  const end = input.endDate ?? new Date(start.getTime() + 86400000)
+  await ref.set({
+    staffId: input.staffId,
+    branchId: input.branchId,
+    type: input.type,
+    startDate: start,
+    endDate: end,
+    reason: null,
+    status: input.status ?? 'pending',
+    reviewedBy: null,
+    reviewedAt: null,
+    reviewNote: null,
+    createdAt: input.createdAt ?? new Date(),
+  })
+  return { id: ref.id }
+}
