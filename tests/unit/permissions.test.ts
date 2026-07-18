@@ -110,4 +110,8 @@ describe('role x capability matrix', () => {
       expect(hasCapability(role, 'dashboard.activity.view')).toBe(false)
     }
   })
+
+  it('nurse does not hold clinical.appointments.manage (dashboard visibility must not widen scheduling access)', () => {
+    expect(hasCapability('nurse', 'clinical.appointments.manage')).toBe(false)
+  })
 })
