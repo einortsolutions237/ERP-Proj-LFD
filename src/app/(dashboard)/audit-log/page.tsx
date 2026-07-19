@@ -12,7 +12,12 @@ import AuditLogTable, { type AuditLogRow } from '@/components/audit/AuditLogTabl
 // converts any Timestamp-shaped value (duck-typed via toDate()) to an ISO
 // string, the same conversion leave/page.tsx and attendance/page.tsx already
 // apply field-by-field to their own known fields — this does it generically
-// since details' shape isn't statically known.
+// since details' shape isn't statically known. Only handles Timestamp-shaped
+// values (duck-typed via toDate()) — a future `details` payload that
+// snapshots a GeoPoint or DocumentReference would hit the same class of
+// crash and needs its own duck-type branch here. Not an issue today: this
+// codebase writes no GeoPoint/DocumentReference values into any details
+// payload (confirmed via a full-codebase search when this fix landed).
 function sanitizeTimestamps(value: unknown): unknown {
   if (value && typeof value === 'object' && 'toDate' in value && typeof (value as { toDate: unknown }).toDate === 'function') {
     return (value as { toDate: () => Date }).toDate().toISOString()
