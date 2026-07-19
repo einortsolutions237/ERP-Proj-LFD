@@ -21,6 +21,7 @@ export type AuditAction =
   | 'intake_view'
   | 'message_create'
   | 'expense_create'
+  | 'payroll_record_create'
 
 export interface AuditLogEntry {
   id: string

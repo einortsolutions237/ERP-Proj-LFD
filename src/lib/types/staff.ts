@@ -11,6 +11,7 @@ export interface Staff {
   emergencyContact: { name: string | null; phone: string | null; relationship: string | null }
   employment: { startDate: string; status: 'active' | 'inactive' }
   qualifications: string[]
+  baseSalary: number | null
   createdAt: FirebaseFirestore.Timestamp
   updatedAt: FirebaseFirestore.Timestamp
   createdBy: string

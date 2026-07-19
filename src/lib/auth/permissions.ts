@@ -82,6 +82,14 @@ export type Capability =
   | 'accounting.expense.create'
   | 'accounting.expense.view'
   | 'accounting.pnl.view'
+  // Phase 26.1 — Payroll Foundation. Standalone role lists, not composed
+  // from ACCOUNTING_EXPENSE_CREATE_ROLES/ACCOUNTING_VIEW_ROLES — payroll and
+  // expenses are two independently-evolving financial concerns that only
+  // coincidentally share some role membership today, the same reasoning
+  // that kept nurse/lab_staff's clinical capabilities off CLINICAL_ROLES/
+  // CLINICAL_VIEW_ROLES rather than composed by reference.
+  | 'payroll.record.create'
+  | 'payroll.record.view'
 
 export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'admin.staff.view': 'admin',
@@ -129,6 +137,8 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'accounting.expense.create': 'accounting',
   'accounting.expense.view': 'accounting',
   'accounting.pnl.view': 'accounting',
+  'payroll.record.create': 'accounting',
+  'payroll.record.view': 'accounting',
 }
 
 const ALL_ROLES: RoleId[] = [...ROLES]
@@ -277,6 +287,12 @@ const ACCOUNTING_EXPENSE_CREATE_ROLES: RoleId[] = ['super_admin', 'finance_admin
 // capabilities that only happen to currently coincide.
 const ACCOUNTING_VIEW_ROLES: RoleId[] = ['super_admin', 'finance_admin', 'general_manager']
 
+// Phase 26.1 — Payroll Foundation. Deliberately standalone, not shared with
+// ACCOUNTING_EXPENSE_CREATE_ROLES/ACCOUNTING_VIEW_ROLES even though the
+// membership currently overlaps — see the plan's Decision 4.
+const PAYROLL_RECORD_CREATE_ROLES: RoleId[] = ['super_admin', 'finance_admin']
+const PAYROLL_RECORD_VIEW_ROLES: RoleId[] = ['super_admin', 'finance_admin', 'general_manager', 'hr_admin']
+
 // Phase 19.1 — nurse & patient intake. Deliberately three separate,
 // explicitly-spelled-out lists rather than composed from CLINICAL_ROLES/
 // CLINICAL_VIEW_ROLES — see the Capability union's own comment above for
@@ -342,6 +358,8 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'accounting.expense.create': ACCOUNTING_EXPENSE_CREATE_ROLES,
   'accounting.expense.view': ACCOUNTING_VIEW_ROLES,
   'accounting.pnl.view': ACCOUNTING_VIEW_ROLES,
+  'payroll.record.create': PAYROLL_RECORD_CREATE_ROLES,
+  'payroll.record.view': PAYROLL_RECORD_VIEW_ROLES,
 }
 
 export function hasCapability(role: RoleId, capability: Capability): boolean {

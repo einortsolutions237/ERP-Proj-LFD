@@ -7,7 +7,7 @@ import { ROLES, isBranchLocked } from '@/lib/auth/permissions'
 // Fields a caller is ever allowed to change via this endpoint. branchId, uid,
 // createdBy, createdAt are immutable/derived server-side and must never be
 // settable from the request body, no matter what the client sends.
-const EDITABLE_FIELDS = ['name', 'role', 'department', 'contact', 'emergencyContact', 'employment', 'qualifications'] as const
+const EDITABLE_FIELDS = ['name', 'role', 'department', 'contact', 'emergencyContact', 'employment', 'qualifications', 'baseSalary'] as const
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ staffId: string }> }) {
   const { staffId } = await params
@@ -42,6 +42,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ st
     }
     if (body.role === 'super_admin' && existing.role !== 'super_admin') {
       return NextResponse.json({ error: 'super_admin cannot be assigned through this endpoint' }, { status: 403 })
+    }
+
+    if ('baseSalary' in body && body.baseSalary !== null && body.baseSalary !== undefined) {
+      if (typeof body.baseSalary !== 'number' || !isFinite(body.baseSalary) || body.baseSalary < 0) {
+        return NextResponse.json({ error: 'baseSalary must be a non-negative number or null' }, { status: 400 })
+      }
     }
 
     const updates: Record<string, unknown> = { updatedAt: new Date() }

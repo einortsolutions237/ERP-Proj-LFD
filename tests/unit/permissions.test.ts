@@ -138,4 +138,27 @@ describe('role x capability matrix', () => {
       expect(hasCapability(role, 'accounting.pnl.view')).toBe(false)
     }
   })
+
+  it('payroll.record.create is exactly [super_admin, finance_admin]', () => {
+    expect(ROLE_CAPABILITIES['payroll.record.create'].slice().sort()).toEqual(['finance_admin', 'super_admin'])
+  })
+
+  it('payroll.record.view is exactly [super_admin, finance_admin, general_manager, hr_admin]', () => {
+    expect(ROLE_CAPABILITIES['payroll.record.view'].slice().sort()).toEqual(['finance_admin', 'general_manager', 'hr_admin', 'super_admin'])
+  })
+
+  it('general_manager and hr_admin can view payroll but cannot create a record', () => {
+    expect(hasCapability('general_manager', 'payroll.record.view')).toBe(true)
+    expect(hasCapability('hr_admin', 'payroll.record.view')).toBe(true)
+    expect(hasCapability('general_manager', 'payroll.record.create')).toBe(false)
+    expect(hasCapability('hr_admin', 'payroll.record.create')).toBe(false)
+  })
+
+  it('no non-payroll role holds either payroll capability', () => {
+    const excluded: RoleId[] = ['admin', 'branch_manager', 'cashier', 'it_admin', 'doctor', 'medical_secretary', 'protocol', 'nurse', 'lab_staff', 'inventory_manager']
+    for (const role of excluded) {
+      expect(hasCapability(role, 'payroll.record.create')).toBe(false)
+      expect(hasCapability(role, 'payroll.record.view')).toBe(false)
+    }
+  })
 })

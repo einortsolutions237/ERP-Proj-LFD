@@ -112,6 +112,9 @@ service cloud.firestore {
     match /expenses/{expenseId} {
       allow read, write: if false; // all access goes through /api/expenses — financial record-keeping data, same fully-closed treatment as every other collection in this app
     }
+    match /payrollRecords/{recordId} {
+      allow read, write: if false; // all access goes through /api/payroll — compensation data, same fully-closed treatment as every other collection in this app
+    }
     match /{document=**} {
       allow read, write: if false;
     }
