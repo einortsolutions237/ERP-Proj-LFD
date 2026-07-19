@@ -28,8 +28,14 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       throw new AuthError('Forbidden', 403)
     }
 
-    const bucket = getAdminStorage().bucket()
-    const [buffer] = await bucket.file(data.storagePath as string).download()
+    let buffer: Buffer
+    try {
+      const bucket = getAdminStorage().bucket()
+      const downloaded = await bucket.file(data.storagePath as string).download()
+      buffer = downloaded[0]
+    } catch {
+      return NextResponse.json({ error: 'Could not retrieve the file — try again' }, { status: 502 })
+    }
 
     return new Response(buffer, {
       status: 200,

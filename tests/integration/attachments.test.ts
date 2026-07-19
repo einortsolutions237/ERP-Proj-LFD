@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest'
+import { describe, it, expect, beforeAll, vi } from 'vitest'
 import { mockNextHeaders, withSession } from '../setup/mockSession'
 
 mockNextHeaders()
@@ -9,6 +9,7 @@ import { POST as postExpense } from '@/app/api/expenses/route'
 import { POST as postLabOrder } from '@/app/api/lab-orders/route'
 import { POST as postLabResult } from '@/app/api/lab-results/route'
 import { getAdminFirestore, getAdminStorage } from '@/lib/firebase/admin'
+import * as adminModule from '@/lib/firebase/admin'
 import { resetEmulator, seedBranch, seedStaff, seedCustomer } from '../setup/fixtures'
 
 describe('POST /api/attachments', () => {
@@ -145,6 +146,20 @@ describe('POST /api/attachments', () => {
     const res = await withSession(null, () => postAttachment(uploadRequest('expenses', expenseId, file)))
     expect(res.status).toBe(401)
   })
+
+  it('a Storage failure during upload returns a clear 502, not an uncaught 500', async () => {
+    const spy = vi.spyOn(adminModule, 'getAdminStorage').mockImplementationOnce(() => {
+      throw new Error('simulated Storage outage')
+    })
+    try {
+      const file = new File([new Uint8Array([1, 2, 3])], 'receipt.pdf', { type: 'application/pdf' })
+      const res = await withSession(financeAdminCookie, () => postAttachment(uploadRequest('expenses', expenseId, file)))
+      expect(res.status).toBe(502)
+      expect((await res.json()).error).toMatch(/Could not upload the file/)
+    } finally {
+      spy.mockRestore()
+    }
+  })
 })
 
 describe('GET /api/attachments/[id]', () => {
@@ -240,5 +255,18 @@ describe('GET /api/attachments/[id]', () => {
   it('rejects an unauthenticated request', async () => {
     const res = await withSession(null, () => getAttachment(getRequest(expenseAttachmentId), { params: Promise.resolve({ id: expenseAttachmentId }) }))
     expect(res.status).toBe(401)
+  })
+
+  it('a Storage failure during retrieval returns a clear 502, not an uncaught 500', async () => {
+    const spy = vi.spyOn(adminModule, 'getAdminStorage').mockImplementationOnce(() => {
+      throw new Error('simulated Storage outage')
+    })
+    try {
+      const res = await withSession(financeAdminCookie, () => getAttachment(getRequest(expenseAttachmentId), { params: Promise.resolve({ id: expenseAttachmentId }) }))
+      expect(res.status).toBe(502)
+      expect((await res.json()).error).toMatch(/Could not retrieve the file/)
+    } finally {
+      spy.mockRestore()
+    }
   })
 })

@@ -58,8 +58,12 @@ export async function POST(request: Request) {
     const storagePath = `attachments/${relatedCollection}/${relatedDocId}/${attachmentRef.id}-${file.name}`
 
     const buffer = Buffer.from(await file.arrayBuffer())
-    const bucket = getAdminStorage().bucket()
-    await bucket.file(storagePath).save(buffer, { contentType: file.type })
+    try {
+      const bucket = getAdminStorage().bucket()
+      await bucket.file(storagePath).save(buffer, { contentType: file.type })
+    } catch {
+      return NextResponse.json({ error: 'Could not upload the file — try again' }, { status: 502 })
+    }
 
     await attachmentRef.set({
       relatedCollection,
