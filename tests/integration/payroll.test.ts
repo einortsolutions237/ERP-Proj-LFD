@@ -115,6 +115,11 @@ describe('baseSalary on staff + POST/GET /api/payroll', () => {
     }
     const saView = await withSession(superAdminCookie, () => getPayroll())
     expect(saView.status).toBe(200)
+
+    const saCreateRes = await withSession(superAdminCookie, () =>
+      postPayroll(payrollRequest({ staffId: targetStaffUid, payPeriodStart: '2026-10-01', payPeriodEnd: '2026-10-31' }))
+    )
+    expect(saCreateRes.status).toBe(201)
   })
 
   it('admin, cashier, branch_manager all get 403 on create and view', async () => {

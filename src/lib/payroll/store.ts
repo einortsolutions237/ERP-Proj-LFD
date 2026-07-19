@@ -67,6 +67,15 @@ export async function createPayrollRecord(
     grossAmount = baseSalary
   }
 
+  // Resolved-value check, covering both sources: the explicit-input branch
+  // above already validates its raw input early for a precise error message,
+  // but the baseSalary fallback only checked typeof — a staff member with
+  // baseSalary: 0 (PATCH /api/staff allows it; its validation is `< 0`, so 0
+  // passes) would otherwise slip a grossAmount: 0 record past this function.
+  if (!isFinite(grossAmount) || grossAmount <= 0) {
+    throw new PayrollValidationError('grossAmount must be a positive number')
+  }
+
   // branchId always comes from the staff member's own current branch, never
   // the recording user or a client-supplied value — see the plan's
   // Decision 2: unlike expenses, a payroll record's branch is never
