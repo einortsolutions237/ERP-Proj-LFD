@@ -39,7 +39,7 @@ export async function mintSessionCookie(uid: string): Promise<string> {
   return auth.createSessionCookie(exchange.idToken, { expiresIn: 60 * 60 * 1000 })
 }
 
-export async function seedStaff(input: { role: RoleId; branchId: string; email: string }): Promise<{ uid: string; sessionCookie: string }> {
+export async function seedStaff(input: { role: RoleId; branchId: string; email: string; baseSalary?: number | null }): Promise<{ uid: string; sessionCookie: string }> {
   const auth = getAdminAuth()
   const db = getAdminFirestore()
   const userRecord = await auth.createUser({ email: input.email, password: 'Test-password-1!', emailVerified: true })
@@ -55,6 +55,7 @@ export async function seedStaff(input: { role: RoleId; branchId: string; email: 
     emergencyContact: { name: null, phone: null, relationship: null },
     employment: { startDate: new Date(), status: 'active' },
     qualifications: [],
+    baseSalary: input.baseSalary ?? null,
     createdAt: new Date(),
     updatedAt: new Date(),
     createdBy: userRecord.uid,
@@ -183,6 +184,22 @@ export async function seedExpense(input: { branchId: string; date: Date; categor
     branchId: input.branchId,
     recordedBy: input.recordedBy ?? 'test-finance-admin',
     createdAt: new Date(),
+  })
+  return { id: ref.id }
+}
+
+export async function seedPayrollRecord(input: { staffId: string; branchId: string; payPeriodStart: Date; payPeriodEnd: Date; grossAmount: number; recordedBy?: string; notes?: string | null }): Promise<{ id: string }> {
+  const db = getAdminFirestore()
+  const ref = db.collection('payrollRecords').doc()
+  await ref.set({
+    staffId: input.staffId,
+    payPeriodStart: input.payPeriodStart,
+    payPeriodEnd: input.payPeriodEnd,
+    grossAmount: input.grossAmount,
+    branchId: input.branchId,
+    recordedBy: input.recordedBy ?? 'test-finance-admin',
+    createdAt: new Date(),
+    notes: input.notes ?? null,
   })
   return { id: ref.id }
 }
