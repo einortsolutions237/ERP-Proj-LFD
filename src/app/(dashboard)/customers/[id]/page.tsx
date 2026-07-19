@@ -30,6 +30,13 @@ interface PurchaseRow {
   payments: string
 }
 
+const APPOINTMENT_STATUS_BADGE: Record<string, string> = {
+  scheduled: 'bg-info/10 text-info',
+  completed: 'bg-success/10 text-success',
+  cancelled: 'bg-danger/10 text-danger',
+  no_show: 'bg-slate/10 text-slate',
+}
+
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
@@ -182,21 +189,27 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           {upcomingAppointments.length === 0 ? (
             <p className="text-sm text-slate">No upcoming appointments.</p>
           ) : (
-            <div className="overflow-hidden rounded-md border border-mist">
+            <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-mist/40">
                     <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Date/Time</th>
                     <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Doctor</th>
                     <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Reason</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-mist">
                   {upcomingAppointments.map((row) => (
-                    <tr key={row.id} className="hover:bg-mist/40 transition-colors">
+                    <tr key={row.id} className="hover:bg-mist/40 transition-colors duration-200">
                       <td className="px-3 py-2 text-ink">{new Date(row.scheduledAt).toLocaleString()}</td>
                       <td className="px-3 py-2 text-ink">{row.doctorName}</td>
                       <td className="px-3 py-2 text-ink">{row.reason ?? '—'}</td>
+                      <td className="px-3 py-2">
+                        <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${APPOINTMENT_STATUS_BADGE[row.status] ?? 'bg-slate/10 text-slate'}`}>
+                          {row.status}
+                        </span>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
