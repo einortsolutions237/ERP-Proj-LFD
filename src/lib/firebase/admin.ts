@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp, cert, type App } from 'firebase-admin/app'
 import { getAuth } from 'firebase-admin/auth'
 import { getFirestore } from 'firebase-admin/firestore'
+import { getStorage } from 'firebase-admin/storage'
 
 function getAdminApp(): App {
   if (getApps().length) return getApp()
@@ -10,6 +11,7 @@ function getAdminApp(): App {
       clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
       privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     }),
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   })
 }
 
@@ -27,4 +29,8 @@ const FIRESTORE_DATABASE_ID = 'default'
 
 export function getAdminFirestore() {
   return getFirestore(getAdminApp(), FIRESTORE_DATABASE_ID)
+}
+
+export function getAdminStorage() {
+  return getStorage(getAdminApp())
 }

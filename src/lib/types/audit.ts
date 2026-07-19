@@ -22,6 +22,7 @@ export type AuditAction =
   | 'message_create'
   | 'expense_create'
   | 'payroll_record_create'
+  | 'attachment_upload'
 
 export interface AuditLogEntry {
   id: string

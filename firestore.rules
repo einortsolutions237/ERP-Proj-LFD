@@ -115,6 +115,9 @@ service cloud.firestore {
     match /payrollRecords/{recordId} {
       allow read, write: if false; // all access goes through /api/payroll — compensation data, same fully-closed treatment as every other collection in this app
     }
+    match /attachments/{attachmentId} {
+      allow read, write: if false; // all access goes through the Admin SDK via /api/attachments
+    }
     match /{document=**} {
       allow read, write: if false;
     }

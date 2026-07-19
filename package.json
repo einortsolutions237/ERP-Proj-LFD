@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "firebase emulators:exec --config firebase.testing.json --only firestore,auth --project demo-erp-lfd \"vitest run\"",
+    "test": "firebase emulators:exec --config firebase.testing.json --only firestore,auth,storage --project demo-erp-lfd \"vitest run\"",
     "test:watch": "vitest"
   },
   "dependencies": {
