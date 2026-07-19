@@ -1,5 +1,6 @@
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin'
 import type { RoleId } from '@/lib/auth/permissions'
+import type { SaleLineItem, SalePayment } from '@/lib/types/sale'
 
 async function fetchJson(url: string, init?: RequestInit) {
   const res = await fetch(url, init)
@@ -98,22 +99,32 @@ export async function seedCustomer(input: { name: string; phone: string }): Prom
   return { id: ref.id }
 }
 
-export async function seedSale(input: { branchId: string; total: number; createdAt: Date; voidedAt?: Date | null }): Promise<{ id: string }> {
+export async function seedSale(input: {
+  branchId: string
+  total: number
+  createdAt: Date
+  voidedAt?: Date | null
+  voidedBy?: string
+  lineItems?: SaleLineItem[]
+  payments?: SalePayment[]
+  cashierUid?: string
+  customerId?: string | null
+}): Promise<{ id: string }> {
   const db = getAdminFirestore()
   const ref = db.collection('sales').doc()
   await ref.set({
     branchId: input.branchId,
-    lineItems: [],
+    lineItems: input.lineItems ?? [],
     subtotal: input.total,
     discountAmount: 0,
     taxAmount: 0,
     total: input.total,
-    payments: [{ method: 'cash', amount: input.total, reference: null }],
-    cashierUid: 'test-cashier',
-    customerId: null,
+    payments: input.payments ?? [{ method: 'cash', amount: input.total, reference: null }],
+    cashierUid: input.cashierUid ?? 'test-cashier',
+    customerId: input.customerId ?? null,
     clientIdempotencyKey: null,
     voidedAt: input.voidedAt ?? null,
-    voidedBy: input.voidedAt ? 'test-voider' : null,
+    voidedBy: input.voidedAt ? (input.voidedBy ?? 'test-voider') : null,
     voidReason: input.voidedAt ? 'test void' : null,
     createdAt: input.createdAt,
   })
