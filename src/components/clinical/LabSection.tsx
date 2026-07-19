@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import LabOrderForm from './LabOrderForm'
 import LabResultForm from './LabResultForm'
+import AttachScanForm from './AttachScanForm'
 import type { LabOrderRow } from '@/lib/clinical/getLabRecords'
 
 export interface LabSectionProps {
@@ -96,6 +97,28 @@ export default function LabSection({ customerId, orders, canOrder, canEnterResul
                   <p className="px-3 py-2 text-xs text-slate">
                     Entered {new Date(order.result.enteredAt).toLocaleString()} by {order.result.enteredByName}
                   </p>
+                  <div className="space-y-2 border-t border-mist px-3 py-2">
+                    {order.result.attachments.length > 0 && (
+                      <ul className="space-y-1">
+                        {order.result.attachments.map((a) => (
+                          <li key={a.id} className="text-xs">
+                            <a
+                              href={`/api/attachments/${a.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-marine underline"
+                            >
+                              {a.fileName}
+                            </a>
+                            <span className="text-slate"> · {new Date(a.createdAt).toLocaleString()}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {canEnterResults && (
+                      <AttachScanForm labResultId={order.result.id} onDone={() => router.refresh()} />
+                    )}
+                  </div>
                 </div>
               ) : (
                 resultsOrderId === order.id && (
