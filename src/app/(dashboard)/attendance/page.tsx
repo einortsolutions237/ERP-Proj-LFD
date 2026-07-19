@@ -18,6 +18,11 @@ interface AttendanceRow {
   checkOutAt: string | null
 }
 
+const STATUS_BADGE: Record<string, string> = {
+  checked_in: 'bg-success/10 text-success',
+  checked_out: 'bg-slate/10 text-slate',
+}
+
 export default async function AttendancePage({
   searchParams,
 }: {
@@ -75,13 +80,13 @@ export default async function AttendancePage({
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Attendance</h1>
+        <h1 className="font-display text-2xl font-semibold text-ink">Attendance</h1>
         {isHistory ? (
-          <Link href="/attendance" className="underline text-sm">
+          <Link href="/attendance" className="text-sm text-marine hover:underline">
             Back to today&apos;s roster
           </Link>
         ) : (
-          <Link href="/attendance?history=true" className="underline text-sm">
+          <Link href="/attendance?history=true" className="text-sm text-marine hover:underline">
             View history
           </Link>
         )}
@@ -90,47 +95,53 @@ export default async function AttendancePage({
       {!isHistory && (
         <form method="GET" className="flex items-end gap-2">
           <div>
-            <label className="block text-sm font-medium">Date</label>
+            <label className="block text-sm font-medium text-ink">Date</label>
             <input
               type="date"
               name="date"
               defaultValue={date}
-              className="border rounded px-3 py-2 text-sm"
+              className="rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink focus:border-marine"
             />
           </div>
-          <button type="submit" className="bg-black text-white rounded px-3 py-2 text-sm">
+          <button type="submit" className="rounded-lg bg-marine px-3 py-2 text-sm text-paper transition-opacity duration-200 disabled:opacity-50">
             View day
           </button>
         </form>
       )}
 
       {rows.length === 0 ? (
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-slate">
           {isHistory ? 'No attendance history.' : 'No attendance records for this day.'}
         </p>
       ) : (
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr className="text-left border-b">
-              <th className="py-2 pr-4">Staff</th>
-              {isHistory && <th className="py-2 pr-4">Date</th>}
-              <th className="py-2 pr-4">Status</th>
-              <th className="py-2 pr-4">Check In</th>
-              <th className="py-2 pr-4">Check Out</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.id} className="border-b">
-                <td className="py-2 pr-4">{row.staffName}</td>
-                {isHistory && <td className="py-2 pr-4">{row.date}</td>}
-                <td className="py-2 pr-4">{row.status}</td>
-                <td className="py-2 pr-4">{row.checkInAt}</td>
-                <td className="py-2 pr-4">{row.checkOutAt ?? '—'}</td>
+        <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-mist/40">
+                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Staff</th>
+                {isHistory && <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Date</th>}
+                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Status</th>
+                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Check In</th>
+                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Check Out</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-mist">
+              {rows.map((row) => (
+                <tr key={row.id} className="hover:bg-mist/40 transition-colors duration-200">
+                  <td className="px-3 py-2 text-ink">{row.staffName}</td>
+                  {isHistory && <td className="px-3 py-2 text-ink">{row.date}</td>}
+                  <td className="px-3 py-2">
+                    <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[row.status] ?? 'bg-slate/10 text-slate'}`}>
+                      {row.status}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 font-mono text-ink">{row.checkInAt}</td>
+                  <td className="px-3 py-2 font-mono text-ink">{row.checkOutAt ?? '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   )
