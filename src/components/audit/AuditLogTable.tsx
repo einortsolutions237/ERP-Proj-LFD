@@ -10,28 +10,32 @@ export type AuditLogRow = Omit<AuditLogEntry, 'createdAt'> & {
 }
 
 export default function AuditLogTable({ logs }: { logs: AuditLogRow[] }) {
+  if (logs.length === 0) {
+    return <p className="text-sm text-slate">No audit log entries yet.</p>
+  }
+
   return (
-    <div className="space-y-3">
-      <table className="w-full text-sm border-collapse">
+    <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
+      <table className="w-full text-sm">
         <thead>
-          <tr className="text-left border-b">
-            <th className="py-2 pr-4">Timestamp</th>
-            <th className="py-2 pr-4">Action</th>
-            <th className="py-2 pr-4">Actor Email</th>
-            <th className="py-2 pr-4">Target UID</th>
-            <th className="py-2 pr-4">Branch</th>
-            <th className="py-2 pr-4">Details</th>
+          <tr className="bg-mist/40">
+            <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Timestamp</th>
+            <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Action</th>
+            <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Actor Email</th>
+            <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Target UID</th>
+            <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Branch</th>
+            <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Details</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-mist">
           {logs.map((row) => (
-            <tr key={row.id} className="border-b">
-              <td className="py-2 pr-4">{new Date(row.createdAt).toLocaleString()}</td>
-              <td className="py-2 pr-4">{row.action}</td>
-              <td className="py-2 pr-4">{row.actorEmail ?? '—'}</td>
-              <td className="py-2 pr-4 font-mono text-xs">{row.targetUid ?? '—'}</td>
-              <td className="py-2 pr-4">{row.branchId ?? '—'}</td>
-              <td className="py-2 pr-4 font-mono text-xs">
+            <tr key={row.id} className="hover:bg-mist/40 transition-colors duration-200">
+              <td className="px-3 py-2 text-ink">{new Date(row.createdAt).toLocaleString()}</td>
+              <td className="px-3 py-2 text-ink">{row.action}</td>
+              <td className="px-3 py-2 text-ink">{row.actorEmail ?? '—'}</td>
+              <td className="px-3 py-2 font-mono text-xs text-ink">{row.targetUid ?? '—'}</td>
+              <td className="px-3 py-2 text-ink">{row.branchId ?? '—'}</td>
+              <td className="px-3 py-2 font-mono text-xs text-ink">
                 {row.details ? JSON.stringify(row.details) : '—'}
               </td>
             </tr>
