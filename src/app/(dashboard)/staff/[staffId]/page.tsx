@@ -49,6 +49,7 @@ export default async function EditStaffPage({ params }: { params: Promise<{ staf
     contact: data.contact ?? { phone: null, address: null },
     emergencyContact: data.emergencyContact ?? { name: null, phone: null, relationship: null },
     qualifications: data.qualifications ?? [],
+    baseSalary: data.baseSalary ?? null,
     employment: {
       status: data.employment?.status ?? 'active',
       startDate: toDateInputValue(data.employment?.startDate),

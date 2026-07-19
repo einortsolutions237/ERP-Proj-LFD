@@ -28,6 +28,7 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
   const [startDate, setStartDate] = useState(initial?.employment?.startDate ?? '')
   const [status, setStatus] = useState<'active' | 'inactive'>(initial?.employment?.status ?? 'active')
   const [qualifications, setQualifications] = useState((initial?.qualifications ?? []).join(', '))
+  const [baseSalary, setBaseSalary] = useState(initial?.baseSalary != null ? String(initial.baseSalary) : '')
   const [error, setError] = useState<string | null>(null)
   const [tempPassword, setTempPassword] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -61,6 +62,7 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
         .split(',')
         .map((q) => q.trim())
         .filter(Boolean),
+      baseSalary: mode === 'edit' ? (baseSalary.trim() === '' ? null : Number(baseSalary)) : undefined,
     }
 
     try {
@@ -233,6 +235,20 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
+      {mode === 'edit' && (
+        <div>
+          <label className="block text-sm font-medium text-ink">Base salary</label>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="Not set"
+            value={baseSalary}
+            onChange={(e) => setBaseSalary(e.target.value)}
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink placeholder:text-slate focus:border-marine"
+          />
+        </div>
+      )}
       {error && <p className="text-sm text-danger">{error}</p>}
       <button
         type="submit"
