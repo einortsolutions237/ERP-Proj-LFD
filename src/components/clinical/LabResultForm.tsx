@@ -71,7 +71,7 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded-md border border-mist p-3">
+    <form onSubmit={handleSubmit} className="space-y-3 rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
       {rows.map((row, i) => (
         <div key={i} className="grid grid-cols-5 items-end gap-2">
           <div>
@@ -80,7 +80,7 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
               required
               value={row.parameter}
               onChange={(e) => updateRow(i, 'parameter', e.target.value)}
-              className="w-full rounded-md border border-mist bg-paper px-2 py-1 text-sm text-ink focus:border-marine"
+              className="w-full rounded-lg border border-mist bg-paper px-2 py-1 text-sm text-ink focus:border-marine"
             />
           </div>
           <div>
@@ -89,7 +89,7 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
               required
               value={row.value}
               onChange={(e) => updateRow(i, 'value', e.target.value)}
-              className="w-full rounded-md border border-mist bg-paper px-2 py-1 text-sm text-ink focus:border-marine"
+              className="w-full rounded-lg border border-mist bg-paper px-2 py-1 text-sm text-ink focus:border-marine"
             />
           </div>
           <div>
@@ -97,7 +97,7 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
             <input
               value={row.unit}
               onChange={(e) => updateRow(i, 'unit', e.target.value)}
-              className="w-full rounded-md border border-mist bg-paper px-2 py-1 text-sm text-ink focus:border-marine"
+              className="w-full rounded-lg border border-mist bg-paper px-2 py-1 text-sm text-ink focus:border-marine"
             />
           </div>
           <div>
@@ -105,7 +105,7 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
             <input
               value={row.referenceRange}
               onChange={(e) => updateRow(i, 'referenceRange', e.target.value)}
-              className="w-full rounded-md border border-mist bg-paper px-2 py-1 text-sm text-ink focus:border-marine"
+              className="w-full rounded-lg border border-mist bg-paper px-2 py-1 text-sm text-ink focus:border-marine"
             />
           </div>
           <div className="flex items-end gap-1">
@@ -114,7 +114,7 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
               <select
                 value={row.flag}
                 onChange={(e) => updateRow(i, 'flag', e.target.value)}
-                className="w-full rounded-md border border-mist bg-paper px-2 py-1 text-sm text-ink focus:border-marine"
+                className="w-full rounded-lg border border-mist bg-paper px-2 py-1 text-sm text-ink focus:border-marine"
               >
                 <option value="">—</option>
                 <option value="normal">Normal</option>
@@ -126,7 +126,7 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
               type="button"
               onClick={() => removeRow(i)}
               disabled={rows.length === 1}
-              className="rounded-md border border-mist px-2 py-1 text-xs text-ink transition-colors hover:bg-mist disabled:opacity-50"
+              className="rounded-md border border-mist px-2 py-1 text-xs text-ink transition-colors hover:bg-mist/40 disabled:opacity-50"
             >
               −
             </button>
@@ -136,7 +136,7 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
       <button
         type="button"
         onClick={addRow}
-        className="rounded-md border border-mist px-2 py-1 text-xs text-ink transition-colors hover:bg-mist"
+        className="rounded-md border border-mist px-2 py-1 text-xs text-ink transition-colors hover:bg-mist/40"
       >
         + Add row
       </button>
@@ -145,7 +145,7 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-2 py-1 text-sm text-ink focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-2 py-1 text-sm text-ink focus:border-marine"
         />
       </div>
       {error && <p className="text-sm text-danger">{error}</p>}
@@ -153,7 +153,7 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+          className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
         >
           Save results
         </button>
