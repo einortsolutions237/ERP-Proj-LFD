@@ -4,6 +4,7 @@ import { hasCapability } from '@/lib/auth/permissions'
 import { AuthError, type SessionUser } from '@/lib/auth/server-guard'
 import type { LabOrder, LabOrderStatus } from '@/lib/types/labOrder'
 import type { LabResult, LabResultFlag } from '@/lib/types/labResult'
+import type { Attachment } from '@/lib/types/attachment'
 
 export interface LabResultValueRow {
   parameter: string
@@ -11,6 +12,14 @@ export interface LabResultValueRow {
   unit: string | null
   referenceRange: string | null
   flag: LabResultFlag | null
+}
+
+export interface LabResultAttachmentRow {
+  id: string
+  fileName: string
+  mimeType: string
+  sizeBytes: number
+  createdAt: string
 }
 
 export interface LabOrderRow {
@@ -22,7 +31,15 @@ export interface LabOrderRow {
   instructions: string | null
   status: LabOrderStatus
   orderedAt: string
-  result: { values: LabResultValueRow[]; notes: string | null; enteredBy: string; enteredByName: string; enteredAt: string } | null
+  result: {
+    id: string
+    values: LabResultValueRow[]
+    notes: string | null
+    enteredBy: string
+    enteredByName: string
+    enteredAt: string
+    attachments: LabResultAttachmentRow[]
+  } | null
 }
 
 // Called by both GET /api/lab-orders and the customer detail page's Lab
@@ -32,6 +49,12 @@ export interface LabOrderRow {
 // is true by construction. Re-checks the capability itself rather than
 // trusting the caller already did, same belt-and-suspenders discipline
 // as its two clinical precedents.
+//
+// Phase 30.1: also resolves each result's own attachments (Phase 30's
+// generic attachments collection, filtered to relatedCollection ===
+// 'labResults') at this same call site, rather than adding a separate
+// listing route — no new audit surface, no new capability check, since
+// clinical.lab.view already gates the whole function.
 export async function getLabRecords(customerId: string, viewer: SessionUser): Promise<LabOrderRow[]> {
   if (!hasCapability(viewer.role, 'clinical.lab.view')) {
     throw new AuthError('Forbidden', 403)
@@ -67,17 +90,47 @@ export async function getLabRecords(customerId: string, viewer: SessionUser): Pr
     enteredByNames[uid] = (enteredByDocs[i].data()?.name as string | undefined) ?? uid
   })
 
+  // Attachments per result — sorted in memory (not via .orderBy) to avoid
+  // needing a new Firestore composite index for what's always a short list.
+  const resultIds = resultSnaps.map((s) => s.docs[0]?.id).filter((id): id is string => id !== undefined)
+  const attachmentSnaps = await Promise.all(
+    resultIds.map((resultId) =>
+      db
+        .collection('attachments')
+        .where('relatedCollection', '==', 'labResults')
+        .where('relatedDocId', '==', resultId)
+        .get()
+    )
+  )
+  const attachmentsByResultId: Record<string, LabResultAttachmentRow[]> = {}
+  resultIds.forEach((resultId, i) => {
+    attachmentsByResultId[resultId] = attachmentSnaps[i].docs
+      .map((d) => {
+        const a = d.data() as Attachment
+        return {
+          id: d.id,
+          fileName: a.fileName,
+          mimeType: a.mimeType,
+          sizeBytes: a.sizeBytes,
+          createdAt: a.createdAt.toDate().toISOString(),
+        }
+      })
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+  })
+
   const rows: LabOrderRow[] = orders.map(({ id, data }, i) => {
     const resultDoc = resultSnaps[i].docs[0]
     const result = resultDoc
       ? (() => {
           const r = resultDoc.data() as LabResult
           return {
+            id: resultDoc.id,
             values: r.values,
             notes: r.notes,
             enteredBy: r.enteredBy,
             enteredByName: enteredByNames[r.enteredBy] ?? r.enteredBy,
             enteredAt: r.enteredAt.toDate().toISOString(),
+            attachments: attachmentsByResultId[resultDoc.id] ?? [],
           }
         })()
       : null
