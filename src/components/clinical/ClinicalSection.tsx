@@ -40,7 +40,7 @@ export default function ClinicalSection({
             <p className="text-sm text-slate">No treatments recorded yet.</p>
           ) : (
             <div className="space-y-2">
-              <div className="overflow-hidden rounded-md border border-mist">
+              <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-mist/40">
@@ -52,7 +52,7 @@ export default function ClinicalSection({
                   </thead>
                   <tbody className="divide-y divide-mist">
                     {treatments.map((row) => (
-                      <tr key={row.id} className="hover:bg-mist/40 transition-colors">
+                      <tr key={row.id} className="hover:bg-mist/40 transition-colors duration-200">
                         <td className="px-3 py-2 text-ink">{row.date}</td>
                         <td className="px-3 py-2 text-ink">{row.doctorName}</td>
                         <td className="px-3 py-2 text-ink">{row.diagnosis}</td>
@@ -61,7 +61,7 @@ export default function ClinicalSection({
                             <button
                               type="button"
                               onClick={() => setOrderingForTreatmentId((prev) => (prev === row.id ? null : row.id))}
-                              className="rounded-md border border-mist px-2 py-1 text-xs text-ink transition-colors hover:bg-mist"
+                              className="rounded-md border border-mist px-2 py-1 text-xs text-ink transition-colors hover:bg-mist/40"
                             >
                               Order lab test
                             </button>
@@ -90,7 +90,7 @@ export default function ClinicalSection({
               <button
                 type="button"
                 onClick={() => setShowForm((prev) => !prev)}
-                className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+                className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
               >
                 Add treatment
               </button>
@@ -114,7 +114,7 @@ export default function ClinicalSection({
           {seminarAttendance.length === 0 ? (
             <p className="text-sm text-slate">No seminar attendance recorded.</p>
           ) : (
-            <div className="overflow-hidden rounded-md border border-mist">
+            <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-mist/40">
@@ -125,7 +125,7 @@ export default function ClinicalSection({
                 </thead>
                 <tbody className="divide-y divide-mist">
                   {seminarAttendance.map((row) => (
-                    <tr key={row.id} className="hover:bg-mist/40 transition-colors">
+                    <tr key={row.id} className="hover:bg-mist/40 transition-colors duration-200">
                       <td className="px-3 py-2 text-ink">{new Date(row.seminarScheduledAt).toLocaleDateString()}</td>
                       <td className="px-3 py-2 text-ink">{row.seminarTitle}</td>
                       <td className="px-3 py-2 text-ink">{row.method}</td>
