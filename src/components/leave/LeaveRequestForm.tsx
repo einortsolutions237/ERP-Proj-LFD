@@ -53,11 +53,11 @@ export default function LeaveRequestForm() {
   return (
     <form onSubmit={handleSubmit} className="max-w-md space-y-4">
       <div>
-        <label className="block text-sm font-medium">Type</label>
+        <label className="block text-sm font-medium text-ink">Type</label>
         <select
           value={type}
           onChange={(e) => setType(e.target.value as LeaveType)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
         >
           {LEAVE_TYPES.map((t) => (
             <option key={t} value={t}>
@@ -67,31 +67,39 @@ export default function LeaveRequestForm() {
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium">Start date</label>
+        <label className="block text-sm font-medium text-ink">Start date</label>
         <input
           required
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
         />
       </div>
       <div>
-        <label className="block text-sm font-medium">End date</label>
+        <label className="block text-sm font-medium text-ink">End date</label>
         <input
           required
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
         />
       </div>
       <div>
-        <label className="block text-sm font-medium">Reason</label>
-        <textarea value={reason} onChange={(e) => setReason(e.target.value)} className="w-full border rounded px-3 py-2" />
+        <label className="block text-sm font-medium text-ink">Reason</label>
+        <textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
       </div>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-      <button type="submit" disabled={submitting} className="bg-black text-white rounded px-3 py-2 disabled:opacity-50">
+      {error && <p className="text-sm text-danger">{error}</p>}
+      <button
+        type="submit"
+        disabled={submitting}
+        className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
+      >
         Submit request
       </button>
     </form>

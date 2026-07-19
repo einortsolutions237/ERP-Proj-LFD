@@ -45,11 +45,15 @@ export default function LeaveReviewButtons({ requestId }: LeaveReviewButtonsProp
         <button
           type="button"
           onClick={() => setPendingAction('approve')}
-          className="bg-black text-white rounded px-3 py-2 text-sm"
+          className="rounded-lg bg-marine px-3 py-2 text-xs text-paper transition-opacity duration-200 disabled:opacity-50"
         >
           Approve
         </button>
-        <button type="button" onClick={() => setPendingAction('reject')} className="border rounded px-3 py-2 text-sm">
+        <button
+          type="button"
+          onClick={() => setPendingAction('reject')}
+          className="rounded-md border border-danger px-3 py-2 text-xs text-danger transition-colors hover:bg-danger/10"
+        >
           Reject
         </button>
       </div>
@@ -59,15 +63,15 @@ export default function LeaveReviewButtons({ requestId }: LeaveReviewButtonsProp
   return (
     <div className="max-w-sm space-y-3">
       <div>
-        <label className="block text-sm font-medium">Review note</label>
+        <label className="block text-sm font-medium text-ink">Review note</label>
         <textarea
           value={reviewNote}
           onChange={(e) => setReviewNote(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
           rows={3}
         />
       </div>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
       <div className="flex gap-2">
         <button
           type="button"
@@ -75,8 +79,8 @@ export default function LeaveReviewButtons({ requestId }: LeaveReviewButtonsProp
           disabled={submitting}
           className={
             pendingAction === 'approve'
-              ? 'bg-black text-white rounded px-3 py-2 text-sm disabled:opacity-50'
-              : 'border rounded px-3 py-2 text-sm disabled:opacity-50'
+              ? 'rounded-lg bg-marine px-3 py-2 text-xs text-paper transition-opacity duration-200 disabled:opacity-50'
+              : 'rounded-md border border-danger px-3 py-2 text-xs text-danger transition-colors hover:bg-danger/10 disabled:opacity-50'
           }
         >
           {pendingAction === 'approve' ? 'Confirm approve' : 'Confirm reject'}
@@ -85,7 +89,7 @@ export default function LeaveReviewButtons({ requestId }: LeaveReviewButtonsProp
           type="button"
           onClick={handleCancel}
           disabled={submitting}
-          className="border rounded px-3 py-2 text-sm disabled:opacity-50"
+          className="rounded-md border border-mist px-3 py-2 text-xs text-ink transition-colors hover:bg-mist/40 disabled:opacity-50"
         >
           Cancel
         </button>
