@@ -225,6 +225,14 @@ const ScaleIcon: IconComponent = ({ className }) => (
   </svg>
 )
 
+const WalletIcon: IconComponent = ({ className }) => (
+  <svg {...ICON_SVG_PROPS} className={className}>
+    <rect x="3" y="6" width="18" height="13" rx="2" />
+    <path d="M3 10h18" />
+    <circle cx="16.5" cy="14.5" r="1.2" />
+  </svg>
+)
+
 interface NavLink {
   href: string
   label: string
@@ -254,6 +262,7 @@ const NAV_LINKS: NavLink[] = [
   { href: '/reports/inventory', label: 'Stock Report', capability: 'reports.inventory.view', icon: ChartLineIcon },
   { href: '/expenses', label: 'Expenses', capability: 'accounting.expense.view', icon: CoinsIcon },
   { href: '/reports/pnl', label: 'P&L Report', capability: 'accounting.pnl.view', icon: ScaleIcon },
+  { href: '/payroll', label: 'Payroll', capability: 'payroll.record.view', icon: WalletIcon },
   { href: '/appointments', label: 'Appointments', capability: 'clinical.appointments.manage', icon: StethoscopeIcon },
   {
     href: '/seminars',
