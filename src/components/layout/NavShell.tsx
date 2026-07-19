@@ -37,7 +37,7 @@ export default function NavShell({ user, children }: { user: SessionUser; childr
     <div className="flex flex-1 min-h-full">
       {/* Desktop/tablet: sidebar is always visible, no toggle needed. Icon
           + label at lg+, icon-only (tooltip via title attribute) at md-lg. */}
-      <div className="hidden md:block">
+      <div className="hidden md:block print:hidden">
         <Sidebar role={user.role} variant="persistent" />
       </div>
 
@@ -52,7 +52,7 @@ export default function NavShell({ user, children }: { user: SessionUser; childr
       )}
 
       <div className="flex flex-1 flex-col min-w-0">
-        <header className="flex items-center justify-between gap-2 border-b border-mist bg-surface px-4 md:px-6 py-3.5 sticky top-0 z-30">
+        <header className="flex items-center justify-between gap-2 border-b border-mist bg-surface px-4 md:px-6 py-3.5 sticky top-0 z-30 print:hidden">
           <button
             type="button"
             onClick={() => setMobileNavOpen((v) => !v)}
@@ -76,7 +76,7 @@ export default function NavShell({ user, children }: { user: SessionUser; childr
         </header>
         {/* overflow-x-auto lets wide tables scroll within the content area
             instead of forcing the whole page wider than the viewport. */}
-        <main className="flex-1 overflow-x-auto bg-paper p-4 md:p-6">{children}</main>
+        <main className="flex-1 overflow-x-auto bg-paper p-4 md:p-6 print:overflow-visible print:bg-white print:p-0">{children}</main>
       </div>
     </div>
   )
