@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import AttachReceiptForm from './AttachReceiptForm'
 
 const CATEGORY_SUGGESTIONS = ['Rent', 'Utilities', 'Supplies', 'Salaries', 'Other']
 
@@ -12,6 +13,8 @@ export default function ExpenseForm() {
   const [description, setDescription] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [createdExpenseId, setCreatedExpenseId] = useState<string | null>(null)
+  const [attachedFileNames, setAttachedFileNames] = useState<string[]>([])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -32,11 +35,38 @@ export default function ExpenseForm() {
         setSubmitting(false)
         return
       }
-      router.push('/expenses')
+      setSubmitting(false)
+      setCreatedExpenseId(body.id)
     } catch {
       setError('Request failed')
       setSubmitting(false)
     }
+  }
+
+  if (createdExpenseId) {
+    return (
+      <div className="max-w-md space-y-4">
+        <p className="text-sm text-ink">Expense recorded. Attach receipt scans below, or skip.</p>
+        <AttachReceiptForm
+          expenseId={createdExpenseId}
+          onUploaded={(fileName) => setAttachedFileNames((prev) => [...prev, fileName])}
+        />
+        {attachedFileNames.length > 0 && (
+          <ul className="space-y-1 text-xs text-slate">
+            {attachedFileNames.map((name, i) => (
+              <li key={i}>Attached: {name}</li>
+            ))}
+          </ul>
+        )}
+        <button
+          type="button"
+          onClick={() => router.push('/expenses')}
+          className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200"
+        >
+          Done
+        </button>
+      </div>
+    )
   }
 
   return (
