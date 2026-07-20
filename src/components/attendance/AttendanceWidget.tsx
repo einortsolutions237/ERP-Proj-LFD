@@ -55,9 +55,16 @@ export default function AttendanceWidget() {
     setSubmitting(false)
   }
 
-  // Still loading — render nothing rather than blocking the rest of the
-  // dashboard.
-  if (record === undefined) return null
+  // Still loading — a small skeleton instead of rendering nothing, so the
+  // widget doesn't read as broken on a slow connection.
+  if (record === undefined) {
+    return (
+      <div className="animate-pulse space-y-2" aria-busy="true" aria-label="Loading attendance status">
+        <div className="h-4 w-32 rounded bg-mist" />
+        <div className="h-9 w-24 rounded-lg bg-mist" />
+      </div>
+    )
+  }
 
   if (record === null) {
     return (

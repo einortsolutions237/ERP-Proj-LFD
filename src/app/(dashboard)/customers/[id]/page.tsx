@@ -30,11 +30,22 @@ interface PurchaseRow {
   payments: string
 }
 
-const APPOINTMENT_STATUS_BADGE: Record<string, string> = {
-  scheduled: 'bg-info/10 text-info',
-  completed: 'bg-success/10 text-success',
-  cancelled: 'bg-danger/10 text-danger',
-  no_show: 'bg-slate/10 text-slate',
+// Background tint stays per-status for at-a-glance scanning; the label text
+// itself is text-ink (never text-success/text-warning directly), since those
+// two tokens fail WCAG AA (~3.3:1/~3.2:1) at this badge size — same fix as
+// the lab-order/flag badges in LabSection.tsx. A small solid dot carries the
+// color meaning without needing the text itself to be legible in that hue.
+const APPOINTMENT_STATUS_BG: Record<string, string> = {
+  scheduled: 'bg-info/10',
+  completed: 'bg-success/10',
+  cancelled: 'bg-danger/10',
+  no_show: 'bg-slate/10',
+}
+const APPOINTMENT_STATUS_DOT: Record<string, string> = {
+  scheduled: 'bg-info',
+  completed: 'bg-success',
+  cancelled: 'bg-danger',
+  no_show: 'bg-slate',
 }
 
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -104,11 +115,16 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-semibold text-ink">{data.name}</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="min-w-0 truncate font-display text-2xl font-semibold text-ink" title={data.name}>
+          {data.name}
+        </h1>
         {canManage && (
-          <div className="flex items-center gap-3">
-            <Link href={`/customers/${id}/edit`} className="text-marine underline-offset-2 hover:underline">
+          <div className="flex shrink-0 items-center gap-2">
+            <Link
+              href={`/customers/${id}/edit`}
+              className="inline-flex min-h-11 items-center rounded-lg px-3 text-marine transition-colors duration-200 hover:bg-mist"
+            >
               Edit
             </Link>
             <DeleteCustomerButton customerId={id} customerName={data.name} />
@@ -116,7 +132,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         )}
       </div>
 
-      <div className="space-y-1 text-sm">
+      <div className="space-y-1 rounded-2xl border border-mist bg-surface p-4 text-sm shadow-[var(--shadow-card)]">
         <div>
           <span className="text-slate">Phone:</span> <span className="text-ink">{data.phone}</span>
         </div>
@@ -134,7 +150,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
       </div>
 
       {canViewCommercial && (
-      <div className="space-y-3">
+      <div className="space-y-3 border-t border-mist pt-8">
         <h2 className="text-lg font-medium text-ink">Purchase history</h2>
         {purchases.length === 0 ? (
           <p className="text-sm text-slate">No purchases yet.</p>
@@ -158,7 +174,10 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                     <td className="px-3 py-2 font-mono text-right text-ink">{row.total.toFixed(2)}</td>
                     <td className="px-3 py-2 text-ink">{row.payments}</td>
                     <td className="px-3 py-2 text-ink">
-                      <Link href={`/pos/sales/${row.id}`} className="text-marine underline-offset-2 hover:underline">
+                      <Link
+                        href={`/pos/sales/${row.id}`}
+                        className="inline-flex min-h-11 items-center rounded-lg px-2 text-marine transition-colors duration-200 hover:bg-mist"
+                      >
                         View
                       </Link>
                     </td>
@@ -172,19 +191,21 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
       )}
 
       {(canViewClinical || canViewSeminarAttendance) && (
-        <ClinicalSection
-          customerId={id}
-          treatments={treatments}
-          canCreate={canCreateTreatment}
-          canViewClinical={canViewClinical}
-          canOrderLab={canOrderLab}
-          seminarAttendance={seminarAttendance}
-          canViewSeminarAttendance={canViewSeminarAttendance}
-        />
+        <div className="border-t border-mist pt-8">
+          <ClinicalSection
+            customerId={id}
+            treatments={treatments}
+            canCreate={canCreateTreatment}
+            canViewClinical={canViewClinical}
+            canOrderLab={canOrderLab}
+            seminarAttendance={seminarAttendance}
+            canViewSeminarAttendance={canViewSeminarAttendance}
+          />
+        </div>
       )}
 
       {canManageAppointments && (
-        <div className="space-y-3">
+        <div className="space-y-3 border-t border-mist pt-8">
           <h2 className="text-lg font-medium text-ink">Upcoming appointments</h2>
           {upcomingAppointments.length === 0 ? (
             <p className="text-sm text-slate">No upcoming appointments.</p>
@@ -206,7 +227,8 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                       <td className="px-3 py-2 text-ink">{row.doctorName}</td>
                       <td className="px-3 py-2 text-ink">{row.reason ?? '—'}</td>
                       <td className="px-3 py-2">
-                        <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${APPOINTMENT_STATUS_BADGE[row.status] ?? 'bg-slate/10 text-slate'}`}>
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium text-ink ${APPOINTMENT_STATUS_BG[row.status] ?? 'bg-slate/10'}`}>
+                          <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${APPOINTMENT_STATUS_DOT[row.status] ?? 'bg-slate'}`} />
                           {row.status}
                         </span>
                       </td>
@@ -223,20 +245,26 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
       )}
 
       {canViewLab && (
-        <LabSection customerId={id} orders={labOrders} canOrder={canOrderLab} canEnterResults={canEnterLabResults} />
+        <div className="border-t border-mist pt-8">
+          <LabSection customerId={id} orders={labOrders} canOrder={canOrderLab} canEnterResults={canEnterLabResults} />
+        </div>
       )}
 
       {canFulfillDeliveries && (
-        <PendingDeliveriesSection deliveries={pendingDeliveries} />
+        <div className="border-t border-mist pt-8">
+          <PendingDeliveriesSection deliveries={pendingDeliveries} />
+        </div>
       )}
 
       {canViewIntake && (
-        <IntakeSection
-          customerId={id}
-          demographics={intake.demographics}
-          visits={intake.visits}
-          canRecord={canRecordIntake}
-        />
+        <div className="border-t border-mist pt-8">
+          <IntakeSection
+            customerId={id}
+            demographics={intake.demographics}
+            visits={intake.visits}
+            canRecord={canRecordIntake}
+          />
+        </div>
       )}
     </div>
   )

@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import DemographicsForm from './DemographicsForm'
 import NursingVisitForm from './NursingVisitForm'
@@ -12,10 +12,25 @@ export interface IntakeSectionProps {
   canRecord: boolean
 }
 
+// "Saved." confirmation dot pairs a solid brand-token dot with text-ink
+// rather than text-success, since text-success alone fails WCAG AA at this
+// size (~3.3:1) — the same fix applied to this module's status badges.
+function SavedNote() {
+  return (
+    <p className="flex items-center gap-1.5 text-sm text-ink">
+      <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-success" />
+      Saved.
+    </p>
+  )
+}
+
 export default function IntakeSection({ customerId, demographics, visits, canRecord }: IntakeSectionProps) {
   const router = useRouter()
+  const [isRefreshing, startTransition] = useTransition()
   const [showDemographicsForm, setShowDemographicsForm] = useState(false)
+  const [demographicsSaved, setDemographicsSaved] = useState(false)
   const [showVisitForm, setShowVisitForm] = useState(false)
+  const [visitSaved, setVisitSaved] = useState(false)
 
   return (
     <div className="space-y-6">
@@ -37,20 +52,28 @@ export default function IntakeSection({ customerId, demographics, visits, canRec
 
         {canRecord && (
           <div className="space-y-3">
-            <button
-              type="button"
-              onClick={() => setShowDemographicsForm((prev) => !prev)}
-              className="rounded-md border border-mist px-3 py-2 text-sm text-ink transition-colors hover:bg-mist"
-            >
-              {demographics ? 'Edit demographics' : 'Record demographics'}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDemographicsForm((prev) => !prev)
+                  setDemographicsSaved(false)
+                }}
+                className="min-h-11 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:bg-mist"
+              >
+                {demographics ? 'Edit demographics' : 'Record demographics'}
+              </button>
+              {demographicsSaved && !showDemographicsForm && <SavedNote />}
+              {isRefreshing && <p className="text-sm text-slate">Updating…</p>}
+            </div>
             {showDemographicsForm && (
               <DemographicsForm
                 customerId={customerId}
                 initial={demographics}
                 onDone={() => {
                   setShowDemographicsForm(false)
-                  router.refresh()
+                  setDemographicsSaved(true)
+                  startTransition(() => router.refresh())
                 }}
               />
             )}
@@ -65,7 +88,7 @@ export default function IntakeSection({ customerId, demographics, visits, canRec
         ) : (
           <div className="space-y-4">
             {visits.map((visit) => (
-              <div key={visit.id} className="space-y-2 rounded-md border border-mist p-3">
+              <div key={visit.id} className="space-y-2 rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
                 <div className="text-xs text-slate">
                   {new Date(visit.recordedAt).toLocaleString()} — recorded by {visit.recordedByName}
                 </div>
@@ -90,19 +113,26 @@ export default function IntakeSection({ customerId, demographics, visits, canRec
 
         {canRecord && (
           <div className="space-y-3">
-            <button
-              type="button"
-              onClick={() => setShowVisitForm((prev) => !prev)}
-              className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
-            >
-              Record visit
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowVisitForm((prev) => !prev)
+                  setVisitSaved(false)
+                }}
+                className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
+              >
+                Record visit
+              </button>
+              {visitSaved && !showVisitForm && <SavedNote />}
+            </div>
             {showVisitForm && (
               <NursingVisitForm
                 customerId={customerId}
                 onDone={() => {
                   setShowVisitForm(false)
-                  router.refresh()
+                  setVisitSaved(true)
+                  startTransition(() => router.refresh())
                 }}
               />
             )}

@@ -13,6 +13,28 @@ interface ConversationListItem {
 
 const POLL_INTERVAL_MS = 15000
 
+// Display-only — humanizes the raw role enum ("branch_manager" ->
+// "Branch Manager"); never used for any access decision.
+function humanizeRole(role: string): string {
+  return role
+    .split('_')
+    .map((word) => (word === 'hr' || word === 'it' ? word.toUpperCase() : word.charAt(0).toUpperCase() + word.slice(1)))
+    .join(' ')
+}
+
+function formatRelativeTime(iso: string): string {
+  const date = new Date(iso)
+  const diffMin = Math.floor((Date.now() - date.getTime()) / 60000)
+  if (diffMin < 1) return 'Just now'
+  if (diffMin < 60) return `${diffMin}m ago`
+  const diffHr = Math.floor(diffMin / 60)
+  if (diffHr < 24) return `${diffHr}h ago`
+  const diffDay = Math.floor(diffHr / 24)
+  if (diffDay === 1) return 'Yesterday'
+  if (diffDay < 7) return `${diffDay}d ago`
+  return date.toLocaleDateString()
+}
+
 export default function ConversationList() {
   const [items, setItems] = useState<ConversationListItem[]>([])
   const [loaded, setLoaded] = useState(false)
@@ -34,8 +56,17 @@ export default function ConversationList() {
     }
   }, [])
 
-  const itSupport = items.filter((item) => item.peerRole === 'it_admin')
-  const everyoneElse = items.filter((item) => item.peerRole !== 'it_admin')
+  // Most recently active conversation first; conversations with no messages
+  // yet (lastMessageAt: null) sort after ones that do.
+  const sorted = [...items].sort((a, b) => {
+    if (!a.lastMessageAt && !b.lastMessageAt) return 0
+    if (!a.lastMessageAt) return 1
+    if (!b.lastMessageAt) return -1
+    return new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+  })
+
+  const itSupport = sorted.filter((item) => item.peerRole === 'it_admin')
+  const everyoneElse = sorted.filter((item) => item.peerRole !== 'it_admin')
 
   if (!loaded) return <p className="text-sm text-slate">Loading contacts…</p>
 
@@ -44,20 +75,20 @@ export default function ConversationList() {
     return (
       <div className="space-y-2">
         <h2 className="font-display text-xs font-semibold uppercase tracking-wider text-slate">{label}</h2>
-        <ul className="divide-y divide-mist rounded-md border border-mist">
+        <ul className="divide-y divide-mist overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
           {group.map((item) => (
             <li key={item.peerUid}>
               <Link
                 href={`/messages/${item.peerUid}`}
-                className="flex items-center justify-between gap-3 px-4 py-3 text-sm hover:bg-marine/5"
+                className="flex min-h-11 items-center justify-between gap-3 px-4 py-3 text-sm transition-colors duration-200 hover:bg-marine/5"
               >
-                <span>
+                <span className="min-w-0 truncate">
                   <span className="font-medium text-ink">{item.peerName}</span>{' '}
-                  <span className="text-slate">({item.peerRole})</span>
+                  <span className="text-slate">({humanizeRole(item.peerRole)})</span>
                   {!item.canReply && <span className="ml-2 text-xs text-danger">no longer available</span>}
                 </span>
                 {item.lastMessageAt && (
-                  <span className="shrink-0 text-xs text-slate">{new Date(item.lastMessageAt).toLocaleString()}</span>
+                  <span className="shrink-0 font-mono text-xs text-slate">{formatRelativeTime(item.lastMessageAt)}</span>
                 )}
               </Link>
             </li>

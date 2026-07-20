@@ -59,13 +59,13 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
       })
       const body = await res.json()
       if (!res.ok) {
-        setError(body.error ?? 'Request failed')
+        setError(body.error ?? 'Could not save — check your connection and try again.')
         setSubmitting(false)
         return
       }
       onDone()
     } catch {
-      setError('Request failed')
+      setError('Could not save — check your connection and try again.')
       setSubmitting(false)
     }
   }
@@ -73,7 +73,7 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
   return (
     <form onSubmit={handleSubmit} className="space-y-3 rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
       {rows.map((row, i) => (
-        <div key={i} className="grid grid-cols-5 items-end gap-2">
+        <div key={i} className="grid grid-cols-2 items-end gap-2 sm:grid-cols-5">
           <div>
             <label className="block text-xs font-medium text-ink">Parameter</label>
             <input
@@ -126,7 +126,8 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
               type="button"
               onClick={() => removeRow(i)}
               disabled={rows.length === 1}
-              className="rounded-md border border-mist px-2 py-1 text-xs text-ink transition-colors hover:bg-mist/40 disabled:opacity-50"
+              aria-label={`Remove row ${i + 1}`}
+              className="flex min-h-11 min-w-11 items-center justify-center rounded-md border border-mist text-ink transition-colors hover:bg-mist/40 disabled:opacity-50"
             >
               −
             </button>
@@ -136,7 +137,7 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
       <button
         type="button"
         onClick={addRow}
-        className="rounded-md border border-mist px-2 py-1 text-xs text-ink transition-colors hover:bg-mist/40"
+        className="min-h-11 rounded-md border border-mist px-3 text-xs text-ink transition-colors hover:bg-mist/40"
       >
         + Add row
       </button>
@@ -148,15 +149,20 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
           className="w-full rounded-lg border border-mist bg-paper px-2 py-1 text-sm text-ink focus:border-marine"
         />
       </div>
-      {error && <p className="text-sm text-danger">{error}</p>}
-      <div>
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
+      <div className="space-y-1">
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
+          className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
         >
-          Save results
+          {submitting ? 'Saving…' : 'Save results'}
         </button>
+        <p className="text-xs text-slate">Results can&rsquo;t be edited after saving.</p>
       </div>
     </form>
   )

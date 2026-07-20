@@ -10,6 +10,7 @@ export default function AttachScanForm({ labResultId, onDone }: AttachScanFormPr
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const fieldId = `attach-scan-file-${labResultId}`
 
   async function handleUpload(e: React.FormEvent) {
     e.preventDefault()
@@ -30,7 +31,7 @@ export default function AttachScanForm({ labResultId, onDone }: AttachScanFormPr
       const res = await fetch('/api/attachments', { method: 'POST', body: formData })
       const body = await res.json()
       if (!res.ok) {
-        setError(body.error ?? 'Upload failed')
+        setError(body.error ?? 'Upload failed — check your connection and try again.')
         setUploading(false)
         return
       }
@@ -38,14 +39,18 @@ export default function AttachScanForm({ labResultId, onDone }: AttachScanFormPr
       setUploading(false)
       onDone()
     } catch {
-      setError('Upload failed')
+      setError('Upload failed — check your connection and try again.')
       setUploading(false)
     }
   }
 
   return (
     <form onSubmit={handleUpload} className="flex flex-wrap items-center gap-2">
+      <label htmlFor={fieldId} className="sr-only">
+        Scan file (JPEG, PNG, or PDF)
+      </label>
       <input
+        id={fieldId}
         ref={fileInputRef}
         type="file"
         accept="image/jpeg,image/png,application/pdf"
@@ -54,11 +59,15 @@ export default function AttachScanForm({ labResultId, onDone }: AttachScanFormPr
       <button
         type="submit"
         disabled={uploading}
-        className="shrink-0 rounded-md border border-mist px-2 py-1 text-xs text-ink transition-colors hover:bg-mist/40 disabled:opacity-50"
+        className="min-h-11 shrink-0 rounded-md border border-mist px-3 text-xs text-ink transition-colors hover:bg-mist/40 disabled:opacity-50"
       >
         {uploading ? 'Uploading…' : 'Attach scan'}
       </button>
-      {error && <p className="w-full text-xs text-danger">{error}</p>}
+      {error && (
+        <p role="alert" className="w-full text-xs text-danger">
+          {error}
+        </p>
+      )}
     </form>
   )
 }

@@ -7,10 +7,12 @@ type AdjustDirection = 'increase' | 'decrease'
 export interface StockAdjustFormProps {
   productId: string
   branchId: string
+  currentQuantity: number
   onDone: () => void
+  onCancel: () => void
 }
 
-export default function StockAdjustForm({ productId, branchId, onDone }: StockAdjustFormProps) {
+export default function StockAdjustForm({ productId, branchId, currentQuantity, onDone, onCancel }: StockAdjustFormProps) {
   const [type, setType] = useState<Extract<StockMovementType, 'restock' | 'adjustment' | 'waste'>>('restock')
   const [direction, setDirection] = useState<AdjustDirection>('increase')
   const [magnitude, setMagnitude] = useState('')
@@ -42,22 +44,33 @@ export default function StockAdjustForm({ productId, branchId, onDone }: StockAd
       })
       const body = await res.json()
       if (!res.ok) {
-        setError(body.error ?? 'Request failed')
+        setError(body.error ?? 'Could not save — check your connection and try again.')
         setSubmitting(false)
         return
       }
       onDone()
     } catch {
-      setError('Request failed')
+      setError('Could not save — check your connection and try again.')
       setSubmitting(false)
     }
   }
 
+  const typeFieldId = `stock-adjust-type-${productId}`
+  const directionFieldId = `stock-adjust-direction-${productId}`
+  const quantityFieldId = `stock-adjust-quantity-${productId}`
+  const reasonFieldId = `stock-adjust-reason-${productId}`
+
   return (
     <form onSubmit={handleSubmit} className="max-w-sm space-y-3">
+      <p className="text-sm text-slate">
+        Current quantity: <span className="font-mono text-ink">{currentQuantity}</span>
+      </p>
       <div>
-        <label className="block text-sm font-medium text-ink">Type</label>
+        <label htmlFor={typeFieldId} className="block text-sm font-medium text-ink">
+          Type
+        </label>
         <select
+          id={typeFieldId}
           value={type}
           onChange={(e) => setType(e.target.value as typeof type)}
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
@@ -69,8 +82,11 @@ export default function StockAdjustForm({ productId, branchId, onDone }: StockAd
       </div>
       {type === 'adjustment' && (
         <div>
-          <label className="block text-sm font-medium text-ink">Direction</label>
+          <label htmlFor={directionFieldId} className="block text-sm font-medium text-ink">
+            Direction
+          </label>
           <select
+            id={directionFieldId}
             value={direction}
             onChange={(e) => setDirection(e.target.value as AdjustDirection)}
             className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
@@ -81,8 +97,11 @@ export default function StockAdjustForm({ productId, branchId, onDone }: StockAd
         </div>
       )}
       <div>
-        <label className="block text-sm font-medium text-ink">Quantity</label>
+        <label htmlFor={quantityFieldId} className="block text-sm font-medium text-ink">
+          Quantity
+        </label>
         <input
+          id={quantityFieldId}
           required
           type="number"
           min={1}
@@ -93,21 +112,38 @@ export default function StockAdjustForm({ productId, branchId, onDone }: StockAd
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-ink">Reason (optional)</label>
+        <label htmlFor={reasonFieldId} className="block text-sm font-medium text-ink">
+          Reason (optional)
+        </label>
         <input
+          id={reasonFieldId}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
         />
       </div>
-      {error && <p className="text-sm text-danger">{error}</p>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
-      >
-        Submit
-      </button>
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
+      <div className="flex items-center gap-2">
+        <button
+          type="submit"
+          disabled={submitting}
+          className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
+        >
+          {submitting ? 'Saving…' : 'Submit'}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={submitting}
+          className="min-h-11 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:bg-mist disabled:opacity-50"
+        >
+          Cancel
+        </button>
+      </div>
     </form>
   )
 }

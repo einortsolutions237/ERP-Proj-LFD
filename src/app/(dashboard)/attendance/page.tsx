@@ -82,11 +82,17 @@ export default async function AttendancePage({
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-semibold text-ink">Attendance</h1>
         {isHistory ? (
-          <Link href="/attendance" className="text-sm text-marine hover:underline">
+          <Link
+            href="/attendance"
+            className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm text-marine transition-colors duration-200 hover:bg-mist hover:underline"
+          >
             Back to today&apos;s roster
           </Link>
         ) : (
-          <Link href="/attendance?history=true" className="text-sm text-marine hover:underline">
+          <Link
+            href="/attendance?history=true"
+            className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm text-marine transition-colors duration-200 hover:bg-mist hover:underline"
+          >
             View history
           </Link>
         )}
@@ -95,15 +101,18 @@ export default async function AttendancePage({
       {!isHistory && (
         <form method="GET" className="flex items-end gap-2">
           <div>
-            <label className="block text-sm font-medium text-ink">Date</label>
+            <label htmlFor="attendance-date" className="block text-sm font-medium text-ink">
+              Date
+            </label>
             <input
+              id="attendance-date"
               type="date"
               name="date"
               defaultValue={date}
               className="rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink focus:border-marine"
             />
           </div>
-          <button type="submit" className="rounded-lg bg-marine px-3 py-2 text-sm text-paper transition-opacity duration-200 disabled:opacity-50">
+          <button type="submit" className="min-h-11 rounded-lg bg-marine px-3 text-sm text-paper transition-opacity duration-200 disabled:opacity-50">
             View day
           </button>
         </form>

@@ -43,7 +43,7 @@ export default function QuestionnaireEditor({ initialQuestions }: QuestionnaireE
       const body = await res.json()
       setSaving(false)
       if (!res.ok) {
-        setError(body.error ?? 'Failed to save')
+        setError(body.error ?? 'Could not save — check your connection and try again.')
         return
       }
       setQuestions(trimmed)
@@ -51,7 +51,7 @@ export default function QuestionnaireEditor({ initialQuestions }: QuestionnaireE
       router.refresh()
     } catch {
       setSaving(false)
-      setError('Failed to save')
+      setError('Could not save — check your connection and try again.')
     }
   }
 
@@ -64,12 +64,12 @@ export default function QuestionnaireEditor({ initialQuestions }: QuestionnaireE
               value={q}
               onChange={(e) => updateQuestion(i, e.target.value)}
               placeholder={`Question ${i + 1}`}
-              className="flex-1 rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+              className="flex-1 rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
             />
             <button
               type="button"
               onClick={() => removeQuestion(i)}
-              className="rounded-md border border-mist px-3 py-2 text-sm text-ink transition-colors hover:bg-mist"
+              className="min-h-11 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:bg-mist"
             >
               Remove
             </button>
@@ -80,22 +80,31 @@ export default function QuestionnaireEditor({ initialQuestions }: QuestionnaireE
       <button
         type="button"
         onClick={addQuestion}
-        className="rounded-md border border-mist px-3 py-2 text-sm text-ink transition-colors hover:bg-mist"
+        className="min-h-11 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:bg-mist"
       >
         Add question
       </button>
 
-      {error && <p className="text-sm text-danger">{error}</p>}
-      {saved && <p className="text-sm text-success">Saved.</p>}
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
+      {saved && (
+        <p className="flex items-center gap-1.5 text-sm text-ink">
+          <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-success" />
+          Saved.
+        </p>
+      )}
 
       <div>
         <button
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+          className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
         >
-          Save questionnaire
+          {saving ? 'Saving…' : 'Save questionnaire'}
         </button>
       </div>
     </div>

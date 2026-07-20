@@ -22,7 +22,7 @@ export default function DeleteCustomerButton({ customerId, customerName }: Delet
       if (!res.ok) {
         // e.g. 409 when the customer is still referenced by a sale — show the
         // message inline and stay on the page, don't navigate away.
-        setError(body.error ?? 'Delete failed')
+        setError(body.error ?? 'Could not delete — check your connection and try again.')
         return
       }
       router.push('/customers')
@@ -37,11 +37,15 @@ export default function DeleteCustomerButton({ customerId, customerName }: Delet
         type="button"
         disabled={deleting}
         onClick={handleDelete}
-        className="text-danger underline-offset-2 hover:underline disabled:text-slate disabled:no-underline"
+        className="inline-flex min-h-11 items-center rounded-lg px-3 text-danger transition-colors duration-200 hover:bg-danger/10 disabled:opacity-50"
       >
-        Delete
+        {deleting ? 'Deleting…' : 'Delete'}
       </button>
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
     </div>
   )
 }

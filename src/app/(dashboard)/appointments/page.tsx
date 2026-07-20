@@ -33,7 +33,10 @@ export default async function AppointmentsPage({
     <div className="mx-auto mt-12 max-w-4xl space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-xl font-semibold text-ink">Appointments</h1>
-        <Link href="/appointments/new" className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity">
+        <Link
+          href="/appointments/new"
+          className="inline-flex min-h-11 items-center rounded-lg bg-marine px-3 text-paper transition-opacity duration-200"
+        >
           Book appointment
         </Link>
       </div>
@@ -44,7 +47,7 @@ export default async function AppointmentsPage({
           <select
             name="doctorUid"
             defaultValue={doctorUid ?? ''}
-            className="rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+            className="rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
           >
             <option value="">All doctors</option>
             {doctors.map((d) => (
@@ -56,7 +59,7 @@ export default async function AppointmentsPage({
         </div>
         <button
           type="submit"
-          className="rounded-md border border-mist px-3 py-2 text-sm text-ink transition-colors hover:bg-mist"
+          className="min-h-11 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:bg-mist"
         >
           Filter
         </button>

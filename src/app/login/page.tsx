@@ -9,10 +9,12 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    setSubmitting(true)
 
     // Always try the router first — it decides server-verified vs. client SDK
     // based on the account's role, per Design Decision #1.
@@ -29,6 +31,7 @@ export default function LoginPage() {
       routeBody = await routeRes.json().catch(() => ({}))
     } catch {
       setError('Login failed. Please try again.')
+      setSubmitting(false)
       return
     }
 
@@ -38,6 +41,7 @@ export default function LoginPage() {
     }
     if (!routeRes.ok) {
       setError(routeBody.error ?? 'Login failed') // strict path: verified and rejected
+      setSubmitting(false)
       return
     }
     // routeBody.strategy === 'client_sdk' — fall through to client-side sign-in
@@ -54,6 +58,7 @@ export default function LoginPage() {
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
         setError(body.error ?? 'Login failed')
+        setSubmitting(false)
         return
       }
       router.push('/dashboard')
@@ -66,16 +71,53 @@ export default function LoginPage() {
         body: JSON.stringify({ email }),
       }).catch(() => {})
       setError('Invalid credentials')
+      setSubmitting(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-sm mx-auto mt-24 space-y-4">
-      <h1 className="text-xl font-semibold">LFD Services — Sign in</h1>
-      <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full border rounded px-3 py-2" />
-      <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="w-full border rounded px-3 py-2" />
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-      <button type="submit" className="w-full bg-black text-white rounded px-3 py-2">Sign in</button>
+    <form onSubmit={handleSubmit} className="mx-auto mt-24 max-w-sm space-y-4">
+      <h1 className="font-display text-xl font-semibold text-ink">LFD Services — Sign in</h1>
+      <div>
+        <label htmlFor="login-email" className="block text-sm font-medium text-ink">
+          Email
+        </label>
+        <input
+          id="login-email"
+          type="email"
+          required
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
+      </div>
+      <div>
+        <label htmlFor="login-password" className="block text-sm font-medium text-ink">
+          Password
+        </label>
+        <input
+          id="login-password"
+          type="password"
+          required
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+        />
+      </div>
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
+      <button
+        type="submit"
+        disabled={submitting}
+        className="min-h-11 w-full rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
+      >
+        {submitting ? 'Signing in…' : 'Sign in'}
+      </button>
     </form>
   )
 }

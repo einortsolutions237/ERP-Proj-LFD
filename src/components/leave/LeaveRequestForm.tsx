@@ -17,6 +17,12 @@ export default function LeaveRequestForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+
+    if (endDate < startDate) {
+      setError('End date can’t be before the start date.')
+      return
+    }
+
     setSubmitting(true)
 
     const payload = {
@@ -34,7 +40,7 @@ export default function LeaveRequestForm() {
       })
       const body = await res.json()
       if (!res.ok) {
-        setError(body.error ?? 'Request failed')
+        setError(body.error ?? 'Could not submit — check your connection and try again.')
         setSubmitting(false)
         return
       }
@@ -45,7 +51,7 @@ export default function LeaveRequestForm() {
       setSubmitting(false)
       router.refresh()
     } catch {
-      setError('Request failed')
+      setError('Could not submit — check your connection and try again.')
       setSubmitting(false)
     }
   }
@@ -53,8 +59,11 @@ export default function LeaveRequestForm() {
   return (
     <form onSubmit={handleSubmit} className="max-w-md space-y-4">
       <div>
-        <label className="block text-sm font-medium text-ink">Type</label>
+        <label htmlFor="leave-type" className="block text-sm font-medium text-ink">
+          Type
+        </label>
         <select
+          id="leave-type"
           value={type}
           onChange={(e) => setType(e.target.value as LeaveType)}
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
@@ -67,8 +76,11 @@ export default function LeaveRequestForm() {
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium text-ink">Start date</label>
+        <label htmlFor="leave-start-date" className="block text-sm font-medium text-ink">
+          Start date
+        </label>
         <input
+          id="leave-start-date"
           required
           type="date"
           value={startDate}
@@ -77,8 +89,11 @@ export default function LeaveRequestForm() {
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-ink">End date</label>
+        <label htmlFor="leave-end-date" className="block text-sm font-medium text-ink">
+          End date
+        </label>
         <input
+          id="leave-end-date"
           required
           type="date"
           value={endDate}
@@ -87,20 +102,27 @@ export default function LeaveRequestForm() {
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-ink">Reason</label>
+        <label htmlFor="leave-reason" className="block text-sm font-medium text-ink">
+          Reason
+        </label>
         <textarea
+          id="leave-reason"
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
       <button
         type="submit"
         disabled={submitting}
-        className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
+        className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
       >
-        Submit request
+        {submitting ? 'Submitting…' : 'Submit request'}
       </button>
     </form>
   )

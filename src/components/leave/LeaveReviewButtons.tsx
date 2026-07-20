@@ -22,21 +22,26 @@ export default function LeaveReviewButtons({ requestId }: LeaveReviewButtonsProp
   async function handleConfirm() {
     setSubmitting(true)
     setError(null)
-    const res = await fetch(`/api/leave-requests/${requestId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        status: pendingAction === 'approve' ? 'approved' : 'rejected',
-        reviewNote: reviewNote.trim() ? reviewNote : null,
-      }),
-    })
-    const body = await res.json()
-    if (!res.ok) {
-      setError(body.error ?? 'Request failed')
+    try {
+      const res = await fetch(`/api/leave-requests/${requestId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: pendingAction === 'approve' ? 'approved' : 'rejected',
+          reviewNote: reviewNote.trim() ? reviewNote : null,
+        }),
+      })
+      const body = await res.json()
+      if (!res.ok) {
+        setError(body.error ?? 'Could not save — check your connection and try again.')
+        setSubmitting(false)
+        return
+      }
+      router.refresh()
+    } catch {
+      setError('Could not save — check your connection and try again.')
       setSubmitting(false)
-      return
     }
-    router.refresh()
   }
 
   if (pendingAction === null) {
@@ -45,14 +50,14 @@ export default function LeaveReviewButtons({ requestId }: LeaveReviewButtonsProp
         <button
           type="button"
           onClick={() => setPendingAction('approve')}
-          className="rounded-lg bg-marine px-3 py-2 text-xs text-paper transition-opacity duration-200 disabled:opacity-50"
+          className="min-h-11 rounded-lg bg-marine px-3 text-xs text-paper transition-opacity duration-200 disabled:opacity-50"
         >
           Approve
         </button>
         <button
           type="button"
           onClick={() => setPendingAction('reject')}
-          className="rounded-md border border-danger px-3 py-2 text-xs text-danger transition-colors hover:bg-danger/10"
+          className="min-h-11 rounded-lg border border-danger px-3 text-xs text-danger transition-colors duration-200 hover:bg-danger/10"
         >
           Reject
         </button>
@@ -63,15 +68,22 @@ export default function LeaveReviewButtons({ requestId }: LeaveReviewButtonsProp
   return (
     <div className="max-w-sm space-y-3">
       <div>
-        <label className="block text-sm font-medium text-ink">Review note</label>
+        <label htmlFor={`leave-review-note-${requestId}`} className="block text-sm font-medium text-ink">
+          Review note
+        </label>
         <textarea
+          id={`leave-review-note-${requestId}`}
           value={reviewNote}
           onChange={(e) => setReviewNote(e.target.value)}
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
           rows={3}
         />
       </div>
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
       <div className="flex gap-2">
         <button
           type="button"
@@ -79,17 +91,17 @@ export default function LeaveReviewButtons({ requestId }: LeaveReviewButtonsProp
           disabled={submitting}
           className={
             pendingAction === 'approve'
-              ? 'rounded-lg bg-marine px-3 py-2 text-xs text-paper transition-opacity duration-200 disabled:opacity-50'
-              : 'rounded-md border border-danger px-3 py-2 text-xs text-danger transition-colors hover:bg-danger/10 disabled:opacity-50'
+              ? 'min-h-11 rounded-lg bg-marine px-3 text-xs text-paper transition-opacity duration-200 disabled:opacity-50'
+              : 'min-h-11 rounded-lg border border-danger px-3 text-xs text-danger transition-colors duration-200 hover:bg-danger/10 disabled:opacity-50'
           }
         >
-          {pendingAction === 'approve' ? 'Confirm approve' : 'Confirm reject'}
+          {submitting ? 'Saving…' : pendingAction === 'approve' ? 'Confirm approve' : 'Confirm reject'}
         </button>
         <button
           type="button"
           onClick={handleCancel}
           disabled={submitting}
-          className="rounded-md border border-mist px-3 py-2 text-xs text-ink transition-colors hover:bg-mist/40 disabled:opacity-50"
+          className="min-h-11 rounded-lg border border-mist px-3 text-xs text-ink transition-colors duration-200 hover:bg-mist/40 disabled:opacity-50"
         >
           Cancel
         </button>

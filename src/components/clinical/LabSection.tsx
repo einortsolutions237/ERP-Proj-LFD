@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import LabOrderForm from './LabOrderForm'
 import LabResultForm from './LabResultForm'
@@ -13,21 +13,48 @@ export interface LabSectionProps {
   canEnterResults: boolean
 }
 
-const ORDER_STATUS_BADGE: Record<string, string> = {
-  ordered: 'bg-warning/10 text-warning',
-  completed: 'bg-success/10 text-success',
+// Background tint stays per-status/per-flag for at-a-glance scanning; the
+// label text itself is always text-ink (never the raw success/warning/danger
+// tokens directly), because text-success/text-warning fail WCAG AA (~3.3:1
+// and ~3.2:1) at this badge size. A small solid dot carries the same color
+// meaning without needing the text itself to be legible in that hue.
+const ORDER_STATUS_BG: Record<string, string> = {
+  ordered: 'bg-warning/10',
+  completed: 'bg-success/10',
+}
+const ORDER_STATUS_DOT: Record<string, string> = {
+  ordered: 'bg-warning',
+  completed: 'bg-success',
 }
 
-const FLAG_BADGE: Record<string, string> = {
-  normal: 'bg-success/10 text-success',
-  low: 'bg-warning/10 text-warning',
-  high: 'bg-danger/10 text-danger',
+const FLAG_BG: Record<string, string> = {
+  normal: 'bg-success/10',
+  low: 'bg-warning/10',
+  high: 'bg-danger/10',
+}
+const FLAG_DOT: Record<string, string> = {
+  normal: 'bg-success',
+  low: 'bg-warning',
+  high: 'bg-danger',
+}
+
+// "Saved." confirmation dot, same fix as the status badges above.
+function SavedNote() {
+  return (
+    <p className="flex items-center gap-1.5 text-sm text-ink">
+      <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-success" />
+      Saved.
+    </p>
+  )
 }
 
 export default function LabSection({ customerId, orders, canOrder, canEnterResults }: LabSectionProps) {
   const router = useRouter()
+  const [isRefreshing, startTransition] = useTransition()
   const [showOrderForm, setShowOrderForm] = useState(false)
+  const [orderSaved, setOrderSaved] = useState(false)
   const [resultsOrderId, setResultsOrderId] = useState<string | null>(null)
+  const [savedOrderId, setSavedOrderId] = useState<string | null>(null)
 
   return (
     <div className="space-y-3">
@@ -43,21 +70,25 @@ export default function LabSection({ customerId, orders, canOrder, canEnterResul
                   <div className="text-sm font-medium text-ink">{order.testName}</div>
                   <div className="mt-1 flex items-center gap-2 text-xs text-slate">
                     <span>Ordered {new Date(order.orderedAt).toLocaleString()} by {order.doctorName}</span>
-                    <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${ORDER_STATUS_BADGE[order.status] ?? 'bg-slate/10 text-slate'}`}>
+                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium text-ink ${ORDER_STATUS_BG[order.status] ?? 'bg-slate/10'}`}>
+                      <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${ORDER_STATUS_DOT[order.status] ?? 'bg-slate'}`} />
                       {order.status}
                     </span>
                   </div>
                   {order.instructions && <div className="text-xs text-slate">Instructions: {order.instructions}</div>}
                 </div>
-                {canEnterResults && order.status === 'ordered' && (
-                  <button
-                    type="button"
-                    onClick={() => setResultsOrderId((prev) => (prev === order.id ? null : order.id))}
-                    className="rounded-md border border-mist px-2 py-1 text-xs text-ink transition-colors hover:bg-mist/40"
-                  >
-                    Enter results
-                  </button>
-                )}
+                <div className="flex items-center gap-2">
+                  {canEnterResults && order.status === 'ordered' && (
+                    <button
+                      type="button"
+                      onClick={() => setResultsOrderId((prev) => (prev === order.id ? null : order.id))}
+                      className="min-h-11 rounded-lg border border-mist px-3 text-xs text-ink transition-colors duration-200 hover:bg-mist/40"
+                    >
+                      Enter results
+                    </button>
+                  )}
+                  {savedOrderId === order.id && <SavedNote />}
+                </div>
               </div>
               {order.result ? (
                 <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
@@ -80,7 +111,8 @@ export default function LabSection({ customerId, orders, canOrder, canEnterResul
                           <td className="px-3 py-2 text-ink">{v.referenceRange ?? '—'}</td>
                           <td className="px-3 py-2">
                             {v.flag ? (
-                              <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${FLAG_BADGE[v.flag] ?? 'bg-slate/10 text-slate'}`}>
+                              <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium text-ink ${FLAG_BG[v.flag] ?? 'bg-slate/10'}`}>
+                                <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${FLAG_DOT[v.flag] ?? 'bg-slate'}`} />
                                 {v.flag}
                               </span>
                             ) : (
@@ -116,7 +148,13 @@ export default function LabSection({ customerId, orders, canOrder, canEnterResul
                       </ul>
                     )}
                     {canEnterResults && (
-                      <AttachScanForm labResultId={order.result.id} onDone={() => router.refresh()} />
+                      <AttachScanForm
+                        labResultId={order.result.id}
+                        onDone={() => {
+                          setSavedOrderId(order.id)
+                          startTransition(() => router.refresh())
+                        }}
+                      />
                     )}
                   </div>
                 </div>
@@ -126,7 +164,8 @@ export default function LabSection({ customerId, orders, canOrder, canEnterResul
                     labOrderId={order.id}
                     onDone={() => {
                       setResultsOrderId(null)
-                      router.refresh()
+                      setSavedOrderId(order.id)
+                      startTransition(() => router.refresh())
                     }}
                   />
                 )
@@ -138,19 +177,27 @@ export default function LabSection({ customerId, orders, canOrder, canEnterResul
 
       {canOrder && (
         <div className="space-y-3">
-          <button
-            type="button"
-            onClick={() => setShowOrderForm((prev) => !prev)}
-            className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
-          >
-            Order lab test
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setShowOrderForm((prev) => !prev)
+                setOrderSaved(false)
+              }}
+              className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
+            >
+              Order lab test
+            </button>
+            {orderSaved && !showOrderForm && <SavedNote />}
+            {isRefreshing && <p className="text-sm text-slate">Updating…</p>}
+          </div>
           {showOrderForm && (
             <LabOrderForm
               customerId={customerId}
               onDone={() => {
                 setShowOrderForm(false)
-                router.refresh()
+                setOrderSaved(true)
+                startTransition(() => router.refresh())
               }}
             />
           )}

@@ -27,7 +27,7 @@ export default function DepartmentTable({ departments }: { departments: Departme
       const res = await fetch(`/api/departments/${row.id}`, { method: 'DELETE' })
       const body = await res.json()
       if (!res.ok) {
-        setError(body.error ?? 'Delete failed')
+        setError(body.error ?? 'Could not delete — check your connection and try again.')
         return
       }
       router.refresh()
@@ -38,48 +38,71 @@ export default function DepartmentTable({ departments }: { departments: Departme
 
   return (
     <div className="space-y-3">
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
       <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-mist/40">
-              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Name</th>
-              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Status</th>
-              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate" />
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-mist">
-            {departments.map((row) => (
-              <tr key={row.id} className="hover:bg-mist/40 transition-colors duration-200">
-                <td className="px-3 py-2 text-ink">{row.name}</td>
-                <td className="px-3 py-2 text-ink">
-                  {row.active ? (
-                    <span className="inline-block rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
-                      active
-                    </span>
-                  ) : (
-                    <span className="inline-block rounded-full bg-slate/10 px-2 py-0.5 text-xs font-medium text-slate">
-                      inactive
-                    </span>
-                  )}
-                </td>
-                <td className="px-3 py-2 space-x-3">
-                  <Link href={`/departments/${row.id}`} className="text-marine underline-offset-2 hover:underline">
-                    Edit
-                  </Link>
-                  <button
-                    type="button"
-                    disabled={deletingId === row.id}
-                    onClick={() => handleDelete(row)}
-                    className="text-danger underline-offset-2 hover:underline disabled:text-slate disabled:no-underline"
-                  >
-                    Delete
-                  </button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-mist/40">
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Name</th>
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Status</th>
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">
+                  <span className="sr-only">Actions</span>
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-mist">
+              {departments.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="px-3 py-8 text-center text-sm text-slate">
+                    No departments yet — add one to get started.
+                  </td>
+                </tr>
+              ) : (
+                departments.map((row) => (
+                  <tr key={row.id} className="transition-colors duration-200 hover:bg-mist/40">
+                    <td className="max-w-[14rem] truncate px-3 py-2 text-ink" title={row.name}>
+                      {row.name}
+                    </td>
+                    <td className="px-3 py-2 text-ink">
+                      {row.active ? (
+                        <span className="inline-block rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
+                          active
+                        </span>
+                      ) : (
+                        <span className="inline-block rounded-full bg-slate/10 px-2 py-0.5 text-xs font-medium text-slate">
+                          inactive
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2">
+                      <div className="flex flex-wrap items-center gap-1">
+                        <Link
+                          href={`/departments/${row.id}`}
+                          className="inline-flex min-h-11 items-center rounded-lg px-2 text-marine transition-colors duration-200 hover:bg-mist"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          type="button"
+                          disabled={deletingId === row.id}
+                          onClick={() => handleDelete(row)}
+                          className="inline-flex min-h-11 items-center rounded-lg px-2 text-danger transition-colors duration-200 hover:bg-danger/10 disabled:opacity-50"
+                        >
+                          {deletingId === row.id ? 'Deleting…' : 'Delete'}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

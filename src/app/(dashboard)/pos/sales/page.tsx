@@ -30,7 +30,7 @@ export default async function SalesLogPage() {
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-6">
-      <h1 className="text-xl font-semibold">Sales log</h1>
+      <h1 className="font-display text-xl font-semibold text-ink">Sales log</h1>
       <SalesTable sales={sales} />
     </div>
   )

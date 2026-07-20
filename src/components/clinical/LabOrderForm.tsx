@@ -36,13 +36,13 @@ export default function LabOrderForm({ customerId, treatmentId, onDone }: LabOrd
       })
       const body = await res.json()
       if (!res.ok) {
-        setError(body.error ?? 'Request failed')
+        setError(body.error ?? 'Could not save — check your connection and try again.')
         setSubmitting(false)
         return
       }
       onDone()
     } catch {
-      setError('Request failed')
+      setError('Could not save — check your connection and try again.')
       setSubmitting(false)
     }
   }
@@ -67,14 +67,21 @@ export default function LabOrderForm({ customerId, treatmentId, onDone }: LabOrd
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
-      {error && <p className="text-sm text-danger">{error}</p>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
-      >
-        Order lab test
-      </button>
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
+      <div className="space-y-1">
+        <button
+          type="submit"
+          disabled={submitting}
+          className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
+        >
+          {submitting ? 'Ordering…' : 'Order lab test'}
+        </button>
+        <p className="text-xs text-slate">This order can&rsquo;t be edited after saving.</p>
+      </div>
     </form>
   )
 }

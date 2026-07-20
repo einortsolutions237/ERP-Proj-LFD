@@ -34,7 +34,10 @@ export default async function CustomersPage() {
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-semibold text-ink">Customers</h1>
         {canCreate && (
-          <Link href="/customers/new" className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50">
+          <Link
+            href="/customers/new"
+            className="inline-flex min-h-11 items-center rounded-lg bg-marine px-3 text-paper transition-opacity duration-200"
+          >
             Add customer
           </Link>
         )}

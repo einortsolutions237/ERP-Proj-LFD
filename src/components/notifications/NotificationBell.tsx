@@ -23,9 +23,29 @@ const NOTIFICATION_LINKS: Record<NotificationType, (relatedId: string) => string
   message_received: (relatedId) => `/messages/${relatedId}`,
 }
 
+// Hand-authored, no icon package — matches Sidebar.tsx's own convention.
+function BellIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M6 10a6 6 0 0 1 12 0v4l1.5 3h-15L6 14z" />
+      <path d="M10 20a2 2 0 0 0 4 0" />
+    </svg>
+  )
+}
+
 export default function NotificationBell() {
   const router = useRouter()
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
+  const [loaded, setLoaded] = useState(false)
   const [open, setOpen] = useState(false)
 
   async function fetchNotifications() {
@@ -33,6 +53,7 @@ export default function NotificationBell() {
     if (!res.ok) return
     const body = await res.json()
     setNotifications(body)
+    setLoaded(true)
   }
 
   useEffect(() => {
@@ -61,32 +82,34 @@ export default function NotificationBell() {
       <button
         type="button"
         onClick={toggleOpen}
-        className="relative rounded border px-3 py-1.5 text-sm hover:bg-zinc-100"
+        className="relative flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-mist text-ink transition-colors duration-200 hover:bg-mist"
         aria-label="Notifications"
         aria-expanded={open}
       >
-        🔔
+        <BellIcon className="h-5 w-5" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[1.1rem] rounded-full bg-red-600 px-1 text-center text-xs text-white">
+          <span className="absolute -top-1 -right-1 min-w-[1.1rem] rounded-full bg-danger px-1 text-center text-xs text-paper">
             {unreadCount}
           </span>
         )}
       </button>
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-80 max-h-96 overflow-y-auto rounded border bg-white shadow-lg">
-          {notifications.length === 0 ? (
-            <p className="p-3 text-sm text-zinc-500">No notifications.</p>
+        <div className="absolute right-0 z-50 mt-2 max-h-96 w-80 overflow-y-auto rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
+          {!loaded ? (
+            <p className="p-3 text-sm text-slate">Loading…</p>
+          ) : notifications.length === 0 ? (
+            <p className="p-3 text-sm text-slate">No notifications.</p>
           ) : (
             notifications.map((n) => (
               <button
                 key={n.id}
                 type="button"
                 onClick={() => handleSelect(n)}
-                className={`block w-full border-b p-3 text-left text-sm hover:bg-zinc-50 ${n.read ? '' : 'bg-zinc-50 font-medium'}`}
+                className={`block w-full min-h-11 border-b border-mist p-3 text-left text-sm transition-colors duration-200 hover:bg-mist/40 ${n.read ? '' : 'bg-marine/5 font-medium'}`}
               >
-                <div>{n.title}</div>
-                <div className="text-xs text-zinc-600">{n.body}</div>
-                <div className="text-xs text-zinc-400">{new Date(n.createdAt).toLocaleString()}</div>
+                <div className="text-ink">{n.title}</div>
+                <div className="text-xs text-slate">{n.body}</div>
+                <div className="font-mono text-xs text-slate">{new Date(n.createdAt).toLocaleString()}</div>
               </button>
             ))
           )}

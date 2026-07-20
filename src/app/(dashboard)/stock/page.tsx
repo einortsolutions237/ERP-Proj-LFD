@@ -61,6 +61,7 @@ export default async function StockPage() {
         branches={branches}
         canAdjust={canAdjust}
         canTransfer={canTransfer}
+        showBranch={!isBranchLocked(user.role)}
       />
     </div>
   )

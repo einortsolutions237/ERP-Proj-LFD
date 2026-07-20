@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import TreatmentForm from './TreatmentForm'
 import LabOrderForm from './LabOrderForm'
@@ -18,6 +18,18 @@ export interface ClinicalSectionProps {
   canViewSeminarAttendance: boolean
 }
 
+// "Saved." confirmation dot pairs a solid brand-token dot with text-ink
+// rather than text-success, since text-success alone fails WCAG AA at this
+// size (~3.3:1) — the same fix applied to this module's status badges.
+function SavedNote() {
+  return (
+    <p className="flex items-center gap-1.5 text-sm text-ink">
+      <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-success" />
+      Saved.
+    </p>
+  )
+}
+
 export default function ClinicalSection({
   customerId,
   treatments,
@@ -28,8 +40,11 @@ export default function ClinicalSection({
   canViewSeminarAttendance,
 }: ClinicalSectionProps) {
   const router = useRouter()
+  const [isRefreshing, startTransition] = useTransition()
   const [showForm, setShowForm] = useState(false)
+  const [treatmentSaved, setTreatmentSaved] = useState(false)
   const [orderingForTreatmentId, setOrderingForTreatmentId] = useState<string | null>(null)
+  const [savedTreatmentId, setSavedTreatmentId] = useState<string | null>(null)
 
   return (
     <div className="space-y-3">
@@ -58,13 +73,16 @@ export default function ClinicalSection({
                         <td className="px-3 py-2 text-ink">{row.diagnosis}</td>
                         {canOrderLab && (
                           <td className="px-3 py-2 text-ink">
-                            <button
-                              type="button"
-                              onClick={() => setOrderingForTreatmentId((prev) => (prev === row.id ? null : row.id))}
-                              className="rounded-md border border-mist px-2 py-1 text-xs text-ink transition-colors hover:bg-mist/40"
-                            >
-                              Order lab test
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setOrderingForTreatmentId((prev) => (prev === row.id ? null : row.id))}
+                                className="min-h-11 rounded-lg border border-mist px-3 text-xs text-ink transition-colors duration-200 hover:bg-mist/40"
+                              >
+                                Order lab test
+                              </button>
+                              {savedTreatmentId === row.id && <SavedNote />}
+                            </div>
                           </td>
                         )}
                       </tr>
@@ -77,8 +95,9 @@ export default function ClinicalSection({
                   customerId={customerId}
                   treatmentId={orderingForTreatmentId}
                   onDone={() => {
+                    setSavedTreatmentId(orderingForTreatmentId)
                     setOrderingForTreatmentId(null)
-                    router.refresh()
+                    startTransition(() => router.refresh())
                   }}
                 />
               )}
@@ -87,19 +106,27 @@ export default function ClinicalSection({
 
           {canCreate && (
             <div className="space-y-3">
-              <button
-                type="button"
-                onClick={() => setShowForm((prev) => !prev)}
-                className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
-              >
-                Add treatment
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowForm((prev) => !prev)
+                    setTreatmentSaved(false)
+                  }}
+                  className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
+                >
+                  Add treatment
+                </button>
+                {treatmentSaved && !showForm && <SavedNote />}
+                {isRefreshing && <p className="text-sm text-slate">Updating…</p>}
+              </div>
               {showForm && (
                 <TreatmentForm
                   customerId={customerId}
                   onDone={() => {
                     setShowForm(false)
-                    router.refresh()
+                    setTreatmentSaved(true)
+                    startTransition(() => router.refresh())
                   }}
                 />
               )}

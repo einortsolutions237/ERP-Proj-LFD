@@ -4,15 +4,19 @@ import { useState } from 'react'
 export interface StockTransferFormProps {
   productId: string
   sourceBranchId: string
+  currentQuantity: number
   destinationBranches: { id: string; name: string }[]
   onDone: () => void
+  onCancel: () => void
 }
 
 export default function StockTransferForm({
   productId,
   sourceBranchId,
+  currentQuantity,
   destinationBranches,
   onDone,
+  onCancel,
 }: StockTransferFormProps) {
   const [destBranchId, setDestBranchId] = useState('')
   const [quantity, setQuantity] = useState('')
@@ -49,22 +53,32 @@ export default function StockTransferForm({
       })
       const body = await res.json()
       if (!res.ok) {
-        setError(body.error ?? 'Request failed')
+        setError(body.error ?? 'Could not save — check your connection and try again.')
         setSubmitting(false)
         return
       }
       onDone()
     } catch {
-      setError('Request failed')
+      setError('Could not save — check your connection and try again.')
       setSubmitting(false)
     }
   }
 
+  const destFieldId = `stock-transfer-dest-${productId}`
+  const quantityFieldId = `stock-transfer-quantity-${productId}`
+  const reasonFieldId = `stock-transfer-reason-${productId}`
+
   return (
     <form onSubmit={handleSubmit} className="max-w-sm space-y-3">
+      <p className="text-sm text-slate">
+        Current quantity: <span className="font-mono text-ink">{currentQuantity}</span>
+      </p>
       <div>
-        <label className="block text-sm font-medium text-ink">Destination branch</label>
+        <label htmlFor={destFieldId} className="block text-sm font-medium text-ink">
+          Destination branch
+        </label>
         <select
+          id={destFieldId}
           required
           value={destBranchId}
           onChange={(e) => setDestBranchId(e.target.value)}
@@ -81,8 +95,11 @@ export default function StockTransferForm({
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium text-ink">Quantity</label>
+        <label htmlFor={quantityFieldId} className="block text-sm font-medium text-ink">
+          Quantity
+        </label>
         <input
+          id={quantityFieldId}
           required
           type="number"
           min={1}
@@ -93,21 +110,38 @@ export default function StockTransferForm({
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-ink">Reason (optional)</label>
+        <label htmlFor={reasonFieldId} className="block text-sm font-medium text-ink">
+          Reason (optional)
+        </label>
         <input
+          id={reasonFieldId}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
         />
       </div>
-      {error && <p className="text-sm text-danger">{error}</p>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
-      >
-        Submit
-      </button>
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
+      <div className="flex items-center gap-2">
+        <button
+          type="submit"
+          disabled={submitting}
+          className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
+        >
+          {submitting ? 'Saving…' : 'Submit'}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={submitting}
+          className="min-h-11 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:bg-mist disabled:opacity-50"
+        >
+          Cancel
+        </button>
+      </div>
     </form>
   )
 }

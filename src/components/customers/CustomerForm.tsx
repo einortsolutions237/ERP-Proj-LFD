@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { Customer } from '@/lib/types/customer'
 
@@ -18,6 +19,8 @@ export default function CustomerForm({ mode, customerId, initial }: CustomerForm
   const [notes, setNotes] = useState(initial?.notes ?? '')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+
+  const cancelHref = mode === 'create' ? '/customers' : `/customers/${customerId}`
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -40,69 +43,102 @@ export default function CustomerForm({ mode, customerId, initial }: CustomerForm
       })
       const body = await res.json()
       if (!res.ok) {
-        setError(body.error ?? 'Request failed')
+        setError(body.error ?? 'Could not save — check your connection and try again.')
         setSubmitting(false)
         return
       }
       router.push(mode === 'create' ? `/customers/${body.id}` : `/customers/${customerId}`)
     } catch {
-      setError('Request failed')
+      setError('Could not save — check your connection and try again.')
       setSubmitting(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md space-y-4">
+    <form onSubmit={handleSubmit} className="mx-auto max-w-md space-y-4">
       <div>
-        <label className="block text-sm font-medium text-ink">Name</label>
+        <label htmlFor="customer-name" className="block text-sm font-medium text-ink">
+          Name
+        </label>
         <input
+          id="customer-name"
           required
+          autoComplete="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-ink">Phone</label>
+        <label htmlFor="customer-phone" className="block text-sm font-medium text-ink">
+          Phone
+        </label>
         <input
+          id="customer-phone"
           required
+          type="tel"
+          autoComplete="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-ink">Email</label>
+        <label htmlFor="customer-email" className="block text-sm font-medium text-ink">
+          Email <span className="text-slate">(optional)</span>
+        </label>
         <input
+          id="customer-email"
+          type="email"
+          autoComplete="email"
           value={email ?? ''}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-ink">Address</label>
+        <label htmlFor="customer-address" className="block text-sm font-medium text-ink">
+          Address <span className="text-slate">(optional)</span>
+        </label>
         <input
+          id="customer-address"
+          autoComplete="street-address"
           value={address ?? ''}
           onChange={(e) => setAddress(e.target.value)}
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-ink">Notes</label>
+        <label htmlFor="customer-notes" className="block text-sm font-medium text-ink">
+          Notes <span className="text-slate">(optional)</span>
+        </label>
         <textarea
+          id="customer-notes"
           value={notes ?? ''}
           onChange={(e) => setNotes(e.target.value)}
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
-      {error && <p className="text-sm text-danger">{error}</p>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
-      >
-        {mode === 'create' ? 'Create customer' : 'Save changes'}
-      </button>
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
+      <div className="flex items-center gap-2">
+        <button
+          type="submit"
+          disabled={submitting}
+          className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
+        >
+          {submitting ? 'Saving…' : mode === 'create' ? 'Create customer' : 'Save changes'}
+        </button>
+        <Link
+          href={cancelHref}
+          className="inline-flex min-h-11 items-center rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:bg-mist"
+        >
+          Cancel
+        </Link>
+      </div>
     </form>
   )
 }

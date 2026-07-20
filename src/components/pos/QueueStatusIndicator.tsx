@@ -62,6 +62,13 @@ export default function QueueStatusIndicator() {
     setQueue(all)
   }
 
+  function handlePanelKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.key === 'Escape') {
+      e.stopPropagation()
+      setOpen(false)
+    }
+  }
+
   if (queuedCount === 0 && needsAttention.length === 0) return null
 
   const filteredCustomers = (customers ?? []).filter(
@@ -75,8 +82,9 @@ export default function QueueStatusIndicator() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="relative rounded-md border border-mist px-3 py-1.5 text-sm text-ink transition-colors hover:bg-mist"
+        className="relative min-h-11 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:bg-mist"
         aria-expanded={open}
+        aria-haspopup="true"
       >
         {syncingNow ? 'Syncing…' : `Queue: ${queuedCount}`}
         {needsAttention.length > 0 && (
@@ -84,25 +92,35 @@ export default function QueueStatusIndicator() {
         )}
       </button>
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-80 max-h-96 overflow-y-auto rounded-md border border-mist bg-paper p-3 shadow-xl">
+        <div
+          className="absolute right-0 z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] max-h-96 overflow-y-auto rounded-2xl border border-mist bg-paper p-3 shadow-[var(--shadow-card)]"
+          onKeyDown={handlePanelKeyDown}
+        >
+          <p className="mb-1 text-xs text-slate">Press Esc to close.</p>
           {queue.length === 0 && <p className="text-sm text-slate">No queued sales.</p>}
           {queue.map((item) => (
             <div key={item.idempotencyKey} className="space-y-1 border-b border-mist py-2 text-sm last:border-0">
               <div className="flex justify-between">
-                <span className="text-ink">{item.receiptSnapshot.total.toFixed(2)}</span>
+                <span className="text-ink">{item.receiptSnapshot.total.toFixed(2)} FCFA</span>
                 <span className="text-slate">{item.status}</span>
               </div>
               {item.status === 'needs_attention' && (
                 <div className="space-y-1">
-                  <p className="text-xs text-danger">{item.lastError}</p>
+                  <p role="alert" className="text-xs text-danger">
+                    {item.lastError}
+                  </p>
                   {attachingKey === item.idempotencyKey ? (
                     <div className="space-y-1">
+                      <label htmlFor={`queue-attach-search-${item.idempotencyKey}`} className="sr-only">
+                        Search customer by name or phone
+                      </label>
                       <input
+                        id={`queue-attach-search-${item.idempotencyKey}`}
                         value={customerQuery}
                         onChange={(e) => setCustomerQuery(e.target.value)}
                         onFocus={loadCustomersIfNeeded}
                         placeholder="Search customer…"
-                        className="w-full rounded border border-mist px-2 py-1 text-xs"
+                        className="w-full rounded-lg border border-mist px-2 py-1 text-xs"
                       />
                       <div className="max-h-24 overflow-y-auto">
                         {filteredCustomers.map((c) => (
@@ -110,7 +128,8 @@ export default function QueueStatusIndicator() {
                             key={c.id}
                             type="button"
                             onClick={() => handleAttach(item.idempotencyKey, c.id)}
-                            className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-mist"
+                            className="block w-full truncate rounded px-2 py-1 text-left text-xs hover:bg-mist"
+                            title={`${c.name} — ${c.phone}`}
                           >
                             {c.name} — {c.phone}
                           </button>
@@ -124,7 +143,7 @@ export default function QueueStatusIndicator() {
                         setAttachingKey(item.idempotencyKey)
                         loadCustomersIfNeeded()
                       }}
-                      className="rounded border border-mist px-2 py-1 text-xs text-ink hover:bg-mist"
+                      className="rounded-lg border border-mist px-2 py-1 text-xs text-ink hover:bg-mist"
                     >
                       Attach customer &amp; retry
                     </button>

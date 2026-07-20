@@ -36,6 +36,8 @@ const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   orange_money: 'Orange Money',
 }
 
+const BALANCE_EPSILON = 0.01
+
 // Tender-chip background per payment method — cash stays deliberately quiet
 // (neutral default). Phase 25 replaced MTN MoMo/Orange Money's solid brand
 // fills with the same /10-badge, /5-wash tint idiom DashboardCard's
@@ -149,6 +151,17 @@ export default function CheckoutForm({ products, services, customers, branchId }
     .reduce((sum, p) => sum + Number(p.amount), 0)
   const balanceDue = total - paymentsSum
 
+  // Pair color with a label change (not color alone) so the settled vs.
+  // still-owed vs. overpaid states are distinguishable without relying on
+  // hue perception. "Change due" only appears once payments actually
+  // exceed the total, since "balance due" would be a misleading label for
+  // an overpayment.
+  const balanceIsOverpaid = balanceDue < -BALANCE_EPSILON
+  const balanceLabel = balanceIsOverpaid ? 'Change due' : 'Balance due'
+  const balanceDisplay = Math.abs(balanceDue).toFixed(2)
+  const balanceToneClass =
+    balanceDue > BALANCE_EPSILON ? 'text-danger' : 'text-success'
+
   function addProduct(product: { id: string; name: string; price: number }) {
     setCart((prev) => {
       const idx = prev.findIndex((line) => line.type === 'product' && line.itemId === product.id)
@@ -166,6 +179,16 @@ export default function CheckoutForm({ products, services, customers, branchId }
       ...prev,
       { type: 'service', itemId: service.id, name: service.name, unitPrice: service.price, quantity: 1 },
     ])
+  }
+
+  function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key !== 'Enter') return
+    e.preventDefault()
+    if (filteredProducts.length > 0) {
+      addProduct(filteredProducts[0])
+    } else if (filteredServices.length > 0) {
+      addService(filteredServices[0])
+    }
   }
 
   function setLineQuantity(index: number, quantity: number) {
@@ -192,6 +215,13 @@ export default function CheckoutForm({ products, services, customers, branchId }
 
   function removeCustomer() {
     setCustomerId(null)
+  }
+
+  function handlePickerKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.key === 'Escape') {
+      e.stopPropagation()
+      setCustomerPickerOpen(false)
+    }
   }
 
   async function handleQuickAdd() {
@@ -298,7 +328,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
     }
   }
 
-  const submitDisabled = submitting || cart.length === 0 || Math.abs(balanceDue) >= 0.01
+  const submitDisabled = submitting || cart.length === 0 || Math.abs(balanceDue) >= BALANCE_EPSILON
 
   if (queuedReceipt) {
     return (
@@ -330,13 +360,18 @@ export default function CheckoutForm({ products, services, customers, branchId }
       <form onSubmit={handleSubmit} className="grid gap-6 pb-24 md:grid-cols-2 md:pb-0">
       <div className="space-y-3">
         <div>
-          <label className="block text-sm font-medium text-ink">Search</label>
+          <label htmlFor="pos-search" className="block text-sm font-medium text-ink">
+            Search
+          </label>
           <input
+            id="pos-search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
             placeholder="Search products or services…"
             className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
           />
+          <p className="mt-1 text-xs text-slate">Press Enter to add the top match.</p>
         </div>
         <div className="max-h-96 divide-y divide-mist overflow-y-auto rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
           {filteredProducts.map((product) => (
@@ -344,12 +379,12 @@ export default function CheckoutForm({ products, services, customers, branchId }
               key={product.id}
               type="button"
               onClick={() => addProduct(product)}
-              className="flex w-full items-center justify-between px-3 py-2 text-left transition-colors duration-200 hover:bg-mist"
+              className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left transition-colors duration-200 hover:bg-mist"
             >
-              <span className="text-ink">
+              <span className="truncate text-ink" title={product.name}>
                 {product.name} <span className="text-sm text-slate">({product.sku})</span>
               </span>
-              <span className="font-mono text-sm text-slate text-right">
+              <span className="shrink-0 font-mono text-sm text-slate text-right">
                 {product.price.toFixed(2)} · qty {product.quantity}
               </span>
             </button>
@@ -359,10 +394,12 @@ export default function CheckoutForm({ products, services, customers, branchId }
               key={service.id}
               type="button"
               onClick={() => addService(service)}
-              className="flex w-full items-center justify-between px-3 py-2 text-left transition-colors duration-200 hover:bg-mist"
+              className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left transition-colors duration-200 hover:bg-mist"
             >
-              <span className="text-ink">{service.name}</span>
-              <span className="font-mono text-sm text-slate text-right">{service.price.toFixed(2)}</span>
+              <span className="truncate text-ink" title={service.name}>
+                {service.name}
+              </span>
+              <span className="shrink-0 font-mono text-sm text-slate text-right">{service.price.toFixed(2)}</span>
             </button>
           ))}
           {filteredProducts.length === 0 && filteredServices.length === 0 && (
@@ -378,21 +415,21 @@ export default function CheckoutForm({ products, services, customers, branchId }
             <div className="flex items-center justify-between gap-2">
               {selectedCustomer ? (
                 <>
-                  <span className="text-sm text-ink">
+                  <span className="min-w-0 truncate text-sm text-ink" title={selectedCustomer.name}>
                     {selectedCustomer.name} <span className="text-slate">({selectedCustomer.phone})</span>
                   </span>
-                  <div className="flex gap-2">
+                  <div className="flex shrink-0 gap-2">
                     <button
                       type="button"
                       onClick={() => setCustomerPickerOpen(true)}
-                      className="rounded-lg border border-mist px-2 py-1 text-sm text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
+                      className="min-h-11 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
                     >
                       Change
                     </button>
                     <button
                       type="button"
                       onClick={removeCustomer}
-                      className="rounded-lg border border-mist px-2 py-1 text-sm text-danger transition-colors duration-200 hover:border-danger hover:bg-danger/10"
+                      className="min-h-11 rounded-lg border border-mist px-3 text-sm text-danger transition-colors duration-200 hover:border-danger hover:bg-danger/10"
                     >
                       Remove
                     </button>
@@ -404,7 +441,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
                   <button
                     type="button"
                     onClick={() => setCustomerPickerOpen(true)}
-                    className="rounded-lg border border-mist px-2 py-1 text-sm text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
+                    className="min-h-11 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
                   >
                     Attach customer
                   </button>
@@ -414,9 +451,13 @@ export default function CheckoutForm({ products, services, customers, branchId }
           )}
 
           {customerPickerOpen && (
-            <div className="space-y-3">
+            <div className="space-y-3" onKeyDown={handlePickerKeyDown}>
               <div className="flex items-center justify-between gap-2">
+                <label htmlFor="pos-customer-search" className="sr-only">
+                  Search customers by name or phone
+                </label>
                 <input
+                  id="pos-customer-search"
                   value={customerSearch}
                   onChange={(e) => setCustomerSearch(e.target.value)}
                   placeholder="Search name or phone…"
@@ -425,21 +466,24 @@ export default function CheckoutForm({ products, services, customers, branchId }
                 <button
                   type="button"
                   onClick={() => setCustomerPickerOpen(false)}
-                  className="rounded-lg border border-mist px-2 py-1 text-sm text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
+                  className="min-h-11 shrink-0 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
                 >
                   Close
                 </button>
               </div>
+              <p className="text-xs text-slate">Press Esc to close.</p>
               <div className="max-h-40 divide-y divide-mist overflow-y-auto rounded-lg border border-mist">
                 {filteredCustomers.map((c) => (
                   <button
                     key={c.id}
                     type="button"
                     onClick={() => selectCustomer(c.id)}
-                    className="flex w-full items-center justify-between px-3 py-2 text-left transition-colors duration-200 hover:bg-mist"
+                    className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left transition-colors duration-200 hover:bg-mist"
                   >
-                    <span className="text-ink">{c.name}</span>
-                    <span className="text-sm text-slate">{c.phone}</span>
+                    <span className="truncate text-ink" title={c.name}>
+                      {c.name}
+                    </span>
+                    <span className="shrink-0 text-sm text-slate">{c.phone}</span>
                   </button>
                 ))}
                 {filteredCustomers.length === 0 && (
@@ -449,26 +493,38 @@ export default function CheckoutForm({ products, services, customers, branchId }
 
               <div className="space-y-2 border-t border-mist pt-3">
                 <p className="text-sm font-medium text-ink">Quick add</p>
+                <label htmlFor="pos-quick-add-name" className="sr-only">
+                  Full name
+                </label>
                 <input
+                  id="pos-quick-add-name"
                   value={quickAddName}
                   onChange={(e) => setQuickAddName(e.target.value)}
                   placeholder="Name"
                   className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
                 />
+                <label htmlFor="pos-quick-add-phone" className="sr-only">
+                  Phone number
+                </label>
                 <input
+                  id="pos-quick-add-phone"
                   value={quickAddPhone}
                   onChange={(e) => setQuickAddPhone(e.target.value)}
                   placeholder="Phone"
                   className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
                 />
-                {quickAddError && <p className="text-sm text-danger">{quickAddError}</p>}
+                {quickAddError && (
+                  <p role="alert" className="text-sm text-danger">
+                    {quickAddError}
+                  </p>
+                )}
                 <button
                   type="button"
                   onClick={handleQuickAdd}
                   disabled={quickAddSubmitting || !quickAddName.trim() || !quickAddPhone.trim()}
-                  className="rounded-lg bg-marine px-3 py-2.5 text-paper transition-opacity duration-200 disabled:opacity-50"
+                  className="min-h-11 rounded-lg bg-marine px-3 py-2.5 text-paper transition-opacity duration-200 disabled:opacity-50"
                 >
-                  Add customer
+                  {quickAddSubmitting ? 'Adding…' : 'Add customer'}
                 </button>
               </div>
             </div>
@@ -485,16 +541,19 @@ export default function CheckoutForm({ products, services, customers, branchId }
             )}
             {cart.map((line, index) => (
               <div key={`${line.type}-${line.itemId}-${index}`} className="flex items-center justify-between gap-2 px-3 py-2">
-                <div className="flex-1">
-                  <p className="text-sm text-ink">{line.name}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm text-ink" title={line.name}>
+                    {line.name}
+                  </p>
                   <p className="font-mono text-xs text-slate">{line.unitPrice.toFixed(2)} each</p>
                 </div>
                 {line.type === 'product' ? (
-                  <div className="flex items-center gap-1">
+                  <div className="flex shrink-0 items-center gap-1">
                     <button
                       type="button"
                       onClick={() => setLineQuantity(index, line.quantity - 1)}
-                      className="rounded-lg border border-mist px-2 text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
+                      aria-label={`Decrease quantity of ${line.name}`}
+                      className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-mist text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
                     >
                       −
                     </button>
@@ -504,21 +563,28 @@ export default function CheckoutForm({ products, services, customers, branchId }
                       step={1}
                       value={line.quantity}
                       onChange={(e) => setLineQuantity(index, Number(e.target.value))}
+                      aria-label={`Quantity of ${line.name}`}
                       className="w-14 rounded-lg border border-mist px-2 py-1 text-center font-mono text-ink"
                     />
                     <button
                       type="button"
                       onClick={() => setLineQuantity(index, line.quantity + 1)}
-                      className="rounded-lg border border-mist px-2 text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
+                      aria-label={`Increase quantity of ${line.name}`}
+                      className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-mist text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
                     >
                       +
                     </button>
                   </div>
                 ) : (
-                  <span className="font-mono text-sm text-slate">qty 1</span>
+                  <span className="shrink-0 font-mono text-sm text-slate">qty 1</span>
                 )}
-                <p className="w-20 text-right font-mono text-sm text-ink">{(line.unitPrice * line.quantity).toFixed(2)}</p>
-                <button type="button" onClick={() => removeLine(index)} className="rounded-lg px-2 py-1 text-danger transition-colors duration-200 hover:bg-danger/10">
+                <p className="w-20 shrink-0 text-right font-mono text-sm text-ink">{(line.unitPrice * line.quantity).toFixed(2)}</p>
+                <button
+                  type="button"
+                  onClick={() => removeLine(index)}
+                  aria-label={`Remove ${line.name} from cart`}
+                  className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-danger transition-colors duration-200 hover:bg-danger/10"
+                >
                   ×
                 </button>
               </div>
@@ -527,8 +593,11 @@ export default function CheckoutForm({ products, services, customers, branchId }
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink">Discount</label>
+          <label htmlFor="pos-discount" className="block text-sm font-medium text-ink">
+            Discount
+          </label>
           <input
+            id="pos-discount"
             type="number"
             min={0}
             step="0.01"
@@ -541,15 +610,15 @@ export default function CheckoutForm({ products, services, customers, branchId }
         <div className="space-y-1 rounded-2xl border border-mist bg-mist/40 p-3 text-sm text-ink shadow-[var(--shadow-card)]">
           <div className="flex justify-between">
             <span>Subtotal</span>
-            <span className="font-mono text-right">{subtotal.toFixed(2)}</span>
+            <span className="font-mono text-right">{subtotal.toFixed(2)} FCFA</span>
           </div>
           <div className="flex justify-between">
             <span>Discount</span>
-            <span className="font-mono text-right">-{discount.toFixed(2)}</span>
+            <span className="font-mono text-right">-{discount.toFixed(2)} FCFA</span>
           </div>
           <div className="flex justify-between border-t border-mist pt-1 font-semibold">
             <span>Total</span>
-            <span className="font-mono text-right">{total.toFixed(2)}</span>
+            <span className="font-mono text-right">{total.toFixed(2)} FCFA</span>
           </div>
         </div>
 
@@ -558,6 +627,8 @@ export default function CheckoutForm({ products, services, customers, branchId }
           <div className="space-y-2">
             {payments.map((p) => {
               const hasAmount = Number(p.amount) > 0
+              const amountFieldId = `pos-payment-amount-${p.method}`
+              const referenceFieldId = `pos-payment-reference-${p.method}`
               return (
                 <div key={p.method} className={`relative overflow-hidden rounded-lg p-3 ${TENDER_CHIP_CARD[p.method]}`}>
                   {p.method === 'cash' && (
@@ -571,9 +642,12 @@ export default function CheckoutForm({ products, services, customers, branchId }
                     {p.method !== 'cash' && (
                       <TenderGlyph method={p.method} className={`h-4 w-4 ${TENDER_GLYPH_COLOR[p.method]}`} />
                     )}
-                    <span className="text-sm font-medium">{PAYMENT_METHOD_LABELS[p.method]}</span>
+                    <label htmlFor={amountFieldId} className="text-sm font-medium">
+                      {PAYMENT_METHOD_LABELS[p.method]}
+                    </label>
                   </div>
                   <input
+                    id={amountFieldId}
                     type="number"
                     min={0}
                     step="0.01"
@@ -584,31 +658,41 @@ export default function CheckoutForm({ products, services, customers, branchId }
                     }`}
                   />
                   {(p.method === 'mtn_momo' || p.method === 'orange_money') && (
-                    <input
-                      value={p.reference}
-                      onChange={(e) => updatePayment(p.method, 'reference', e.target.value)}
-                      placeholder="Reference"
-                      className="mt-2 w-full rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink placeholder:text-slate focus:border-marine"
-                    />
+                    <>
+                      <label htmlFor={referenceFieldId} className="sr-only">
+                        {PAYMENT_METHOD_LABELS[p.method]} reference
+                      </label>
+                      <input
+                        id={referenceFieldId}
+                        value={p.reference}
+                        onChange={(e) => updatePayment(p.method, 'reference', e.target.value)}
+                        placeholder="Reference"
+                        className="mt-2 w-full rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink placeholder:text-slate focus:border-marine"
+                      />
+                    </>
                   )}
                 </div>
               )
             })}
           </div>
           <div className="flex justify-between text-sm text-ink">
-            <span>Balance due</span>
-            <span className="font-mono text-right">{balanceDue.toFixed(2)}</span>
+            <span>{balanceLabel}</span>
+            <span className={`font-mono text-right font-medium ${balanceToneClass}`}>{balanceDisplay} FCFA</span>
           </div>
         </div>
 
-        {error && <p className="text-sm text-danger">{error}</p>}
+        {error && (
+          <p role="alert" className="text-sm text-danger">
+            {error}
+          </p>
+        )}
 
         <button
           type="submit"
           disabled={submitDisabled}
           className="fixed inset-x-0 bottom-0 z-30 w-full rounded-none border-t border-mist bg-marine px-4 py-3 font-medium text-paper transition-opacity duration-200 disabled:opacity-50 md:static md:inset-auto md:z-auto md:w-auto md:rounded-lg md:border-0 md:px-4 md:py-2.5"
         >
-          Complete sale
+          {submitting ? 'Completing sale…' : 'Complete sale'}
         </button>
       </div>
     </form>

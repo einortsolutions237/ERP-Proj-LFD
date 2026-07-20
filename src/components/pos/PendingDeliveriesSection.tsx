@@ -37,52 +37,62 @@ export default function PendingDeliveriesSection({ deliveries }: PendingDeliveri
     <div className="space-y-3">
       <h2 className="text-lg font-medium text-ink">Pending deliveries</h2>
       {deliveries.length === 0 ? (
-        <p className="text-sm text-slate">No pending deliveries.</p>
+        <p className="text-sm text-slate">No pending deliveries — every sale on record has been fully stocked out.</p>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-mist/40">
-                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Product</th>
-                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Qty owed</th>
-                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Status</th>
-                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-mist">
-              {deliveries.map((d) => (
-                <tr key={d.id} className="hover:bg-mist/40 transition-colors duration-200">
-                  <td className="px-3 py-2 text-ink">{d.productName}</td>
-                  <td className="px-3 py-2 font-mono text-right text-ink">{d.quantityOwed}</td>
-                  <td className="px-3 py-2">
-                    <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[d.status] ?? 'bg-slate/10 text-slate'}`}>
-                      {d.status}
-                    </span>
-                    {d.status === 'fulfilled' && (
-                      <span className="ml-2 text-xs text-slate">
-                        {d.fulfilledByName ? `by ${d.fulfilledByName}` : ''}{d.fulfilledAt ? ` on ${new Date(d.fulfilledAt).toLocaleString()}` : ''}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-3 py-2 text-ink">
-                    {d.status === 'pending' && (
-                      <button
-                        type="button"
-                        disabled={fulfillingId === d.id}
-                        onClick={() => handleFulfill(d.id)}
-                        className="rounded-md border border-mist px-2 py-1 text-xs text-ink transition-colors hover:bg-mist/40 disabled:opacity-50"
-                      >
-                        Mark fulfilled
-                      </button>
-                    )}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-mist/40">
+                  <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Product</th>
+                  <th scope="col" className="px-3 py-2 text-right text-xs font-medium uppercase tracking-wide text-slate">Qty owed</th>
+                  <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Status</th>
+                  <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">
+                    <span className="sr-only">Actions</span>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-mist">
+                {deliveries.map((d) => (
+                  <tr key={d.id} className="transition-colors duration-200 hover:bg-mist/40">
+                    <td className="max-w-[16rem] truncate px-3 py-2 text-ink" title={d.productName}>
+                      {d.productName}
+                    </td>
+                    <td className="px-3 py-2 text-right font-mono text-ink">{d.quantityOwed}</td>
+                    <td className="px-3 py-2">
+                      <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[d.status] ?? 'bg-slate/10 text-slate'}`}>
+                        {d.status}
+                      </span>
+                      {d.status === 'fulfilled' && (
+                        <span className="ml-2 text-xs text-slate">
+                          {d.fulfilledByName ? `by ${d.fulfilledByName}` : ''}{d.fulfilledAt ? ` on ${new Date(d.fulfilledAt).toLocaleString()}` : ''}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 text-ink">
+                      {d.status === 'pending' && (
+                        <button
+                          type="button"
+                          disabled={fulfillingId === d.id}
+                          onClick={() => handleFulfill(d.id)}
+                          className="min-h-11 rounded-lg border border-mist px-3 text-xs text-ink transition-colors duration-200 hover:bg-mist/40 disabled:opacity-50"
+                        >
+                          {fulfillingId === d.id ? 'Marking…' : 'Mark fulfilled'}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
     </div>
   )
 }

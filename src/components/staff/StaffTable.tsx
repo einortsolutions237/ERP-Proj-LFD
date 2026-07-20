@@ -14,6 +14,15 @@ export type StaffRow = Omit<Staff, 'createdAt' | 'updatedAt'> & {
   updatedAt: string
 }
 
+// Display-only — humanizes the raw role enum ("branch_manager" ->
+// "Branch Manager") for the table cell; never used for any access decision.
+function humanizeRole(role: string): string {
+  return role
+    .split('_')
+    .map((word) => (word === 'hr' || word === 'it' ? word.toUpperCase() : word.charAt(0).toUpperCase() + word.slice(1)))
+    .join(' ')
+}
+
 export default function StaffTable({ staff }: { staff: StaffRow[] }) {
   const router = useRouter()
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -28,7 +37,7 @@ export default function StaffTable({ staff }: { staff: StaffRow[] }) {
       const res = await fetch(`/api/staff/${row.id}`, { method: 'DELETE' })
       const body = await res.json()
       if (!res.ok) {
-        setError(body.error ?? 'Delete failed')
+        setError(body.error ?? 'Could not delete — check your connection and try again.')
         return
       }
       router.refresh()
@@ -39,56 +48,83 @@ export default function StaffTable({ staff }: { staff: StaffRow[] }) {
 
   return (
     <div className="space-y-3">
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
       <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-mist/40">
-              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Name</th>
-              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Email</th>
-              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Role</th>
-              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Department</th>
-              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Status</th>
-              <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate" />
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-mist">
-            {staff.map((row) => (
-              <tr key={row.id} className="hover:bg-mist/40 transition-colors duration-200">
-                <td className="px-3 py-2 text-ink">{row.name}</td>
-                <td className="px-3 py-2 text-ink">{row.email}</td>
-                <td className="px-3 py-2 text-ink">{row.role}</td>
-                <td className="px-3 py-2 text-ink">{row.department ?? '—'}</td>
-                <td className="px-3 py-2 text-ink">
-                  {row.employment?.status === 'active' ? (
-                    <span className="inline-block rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
-                      active
-                    </span>
-                  ) : row.employment?.status === 'inactive' ? (
-                    <span className="inline-block rounded-full bg-slate/10 px-2 py-0.5 text-xs font-medium text-slate">
-                      inactive
-                    </span>
-                  ) : (
-                    row.employment?.status ?? '—'
-                  )}
-                </td>
-                <td className="px-3 py-2 space-x-3">
-                  <Link href={`/staff/${row.id}`} className="text-marine underline-offset-2 hover:underline">
-                    Edit
-                  </Link>
-                  <button
-                    type="button"
-                    disabled={row.role === 'super_admin' || deletingId === row.id}
-                    onClick={() => handleDelete(row)}
-                    className="text-danger underline-offset-2 hover:underline disabled:text-slate disabled:no-underline"
-                  >
-                    Delete
-                  </button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-mist/40">
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Name</th>
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Email</th>
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Role</th>
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Department</th>
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Status</th>
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">
+                  <span className="sr-only">Actions</span>
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-mist">
+              {staff.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-3 py-8 text-center text-sm text-slate">
+                    No staff members yet — add one to get started.
+                  </td>
+                </tr>
+              ) : (
+                staff.map((row) => (
+                  <tr key={row.id} className="transition-colors duration-200 hover:bg-mist/40">
+                    <td className="max-w-[12rem] truncate px-3 py-2 text-ink" title={row.name}>
+                      {row.name}
+                    </td>
+                    <td className="max-w-[14rem] truncate px-3 py-2 text-ink" title={row.email}>
+                      {row.email}
+                    </td>
+                    <td className="px-3 py-2 text-ink">{humanizeRole(row.role)}</td>
+                    <td className="max-w-[10rem] truncate px-3 py-2 text-ink" title={row.department ?? undefined}>
+                      {row.department ?? '—'}
+                    </td>
+                    <td className="px-3 py-2 text-ink">
+                      {row.employment?.status === 'active' ? (
+                        <span className="inline-block rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
+                          active
+                        </span>
+                      ) : row.employment?.status === 'inactive' ? (
+                        <span className="inline-block rounded-full bg-slate/10 px-2 py-0.5 text-xs font-medium text-slate">
+                          inactive
+                        </span>
+                      ) : (
+                        row.employment?.status ?? '—'
+                      )}
+                    </td>
+                    <td className="px-3 py-2">
+                      <div className="flex flex-wrap items-center gap-1">
+                        <Link
+                          href={`/staff/${row.id}`}
+                          className="inline-flex min-h-11 items-center rounded-lg px-2 text-marine transition-colors duration-200 hover:bg-mist"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          type="button"
+                          disabled={row.role === 'super_admin' || deletingId === row.id}
+                          onClick={() => handleDelete(row)}
+                          className="inline-flex min-h-11 items-center rounded-lg px-2 text-danger transition-colors duration-200 hover:bg-danger/10 disabled:opacity-50"
+                        >
+                          {deletingId === row.id ? 'Deleting…' : 'Delete'}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

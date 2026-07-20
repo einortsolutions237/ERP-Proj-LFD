@@ -240,47 +240,96 @@ interface NavLink {
   icon: IconComponent
 }
 
-const NAV_LINKS: NavLink[] = [
-  { href: '/messages', label: 'Messages', capability: 'messaging.access', icon: ChatIcon },
-  { href: '/staff', label: 'Staff', capability: 'admin.staff.view', icon: UserIcon },
-  { href: '/roles', label: 'Roles', capability: 'admin.roles.view', icon: BadgeIcon },
-  { href: '/departments', label: 'Departments', capability: 'admin.departments.manage', icon: GridIcon },
-  { href: '/branches', label: 'Branches', capability: 'admin.branches.manage', icon: PinIcon },
-  { href: '/settings', label: 'Settings', capability: 'admin.settings.manage', icon: GearIcon },
-  { href: '/audit-log', label: 'Audit Log', capability: 'admin.auditLog.view', icon: DocListIcon },
-  { href: '/products', label: 'Products', capability: 'inventory.catalog.manage', icon: BoxIcon },
-  { href: '/services', label: 'Services', capability: 'inventory.catalog.manage', icon: WrenchIcon },
-  { href: '/suppliers', label: 'Suppliers', capability: 'inventory.suppliers.manage', icon: TruckIcon },
-  { href: '/stock', label: 'Stock', capability: 'inventory.stock.view', icon: LayersIcon },
-  { href: '/pos', label: 'New Sale', capability: 'pos.sale.create', icon: CartIcon },
-  { href: '/pos/sales', label: 'Sales Log', capability: 'pos.sale.view', icon: ReceiptIcon },
-  { href: '/customers', label: 'Customers', capability: 'crm.customer.view', icon: PeopleIcon },
-  { href: '/leave', label: 'My Leave', capability: 'hr.leave.request', icon: CalendarIcon },
-  { href: '/leave/review', label: 'Review Leave', capability: 'hr.leave.approve', icon: CalendarCheckIcon },
-  { href: '/attendance', label: 'Attendance', capability: 'hr.attendance.view', icon: ClockIcon },
-  { href: '/reports/sales', label: 'Sales Report', capability: 'reports.sales.view', icon: BarChartIcon },
-  { href: '/reports/inventory', label: 'Stock Report', capability: 'reports.inventory.view', icon: ChartLineIcon },
-  { href: '/expenses', label: 'Expenses', capability: 'accounting.expense.view', icon: CoinsIcon },
-  { href: '/reports/pnl', label: 'P&L Report', capability: 'accounting.pnl.view', icon: ScaleIcon },
-  { href: '/payroll', label: 'Payroll', capability: 'payroll.record.view', icon: WalletIcon },
-  { href: '/appointments', label: 'Appointments', capability: 'clinical.appointments.manage', icon: StethoscopeIcon },
+interface NavGroup {
+  label: string
+  links: NavLink[]
+}
+
+// Grouped to mirror this app's own module boundaries (the same boundaries
+// the permission model underneath is organized by), so the sidebar reads as
+// sectioned rather than one flat 25-item list.
+const NAV_GROUPS: NavGroup[] = [
   {
-    href: '/seminars',
-    label: 'Seminars',
-    capability: ['seminars.manage', 'seminars.attendance.record', 'seminars.attendance.view'],
-    icon: MegaphoneIcon,
+    label: 'Messages',
+    links: [{ href: '/messages', label: 'Messages', capability: 'messaging.access', icon: ChatIcon }],
   },
   {
-    href: '/intake-questionnaire',
-    label: 'Intake Questionnaire',
-    capability: 'clinical.questionnaire.manage',
-    icon: ClipboardIcon,
+    label: 'Admin',
+    links: [
+      { href: '/staff', label: 'Staff', capability: 'admin.staff.view', icon: UserIcon },
+      { href: '/roles', label: 'Roles', capability: 'admin.roles.view', icon: BadgeIcon },
+      { href: '/departments', label: 'Departments', capability: 'admin.departments.manage', icon: GridIcon },
+      { href: '/branches', label: 'Branches', capability: 'admin.branches.manage', icon: PinIcon },
+      { href: '/settings', label: 'Settings', capability: 'admin.settings.manage', icon: GearIcon },
+      { href: '/audit-log', label: 'Audit Log', capability: 'admin.auditLog.view', icon: DocListIcon },
+    ],
   },
   {
-    href: '/lab-orders/pending',
-    label: 'Pending Lab Orders',
-    capability: 'clinical.lab.results.enter',
-    icon: FlaskIcon,
+    label: 'Inventory',
+    links: [
+      { href: '/products', label: 'Products', capability: 'inventory.catalog.manage', icon: BoxIcon },
+      { href: '/services', label: 'Services', capability: 'inventory.catalog.manage', icon: WrenchIcon },
+      { href: '/suppliers', label: 'Suppliers', capability: 'inventory.suppliers.manage', icon: TruckIcon },
+      { href: '/stock', label: 'Stock', capability: 'inventory.stock.view', icon: LayersIcon },
+    ],
+  },
+  {
+    label: 'POS',
+    links: [
+      { href: '/pos', label: 'New Sale', capability: 'pos.sale.create', icon: CartIcon },
+      { href: '/pos/sales', label: 'Sales Log', capability: 'pos.sale.view', icon: ReceiptIcon },
+    ],
+  },
+  {
+    label: 'CRM',
+    links: [{ href: '/customers', label: 'Customers', capability: 'crm.customer.view', icon: PeopleIcon }],
+  },
+  {
+    label: 'Clinical',
+    links: [
+      { href: '/appointments', label: 'Appointments', capability: 'clinical.appointments.manage', icon: StethoscopeIcon },
+      {
+        href: '/seminars',
+        label: 'Seminars',
+        capability: ['seminars.manage', 'seminars.attendance.record', 'seminars.attendance.view'],
+        icon: MegaphoneIcon,
+      },
+      {
+        href: '/intake-questionnaire',
+        label: 'Intake Questionnaire',
+        capability: 'clinical.questionnaire.manage',
+        icon: ClipboardIcon,
+      },
+      {
+        href: '/lab-orders/pending',
+        label: 'Pending Lab Orders',
+        capability: 'clinical.lab.results.enter',
+        icon: FlaskIcon,
+      },
+    ],
+  },
+  {
+    label: 'HR',
+    links: [
+      { href: '/leave', label: 'My Leave', capability: 'hr.leave.request', icon: CalendarIcon },
+      { href: '/leave/review', label: 'Review Leave', capability: 'hr.leave.approve', icon: CalendarCheckIcon },
+      { href: '/attendance', label: 'Attendance', capability: 'hr.attendance.view', icon: ClockIcon },
+    ],
+  },
+  {
+    label: 'Reports',
+    links: [
+      { href: '/reports/sales', label: 'Sales Report', capability: 'reports.sales.view', icon: BarChartIcon },
+      { href: '/reports/inventory', label: 'Stock Report', capability: 'reports.inventory.view', icon: ChartLineIcon },
+    ],
+  },
+  {
+    label: 'Accounting',
+    links: [
+      { href: '/expenses', label: 'Expenses', capability: 'accounting.expense.view', icon: CoinsIcon },
+      { href: '/reports/pnl', label: 'P&L Report', capability: 'accounting.pnl.view', icon: ScaleIcon },
+      { href: '/payroll', label: 'Payroll', capability: 'payroll.record.view', icon: WalletIcon },
+    ],
   },
 ]
 
@@ -302,18 +351,21 @@ export default function Sidebar({ role, variant = 'persistent' }: { role: RoleId
     : 'hidden px-3 pb-2.5 pt-1.5 lg:block'
 
   const linkClassName = isDrawer
-    ? 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink transition-colors duration-200 hover:bg-marine/10 hover:text-marine'
-    : 'flex items-center justify-center gap-0 rounded-lg px-2 py-2.5 text-sm font-medium text-ink transition-colors duration-200 hover:bg-marine/10 hover:text-marine lg:justify-start lg:gap-3 lg:px-3'
+    ? 'flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink transition-colors duration-200 hover:bg-marine/10 hover:text-marine'
+    : 'flex min-h-11 min-w-11 items-center justify-center gap-0 rounded-lg px-2 py-2.5 text-sm font-medium text-ink transition-colors duration-200 hover:bg-marine/10 hover:text-marine lg:justify-start lg:gap-3 lg:px-3'
 
   const activeLinkClassName = isDrawer
-    ? 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium bg-marine text-white transition-colors duration-200'
-    : 'flex items-center justify-center gap-0 rounded-lg px-2 py-2.5 text-sm font-medium bg-marine text-white transition-colors duration-200 lg:justify-start lg:gap-3 lg:px-3'
+    ? 'flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium bg-marine text-white transition-colors duration-200'
+    : 'flex min-h-11 min-w-11 items-center justify-center gap-0 rounded-lg px-2 py-2.5 text-sm font-medium bg-marine text-white transition-colors duration-200 lg:justify-start lg:gap-3 lg:px-3'
 
   const labelClassName = isDrawer ? 'truncate' : 'hidden truncate lg:inline'
   const iconClassName = 'h-5 w-5 shrink-0'
+  const groupHeadingClassName = isDrawer
+    ? 'px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wider text-slate first:pt-0'
+    : 'hidden px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wider text-slate first:pt-0 lg:block'
 
   return (
-    <nav className={navClassName}>
+    <nav id="sidebar-nav" className={navClassName}>
       <div className={sectionLabelClassName}>
         <span className="font-display text-xs font-semibold uppercase tracking-wider text-slate">Menu</span>
       </div>
@@ -323,14 +375,28 @@ export default function Sidebar({ role, variant = 'persistent' }: { role: RoleId
         <span className={labelClassName}>Dashboard</span>
       </Link>
 
-      {NAV_LINKS.filter((link) =>
-        (Array.isArray(link.capability) ? link.capability : [link.capability]).some((c) => hasCapability(role, c))
-      ).map((link) => (
-        <Link key={link.href} href={link.href} title={link.label} className={isActive(link.href) ? activeLinkClassName : linkClassName}>
-          <link.icon className={iconClassName} />
-          <span className={labelClassName}>{link.label}</span>
-        </Link>
-      ))}
+      {NAV_GROUPS.map((group) => {
+        const visibleLinks = group.links.filter((link) =>
+          (Array.isArray(link.capability) ? link.capability : [link.capability]).some((c) => hasCapability(role, c))
+        )
+        if (visibleLinks.length === 0) return null
+        return (
+          <div key={group.label}>
+            <div className={groupHeadingClassName}>{group.label}</div>
+            {visibleLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                title={link.label}
+                className={isActive(link.href) ? activeLinkClassName : linkClassName}
+              >
+                <link.icon className={iconClassName} />
+                <span className={labelClassName}>{link.label}</span>
+              </Link>
+            ))}
+          </div>
+        )
+      })}
     </nav>
   )
 }
