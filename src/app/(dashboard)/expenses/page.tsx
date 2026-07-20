@@ -47,6 +47,7 @@ export default async function ExpensesPage() {
                 <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Branch</th>
                 <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Recorded by</th>
                 <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Amount</th>
+                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Receipts</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-mist">
@@ -58,6 +59,26 @@ export default async function ExpensesPage() {
                   <td className="px-3 py-2 text-ink">{branchNameById.get(expense.branchId) ?? expense.branchId}</td>
                   <td className="px-3 py-2 text-ink">{emailByUid.get(expense.recordedBy) ?? expense.recordedBy}</td>
                   <td className="px-3 py-2 font-mono text-right text-ink">{expense.amount.toFixed(2)}</td>
+                  <td className="px-3 py-2">
+                    {expense.attachments.length > 0 ? (
+                      <ul className="space-y-0.5">
+                        {expense.attachments.map((a) => (
+                          <li key={a.id} className="text-xs">
+                            <a
+                              href={`/api/attachments/${a.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-marine underline"
+                            >
+                              {a.fileName}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <span className="text-xs text-slate">—</span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
