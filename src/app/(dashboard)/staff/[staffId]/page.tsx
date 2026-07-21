@@ -1,7 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { isBranchLocked } from '@/lib/auth/permissions'
+import { assertBranchAccessible } from '@/lib/auth/assertBranchAccessible'
 import StaffForm from '@/components/staff/StaffForm'
 import type { Staff } from '@/lib/types/staff'
 
@@ -35,12 +35,7 @@ export default async function EditStaffPage({ params }: { params: Promise<{ staf
   if (!doc.exists) notFound()
 
   const data = doc.data() as Staff
-  // Only a branch-locked role is restricted to its own branch's staff — that
-  // restriction doubles as "don't reveal that a staff member exists in
-  // another branch" via the same 404 as a genuinely missing doc. A
-  // non-branch-locked role (e.g. general_manager/hr_admin/admin) is org-wide
-  // and may edit any branch's staff doc, matching the PATCH/DELETE routes.
-  if (isBranchLocked(user.role) && data.branchId !== user.branchId) notFound()
+  assertBranchAccessible(user.role, data.branchId, user.branchId)
   // Pass only the plain, serializable fields StaffForm actually renders —
   // uid/branchId/createdBy/createdAt/updatedAt are Admin-SDK/Timestamp-shaped
   // and either unused by the form or unsafe to cross the Server->Client

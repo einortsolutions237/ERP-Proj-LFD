@@ -1,7 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { isBranchLocked } from '@/lib/auth/permissions'
+import { assertBranchAccessible } from '@/lib/auth/assertBranchAccessible'
 import DepartmentForm from '@/components/departments/DepartmentForm'
 import type { Department } from '@/lib/types/department'
 
@@ -20,12 +20,7 @@ export default async function EditDepartmentPage({ params }: { params: Promise<{
   if (!doc.exists) notFound()
 
   const data = doc.data() as Department
-  // Only a branch-locked role is restricted to its own branch's departments —
-  // that restriction doubles as "don't reveal that a department exists in
-  // another branch" via the same 404 as a genuinely missing doc. A
-  // non-branch-locked role (e.g. general_manager/hr_admin/admin) is org-wide
-  // and may edit any branch's department, matching the PATCH/DELETE routes.
-  if (isBranchLocked(user.role) && data.branchId !== user.branchId) notFound()
+  assertBranchAccessible(user.role, data.branchId, user.branchId)
 
   const initial: Partial<Department> = {
     name: data.name,

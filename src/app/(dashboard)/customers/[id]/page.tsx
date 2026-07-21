@@ -2,7 +2,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { requireAnyCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasCapability, isBranchLocked } from '@/lib/auth/permissions'
 import DeleteCustomerButton from '@/components/customers/DeleteCustomerButton'
 import { getPatientTreatments } from '@/lib/clinical/getPatientTreatments'
 import { getAppointments } from '@/lib/clinical/getAppointments'
@@ -68,25 +68,37 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   if (!doc.exists) notFound()
   const data = doc.data() as Customer
 
-  // Branch-scoped, matching every other branch-scoped read in this app —
-  // there is no cross-branch exception.
-  const salesSnap = await db
-    .collection('sales')
-    .where('customerId', '==', id)
-    .where('branchId', '==', user.branchId)
-    .orderBy('createdAt', 'desc')
-    .get()
+  // Phase 33 fix: this was unconditionally scoped to user.branchId, the same
+  // unconditional-branchId-check bug found and fixed 8 times elsewhere in
+  // this project — org-wide roles (super_admin, medical_secretary) were
+  // silently missing purchase history outside their own branchId instead of
+  // seeing every branch's, contradicting Phase 20's resolved GET /api/sales
+  // pattern. A branch-locked role keeps the original indexed, DB-ordered
+  // query; an org-wide role queries by customerId alone (Firestore
+  // auto-indexes a single equality filter, no new composite index needed)
+  // and sorts in memory afterward — same pattern getLabRecords.ts already
+  // uses (Phase 19.2) to avoid a new composite index.
+  const salesSnap = isBranchLocked(user.role)
+    ? await db
+        .collection('sales')
+        .where('customerId', '==', id)
+        .where('branchId', '==', user.branchId)
+        .orderBy('createdAt', 'desc')
+        .get()
+    : await db.collection('sales').where('customerId', '==', id).get()
 
-  const purchases: PurchaseRow[] = salesSnap.docs.map((d) => {
-    const sale = d.data() as Sale
-    return {
-      id: d.id,
-      createdAt: sale.createdAt?.toDate?.().toISOString() ?? '',
-      itemCount: sale.lineItems.length,
-      total: sale.total,
-      payments: sale.payments.map((p) => p.method).join(' + '),
-    }
-  })
+  const purchases: PurchaseRow[] = salesSnap.docs
+    .map((d) => {
+      const sale = d.data() as Sale
+      return {
+        id: d.id,
+        createdAt: sale.createdAt?.toDate?.().toISOString() ?? '',
+        itemCount: sale.lineItems.length,
+        total: sale.total,
+        payments: sale.payments.map((p) => p.method).join(' + '),
+      }
+    })
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0))
 
   const canManage = hasCapability(user.role, 'crm.customer.manage')
   const canViewCommercial = hasCapability(user.role, 'crm.customer.view')
