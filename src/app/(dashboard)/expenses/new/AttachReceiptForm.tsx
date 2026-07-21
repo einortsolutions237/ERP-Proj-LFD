@@ -54,7 +54,7 @@ export default function AttachReceiptForm({ expenseId, onUploaded }: AttachRecei
       <button
         type="submit"
         disabled={uploading}
-        className="shrink-0 rounded-md border border-mist px-2 py-1 text-xs text-ink transition-colors hover:bg-mist/40 disabled:opacity-50"
+        className="shrink-0 rounded-lg border border-mist px-2 py-1 text-xs text-ink transition-colors hover:bg-mist/40 disabled:opacity-50"
       >
         {uploading ? 'Uploading…' : 'Attach receipt'}
       </button>

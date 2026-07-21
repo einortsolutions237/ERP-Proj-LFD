@@ -42,19 +42,19 @@ export default async function RolesPage() {
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-10">
       <div>
-        <h1 className="text-xl font-semibold">Roles & permissions</h1>
-        <p className="text-sm text-gray-600 mt-1">
+        <h1 className="font-display text-2xl font-semibold text-ink">Roles & permissions</h1>
+        <p className="mt-1 text-sm text-slate">
           Capability matrix by role. super_admin is protected and cannot be reassigned or edited from this screen.
         </p>
       </div>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-medium">Capability matrix</h2>
+        <h2 className="text-lg font-medium text-ink">Capability matrix</h2>
         <RoleMatrix />
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-medium">Staff by role</h2>
+        <h2 className="text-lg font-medium text-ink">Staff by role</h2>
         <RoleReassignmentTable staff={staff} canAssign={canAssign} />
       </section>
     </div>

@@ -47,7 +47,10 @@ export default async function SeminarsPage() {
       <div className="flex items-center justify-between">
         <h1 className="font-display text-xl font-semibold text-ink">Seminars</h1>
         {canManage && (
-          <Link href="/seminars/new" className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity">
+          <Link
+            href="/seminars/new"
+            className="inline-flex min-h-11 items-center rounded-lg bg-marine px-3 text-paper transition-opacity duration-200"
+          >
             New seminar
           </Link>
         )}
@@ -56,7 +59,7 @@ export default async function SeminarsPage() {
       {seminars.length === 0 ? (
         <p className="text-sm text-slate">No seminars yet.</p>
       ) : (
-        <div className="overflow-hidden rounded-md border border-mist">
+        <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-mist/40">
@@ -69,7 +72,7 @@ export default async function SeminarsPage() {
             </thead>
             <tbody className="divide-y divide-mist">
               {seminars.map((row) => (
-                <tr key={row.id} className="hover:bg-mist/40 transition-colors">
+                <tr key={row.id} className="transition-colors duration-200 hover:bg-mist/40">
                   <td className="px-3 py-2 text-ink">{new Date(row.scheduledAt).toLocaleString()}</td>
                   <td className="px-3 py-2 text-ink">{row.title}</td>
                   <td className="px-3 py-2 text-ink">{row.format}</td>

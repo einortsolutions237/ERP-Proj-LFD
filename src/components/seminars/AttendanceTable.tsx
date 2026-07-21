@@ -11,7 +11,7 @@ export default function AttendanceTable({ rows, emptyMessage }: AttendanceTableP
   }
 
   return (
-    <div className="overflow-hidden rounded-md border border-mist">
+    <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
       <table className="w-full text-sm">
         <thead>
           <tr className="bg-mist/40">
@@ -23,7 +23,7 @@ export default function AttendanceTable({ rows, emptyMessage }: AttendanceTableP
         </thead>
         <tbody className="divide-y divide-mist">
           {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-mist/40 transition-colors">
+            <tr key={row.id} className="transition-colors duration-200 hover:bg-mist/40">
               <td className="px-3 py-2 text-ink">{new Date(row.recordedAt).toLocaleString()}</td>
               <td className="px-3 py-2 text-ink">{row.customerName}</td>
               <td className="px-3 py-2 text-ink">{row.method}</td>

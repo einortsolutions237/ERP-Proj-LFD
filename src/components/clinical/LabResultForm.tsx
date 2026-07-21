@@ -127,7 +127,7 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
               onClick={() => removeRow(i)}
               disabled={rows.length === 1}
               aria-label={`Remove row ${i + 1}`}
-              className="flex min-h-11 min-w-11 items-center justify-center rounded-md border border-mist text-ink transition-colors hover:bg-mist/40 disabled:opacity-50"
+              className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-mist text-ink transition-colors hover:bg-mist/40 disabled:opacity-50"
             >
               −
             </button>
@@ -137,7 +137,7 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
       <button
         type="button"
         onClick={addRow}
-        className="min-h-11 rounded-md border border-mist px-3 text-xs text-ink transition-colors hover:bg-mist/40"
+        className="min-h-11 rounded-lg border border-mist px-3 text-xs text-ink transition-colors hover:bg-mist/40"
       >
         + Add row
       </button>

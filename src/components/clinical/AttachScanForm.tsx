@@ -59,7 +59,7 @@ export default function AttachScanForm({ labResultId, onDone }: AttachScanFormPr
       <button
         type="submit"
         disabled={uploading}
-        className="min-h-11 shrink-0 rounded-md border border-mist px-3 text-xs text-ink transition-colors hover:bg-mist/40 disabled:opacity-50"
+        className="min-h-11 shrink-0 rounded-lg border border-mist px-3 text-xs text-ink transition-colors hover:bg-mist/40 disabled:opacity-50"
       >
         {uploading ? 'Uploading…' : 'Attach scan'}
       </button>

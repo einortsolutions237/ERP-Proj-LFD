@@ -111,7 +111,7 @@ export default function SeminarDetailClient({
           <button
             type="button"
             onClick={() => setShowRecordForm((prev) => !prev)}
-            className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+            className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
           >
             Record attendance
           </button>

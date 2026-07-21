@@ -55,13 +55,13 @@ export default function AttendanceForm({ seminarId, customers, onDone }: Attenda
           value={customerSearch}
           onChange={(e) => setCustomerSearch(e.target.value)}
           placeholder="Search name or phone…"
-          className="mb-2 w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          className="mb-2 w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
         <select
           required
           value={customerId}
           onChange={(e) => setCustomerId(e.target.value)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
         >
           <option value="" disabled>
             Select a customer…
@@ -78,7 +78,7 @@ export default function AttendanceForm({ seminarId, customers, onDone }: Attenda
         <select
           value={method}
           onChange={(e) => setMethod(e.target.value as AttendanceMethod)}
-          className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
         >
           <option value="physical">Physical</option>
           <option value="online">Online</option>
@@ -88,7 +88,7 @@ export default function AttendanceForm({ seminarId, customers, onDone }: Attenda
       <button
         type="submit"
         disabled={submitting}
-        className="rounded-md bg-marine px-3 py-2 text-paper transition-opacity disabled:opacity-50"
+        className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
       >
         Record attendance
       </button>

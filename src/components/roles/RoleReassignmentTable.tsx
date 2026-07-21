@@ -9,6 +9,16 @@ import type { StaffRow } from '@/components/staff/StaffTable'
 // exclusion appears (staff create form, staff edit form, and here).
 const ASSIGNABLE_ROLES = ROLES.filter((r) => r !== 'super_admin')
 
+// Display-only — same humanizeRole every other role-displaying component in
+// this app duplicates locally (StaffTable, StaffForm, NavShell, messaging) —
+// never used for any access decision.
+function humanizeRole(role: string): string {
+  return role
+    .split('_')
+    .map((word) => (word === 'hr' || word === 'it' ? word.toUpperCase() : word.charAt(0).toUpperCase() + word.slice(1)))
+    .join(' ')
+}
+
 export default function RoleReassignmentTable({ staff, canAssign }: { staff: StaffRow[]; canAssign: boolean }) {
   const router = useRouter()
   const [updatingId, setUpdatingId] = useState<string | null>(null)
@@ -39,49 +49,75 @@ export default function RoleReassignmentTable({ staff, canAssign }: { staff: Sta
 
   return (
     <div className="space-y-3">
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-      <table className="w-full text-sm border-collapse">
-        <thead>
-          <tr className="text-left border-b">
-            <th className="py-2 pr-4">Name</th>
-            <th className="py-2 pr-4">Email</th>
-            <th className="py-2 pr-4">Current role</th>
-            <th className="py-2 pr-4">Reassign</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sorted.map((row) => {
-            const isSuperAdmin = row.role === 'super_admin'
-            return (
-              <tr key={row.id} className="border-b">
-                <td className="py-2 pr-4">{row.name}</td>
-                <td className="py-2 pr-4">{row.email}</td>
-                <td className="py-2 pr-4">{row.role}</td>
-                <td className="py-2 pr-4">
-                  {isSuperAdmin ? (
-                    <span className="text-gray-500 italic">protected — no reassignment control</span>
-                  ) : canAssign ? (
-                    <select
-                      defaultValue={row.role}
-                      disabled={updatingId === row.id}
-                      onChange={(e) => handleRoleChange(row, e.target.value as RoleId)}
-                      className="border rounded px-2 py-1"
-                    >
-                      {ASSIGNABLE_ROLES.map((r) => (
-                        <option key={r} value={r}>
-                          {r}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <span className="text-gray-400 italic">no permission to reassign</span>
-                  )}
-                </td>
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
+      <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-mist/40">
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">
+                  Name
+                </th>
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">
+                  Email
+                </th>
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">
+                  Current role
+                </th>
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">
+                  Reassign
+                </th>
               </tr>
-            )
-          })}
-        </tbody>
-      </table>
+            </thead>
+            <tbody className="divide-y divide-mist">
+              {sorted.map((row) => {
+                const isSuperAdmin = row.role === 'super_admin'
+                return (
+                  <tr key={row.id} className="transition-colors duration-200 hover:bg-mist/40">
+                    <td className="max-w-[12rem] truncate px-3 py-2 text-ink" title={row.name}>
+                      {row.name}
+                    </td>
+                    <td className="max-w-[14rem] truncate px-3 py-2 text-ink" title={row.email}>
+                      {row.email}
+                    </td>
+                    <td className="px-3 py-2 text-ink">{humanizeRole(row.role)}</td>
+                    <td className="px-3 py-2">
+                      {isSuperAdmin ? (
+                        <span className="italic text-slate">protected — no reassignment control</span>
+                      ) : canAssign ? (
+                        <>
+                          <label className="sr-only" htmlFor={`reassign-${row.id}`}>
+                            Reassign role for {row.name}
+                          </label>
+                          <select
+                            id={`reassign-${row.id}`}
+                            defaultValue={row.role}
+                            disabled={updatingId === row.id}
+                            onChange={(e) => handleRoleChange(row, e.target.value as RoleId)}
+                            className="rounded-lg border border-mist bg-paper px-2 py-1 text-ink focus:border-marine disabled:opacity-50"
+                          >
+                            {ASSIGNABLE_ROLES.map((r) => (
+                              <option key={r} value={r}>
+                                {humanizeRole(r)}
+                              </option>
+                            ))}
+                          </select>
+                        </>
+                      ) : (
+                        <span className="italic text-slate">no permission to reassign</span>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   )
 }

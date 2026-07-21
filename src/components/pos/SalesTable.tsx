@@ -7,10 +7,14 @@ import type { Sale } from '@/lib/types/sale'
 // so the list page converts createdAt to an ISO string and drops the raw
 // voidedAt Timestamp (a voided sale would otherwise leak one through) before
 // handing rows to this table — voided status arrives pre-reduced to a boolean.
+// cashierName is resolved server-side (same staff-doc lookup + graceful
+// fallback-to-uid pattern getSaleDetail.ts already established for the sale
+// detail page) rather than looked up here, keeping this component pure UI.
 export type SaleRow = Omit<Sale, 'createdAt' | 'voidedAt'> & {
   id: string
   createdAt: string
   voided: boolean
+  cashierName: string
 }
 
 export default function SalesTable({ sales }: { sales: SaleRow[] }) {
@@ -58,7 +62,7 @@ export default function SalesTable({ sales }: { sales: SaleRow[] }) {
                       {row.createdAt ? new Date(row.createdAt).toLocaleString() : ''}
                     </td>
                     <td className="max-w-[10rem] truncate px-3 py-2 text-ink" title={row.cashierUid}>
-                      {row.cashierUid}
+                      {row.cashierName}
                     </td>
                     <td className="px-3 py-2 text-right font-mono text-ink">{row.lineItems.length}</td>
                     <td className="px-3 py-2 text-right font-mono text-ink">{row.total.toFixed(2)}</td>

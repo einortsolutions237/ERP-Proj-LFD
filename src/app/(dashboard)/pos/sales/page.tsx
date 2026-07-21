@@ -18,6 +18,16 @@ export default async function SalesLogPage() {
     ? await db.collection('sales').where('branchId', '==', user.branchId).orderBy('createdAt', 'desc').get()
     : await db.collection('sales').orderBy('createdAt', 'desc').get()
 
+  // Resolve cashierUid -> a display name, same batched-lookup-with-fallback
+  // pattern getSaleDetail.ts already established for the sale detail page —
+  // reused here rather than inventing a new one, per this phase's brief.
+  const uniqueCashierUids = Array.from(new Set(snap.docs.map((d) => d.data().cashierUid as string).filter(Boolean)))
+  const staffDocs = await Promise.all(uniqueCashierUids.map((uid) => db.collection('staff').doc(uid).get()))
+  const cashierNames: Record<string, string> = {}
+  uniqueCashierUids.forEach((uid, i) => {
+    cashierNames[uid] = (staffDocs[i].data()?.name as string | undefined) ?? uid
+  })
+
   const sales: SaleRow[] = snap.docs.map((d) => {
     const { voidedAt, ...data } = d.data()
     return {
@@ -25,6 +35,7 @@ export default async function SalesLogPage() {
       ...data,
       createdAt: data.createdAt?.toDate?.().toISOString() ?? '',
       voided: voidedAt != null,
+      cashierName: cashierNames[data.cashierUid as string] ?? (data.cashierUid as string),
     } as SaleRow
   })
 
