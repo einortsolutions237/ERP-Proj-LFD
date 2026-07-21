@@ -6,8 +6,11 @@ import { SESSION_COOKIE_NAME } from '@/lib/auth/session'
 // exists (client_sdk login path mints the cookie via /session; login-failed
 // reports pre-login failures) — each of those routes independently verifies
 // its own input (idToken / best-effort audit write), so exempting them from
-// the cookie-presence gate here does not weaken enforcement.
-const PUBLIC_PATHS = ['/login', '/api/auth/login', '/api/auth/session', '/api/auth/login-failed']
+// the cookie-presence gate here does not weaken enforcement. '/api/health'
+// (Phase 35) is a deliberately unauthenticated uptime-check target — it
+// reads nothing and returns nothing but a static ok, so there is no
+// enforcement being bypassed by exempting it either.
+const PUBLIC_PATHS = ['/login', '/api/auth/login', '/api/auth/session', '/api/auth/login-failed', '/api/health']
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
