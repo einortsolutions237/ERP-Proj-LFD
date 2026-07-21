@@ -184,9 +184,14 @@ export default function CheckoutForm({ products, services, customers, branchId }
   function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key !== 'Enter') return
     e.preventDefault()
-    if (filteredProducts.length > 0) {
+    // Only act when the typed text narrows to exactly one item — an empty
+    // search or an ambiguous multi-match must never silently add whichever
+    // item happens to be first in array order to a real, money-handling cart.
+    if (!query) return
+    if (filteredProducts.length + filteredServices.length !== 1) return
+    if (filteredProducts.length === 1) {
       addProduct(filteredProducts[0])
-    } else if (filteredServices.length > 0) {
+    } else {
       addService(filteredServices[0])
     }
   }
@@ -371,7 +376,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
             placeholder="Search products or services…"
             className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
           />
-          <p className="mt-1 text-xs text-slate">Press Enter to add the top match.</p>
+          <p className="mt-1 text-xs text-slate">Press Enter to add when your search matches exactly one item.</p>
         </div>
         <div className="max-h-96 divide-y divide-mist overflow-y-auto rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
           {filteredProducts.map((product) => (
