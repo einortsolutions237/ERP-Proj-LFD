@@ -84,4 +84,4 @@ None of these were fixed this phase — all four (Roles, Seminars, the 8 isolate
 
 - The six findings above are the accurate, current map of what's left — this phase's explicit purpose per its own brief, rather than an attempt to resolve everything in one pass.
 - CLAUDE.md's design-system-coverage note should be updated to add Roles and Seminars to "still unstyled," and to drop the stale claims about `IntakeSection.tsx` and the Sales Log list.
-- Not yet committed or tagged as of this report — pending explicit user direction, per this project's commit/tag policy.
+- Committed (`47589bc`) and tagged `phase-33-baseline`, per explicit user request.
