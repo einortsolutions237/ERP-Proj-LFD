@@ -20,9 +20,15 @@ import { getPendingLeaveApprovals } from '@/lib/dashboard/pendingLeaveApprovals'
 import { getBranchName } from '@/lib/branches/getBranchName'
 import { ClockIcon, ChartLineIcon, BoxIcon, TruckIcon, ActivityIcon, CalendarCheckIcon, FlaskIcon, ClipboardCheckIcon } from '@/components/dashboard/icons'
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>
+}) {
   const user = await getSessionUser()
   if (!user) redirect('/login')
+
+  const { error } = await searchParams
 
   const canViewRevenue = hasCapability(user.role, 'reports.sales.view')
   const canViewLowStock = hasCapability(user.role, 'inventory.stock.view')
@@ -45,6 +51,11 @@ export default async function DashboardPage() {
 
   return (
     <div className="max-w-5xl space-y-6">
+      {error === 'not-authorized' && (
+        <div role="alert" className="rounded-lg border border-danger bg-danger/10 px-3 py-2 text-sm text-danger">
+          You don't have permission to view that page.
+        </div>
+      )}
       <div>
         <h1 className="text-xl font-semibold text-ink">Welcome, {user.email}</h1>
         <p className="text-sm text-slate">
