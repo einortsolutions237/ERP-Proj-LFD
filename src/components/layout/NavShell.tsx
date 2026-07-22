@@ -84,7 +84,7 @@ export default function NavShell({ user, children }: { user: SessionUser; childr
           <NotificationBell />
           <button
             onClick={handleLogout}
-            className="shrink-0 rounded-lg border border-mist px-3 py-1.5 text-sm font-medium text-ink transition-colors duration-200 hover:border-marine hover:bg-marine hover:text-paper"
+            className="min-h-11 shrink-0 rounded-lg border border-mist px-3 py-1.5 text-sm font-medium text-ink transition-colors duration-200 hover:border-marine hover:bg-marine hover:text-paper"
           >
             Sign out
           </button>

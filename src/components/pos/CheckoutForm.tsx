@@ -379,7 +379,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={handleSearchKeyDown}
             placeholder="Search products or services…"
-            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+            className="min-h-11 w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
           />
           <p className="mt-1 text-xs text-slate">Press Enter to add when your search matches exactly one item.</p>
         </div>
@@ -392,7 +392,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
                 key={product.id}
                 type="button"
                 onClick={() => addProduct(product)}
-                className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left transition-colors duration-200 hover:bg-mist"
+                className="flex min-h-11 w-full items-center justify-between gap-2 px-3 py-2 text-left transition-colors duration-200 hover:bg-mist"
               >
                 <span className="min-w-0 truncate text-ink" title={product.name}>
                   {product.name} <span className="text-sm text-slate">({product.sku})</span>
@@ -418,7 +418,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
               key={service.id}
               type="button"
               onClick={() => addService(service)}
-              className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left transition-colors duration-200 hover:bg-mist"
+              className="flex min-h-11 w-full items-center justify-between gap-2 px-3 py-2 text-left transition-colors duration-200 hover:bg-mist"
             >
               <span className="truncate text-ink" title={service.name}>
                 {service.name}
@@ -485,7 +485,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
                   value={customerSearch}
                   onChange={(e) => setCustomerSearch(e.target.value)}
                   placeholder="Search name or phone…"
-                  className="flex-1 rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+                  className="min-h-11 flex-1 rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
                 />
                 <button
                   type="button"
@@ -502,7 +502,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
                     key={c.id}
                     type="button"
                     onClick={() => selectCustomer(c.id)}
-                    className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left transition-colors duration-200 hover:bg-mist"
+                    className="flex min-h-11 w-full items-center justify-between gap-2 px-3 py-2 text-left transition-colors duration-200 hover:bg-mist"
                   >
                     <span className="truncate text-ink" title={c.name}>
                       {c.name}
@@ -525,7 +525,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
                   value={quickAddName}
                   onChange={(e) => setQuickAddName(e.target.value)}
                   placeholder="Name"
-                  className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+                  className="min-h-11 w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
                 />
                 <label htmlFor="pos-quick-add-phone" className="sr-only">
                   Phone number
@@ -535,7 +535,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
                   value={quickAddPhone}
                   onChange={(e) => setQuickAddPhone(e.target.value)}
                   placeholder="Phone"
-                  className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+                  className="min-h-11 w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
                 />
                 {quickAddError && (
                   <p role="alert" className="text-sm text-danger">
@@ -636,7 +636,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
             step="0.01"
             value={discountAmount}
             onChange={(e) => setDiscountAmount(e.target.value)}
-            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink focus:border-marine"
+            className="min-h-11 w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink focus:border-marine"
           />
         </div>
 
@@ -686,7 +686,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
                     step="0.01"
                     value={p.amount}
                     onChange={(e) => updatePayment(p.method, 'amount', e.target.value)}
-                    className={`w-full rounded-lg border bg-paper px-3 py-2 font-mono text-ink focus:border-marine ${
+                    className={`min-h-11 w-full rounded-lg border bg-paper px-3 py-2 font-mono text-ink focus:border-marine ${
                       hasAmount ? 'border-ink/30 shadow-[inset_0_1px_5px_rgba(0,0,0,0.35)]' : 'border-mist'
                     }`}
                   />
@@ -700,7 +700,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
                         value={p.reference}
                         onChange={(e) => updatePayment(p.method, 'reference', e.target.value)}
                         placeholder="Reference"
-                        className="mt-2 w-full rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink placeholder:text-slate focus:border-marine"
+                        className="mt-2 min-h-11 w-full rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink placeholder:text-slate focus:border-marine"
                       />
                     </>
                   )}
