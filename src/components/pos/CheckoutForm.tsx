@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { enqueueSale, type QueuedSaleReceipt as QueuedSaleReceiptData } from '@/lib/pos/offlineQueue'
 import { saveCatalogCache, loadCatalogCache } from '@/lib/pos/catalogCache'
 import { useOnlineStatus } from '@/hooks/useOnlineStatus'
+import { isLowStock } from '@/lib/inventory/lowStock'
 import QueuedSaleReceipt from './QueuedSaleReceipt'
 
 type CartLineType = 'product' | 'service'
@@ -15,6 +16,7 @@ interface CartLine {
   name: string
   unitPrice: number
   quantity: number
+  availableQuantity?: number
 }
 
 interface PaymentRow {
@@ -24,7 +26,7 @@ interface PaymentRow {
 }
 
 export interface CheckoutFormProps {
-  products: { id: string; name: string; sku: string; price: number; quantity: number }[]
+  products: { id: string; name: string; sku: string; price: number; quantity: number; reorderThreshold: number }[]
   services: { id: string; name: string; price: number }[]
   customers: { id: string; name: string; phone: string }[]
   branchId: string
@@ -162,15 +164,18 @@ export default function CheckoutForm({ products, services, customers, branchId }
   const balanceToneClass =
     balanceDue > BALANCE_EPSILON ? 'text-danger' : 'text-success'
 
-  function addProduct(product: { id: string; name: string; price: number }) {
+  function addProduct(product: { id: string; name: string; price: number; quantity: number }) {
     setCart((prev) => {
       const idx = prev.findIndex((line) => line.type === 'product' && line.itemId === product.id)
       if (idx >= 0) {
         const next = [...prev]
-        next[idx] = { ...next[idx], quantity: next[idx].quantity + 1 }
+        next[idx] = { ...next[idx], quantity: next[idx].quantity + 1, availableQuantity: product.quantity }
         return next
       }
-      return [...prev, { type: 'product', itemId: product.id, name: product.name, unitPrice: product.price, quantity: 1 }]
+      return [
+        ...prev,
+        { type: 'product', itemId: product.id, name: product.name, unitPrice: product.price, quantity: 1, availableQuantity: product.quantity },
+      ]
     })
   }
 
@@ -379,21 +384,35 @@ export default function CheckoutForm({ products, services, customers, branchId }
           <p className="mt-1 text-xs text-slate">Press Enter to add when your search matches exactly one item.</p>
         </div>
         <div className="max-h-96 divide-y divide-mist overflow-y-auto rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
-          {filteredProducts.map((product) => (
-            <button
-              key={product.id}
-              type="button"
-              onClick={() => addProduct(product)}
-              className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left transition-colors duration-200 hover:bg-mist"
-            >
-              <span className="truncate text-ink" title={product.name}>
-                {product.name} <span className="text-sm text-slate">({product.sku})</span>
-              </span>
-              <span className="shrink-0 font-mono text-sm text-slate text-right">
-                {product.price.toFixed(2)} · qty {product.quantity}
-              </span>
-            </button>
-          ))}
+          {filteredProducts.map((product) => {
+            const outOfStock = product.quantity === 0
+            const lowStock = !outOfStock && isLowStock(product.quantity, product.reorderThreshold)
+            return (
+              <button
+                key={product.id}
+                type="button"
+                onClick={() => addProduct(product)}
+                className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left transition-colors duration-200 hover:bg-mist"
+              >
+                <span className="min-w-0 truncate text-ink" title={product.name}>
+                  {product.name} <span className="text-sm text-slate">({product.sku})</span>
+                  {outOfStock && (
+                    <span className="ml-2 inline-block rounded-full bg-danger/10 px-2 py-0.5 text-xs font-medium text-danger">
+                      Out of stock
+                    </span>
+                  )}
+                  {lowStock && (
+                    <span className="ml-2 inline-block rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning">
+                      Low stock
+                    </span>
+                  )}
+                </span>
+                <span className="shrink-0 font-mono text-sm text-slate text-right">
+                  {product.price.toFixed(2)} · qty {product.quantity}
+                </span>
+              </button>
+            )
+          })}
           {filteredServices.map((service) => (
             <button
               key={service.id}
@@ -544,56 +563,65 @@ export default function CheckoutForm({ products, services, customers, branchId }
                 Cart is empty — search for a product or service to add one.
               </p>
             )}
-            {cart.map((line, index) => (
-              <div key={`${line.type}-${line.itemId}-${index}`} className="flex items-center justify-between gap-2 px-3 py-2">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm text-ink" title={line.name}>
-                    {line.name}
-                  </p>
-                  <p className="font-mono text-xs text-slate">{line.unitPrice.toFixed(2)} each</p>
-                </div>
-                {line.type === 'product' ? (
-                  <div className="flex shrink-0 items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => setLineQuantity(index, line.quantity - 1)}
-                      aria-label={`Decrease quantity of ${line.name}`}
-                      className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-mist text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
-                    >
-                      −
-                    </button>
-                    <input
-                      type="number"
-                      min={1}
-                      step={1}
-                      value={line.quantity}
-                      onChange={(e) => setLineQuantity(index, Number(e.target.value))}
-                      aria-label={`Quantity of ${line.name}`}
-                      className="w-14 rounded-lg border border-mist px-2 py-1 text-center font-mono text-ink"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setLineQuantity(index, line.quantity + 1)}
-                      aria-label={`Increase quantity of ${line.name}`}
-                      className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-mist text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
-                    >
-                      +
-                    </button>
+            {cart.map((line, index) => {
+              const willBackorder =
+                line.type === 'product' && line.availableQuantity !== undefined && line.quantity > line.availableQuantity
+              return (
+                <div key={`${line.type}-${line.itemId}-${index}`} className="flex items-center justify-between gap-2 px-3 py-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm text-ink" title={line.name}>
+                      {line.name}
+                      {willBackorder && (
+                        <span className="ml-2 inline-block rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning align-middle">
+                          Backorder
+                        </span>
+                      )}
+                    </p>
+                    <p className="font-mono text-xs text-slate">{line.unitPrice.toFixed(2)} each</p>
                   </div>
-                ) : (
-                  <span className="shrink-0 font-mono text-sm text-slate">qty 1</span>
-                )}
-                <p className="w-20 shrink-0 text-right font-mono text-sm text-ink">{(line.unitPrice * line.quantity).toFixed(2)}</p>
-                <button
-                  type="button"
-                  onClick={() => removeLine(index)}
-                  aria-label={`Remove ${line.name} from cart`}
-                  className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-danger transition-colors duration-200 hover:bg-danger/10"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
+                  {line.type === 'product' ? (
+                    <div className="flex shrink-0 items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setLineQuantity(index, line.quantity - 1)}
+                        aria-label={`Decrease quantity of ${line.name}`}
+                        className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-mist text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
+                      >
+                        −
+                      </button>
+                      <input
+                        type="number"
+                        min={1}
+                        step={1}
+                        value={line.quantity}
+                        onChange={(e) => setLineQuantity(index, Number(e.target.value))}
+                        aria-label={`Quantity of ${line.name}`}
+                        className="w-14 rounded-lg border border-mist px-2 py-1 text-center font-mono text-ink"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setLineQuantity(index, line.quantity + 1)}
+                        aria-label={`Increase quantity of ${line.name}`}
+                        className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-mist text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
+                      >
+                        +
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="shrink-0 font-mono text-sm text-slate">qty 1</span>
+                  )}
+                  <p className="w-20 shrink-0 text-right font-mono text-sm text-ink">{(line.unitPrice * line.quantity).toFixed(2)}</p>
+                  <button
+                    type="button"
+                    onClick={() => removeLine(index)}
+                    aria-label={`Remove ${line.name} from cart`}
+                    className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-danger transition-colors duration-200 hover:bg-danger/10"
+                  >
+                    ×
+                  </button>
+                </div>
+              )
+            })}
           </div>
         </div>
 

@@ -34,6 +34,7 @@ export default async function PosPage() {
       sku: data.sku as string,
       price: data.price as number,
       quantity: quantityByProductId.get(d.id) ?? 0,
+      reorderThreshold: data.reorderThreshold as number,
     }
   })
 
