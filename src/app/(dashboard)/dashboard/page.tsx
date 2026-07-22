@@ -17,6 +17,7 @@ import { getRecentActivity } from '@/lib/dashboard/recentActivity'
 import { getAppointments } from '@/lib/clinical/getAppointments'
 import { getPendingLabOrders } from '@/lib/clinical/getPendingLabOrders'
 import { getPendingLeaveApprovals } from '@/lib/dashboard/pendingLeaveApprovals'
+import { getBranchName } from '@/lib/branches/getBranchName'
 import { ClockIcon, ChartLineIcon, BoxIcon, TruckIcon, ActivityIcon, CalendarCheckIcon, FlaskIcon, ClipboardCheckIcon } from '@/components/dashboard/icons'
 
 export default async function DashboardPage() {
@@ -31,7 +32,7 @@ export default async function DashboardPage() {
   const canViewLabOrders = hasCapability(user.role, 'clinical.lab.results.enter')
   const canViewLeaveApprovals = hasCapability(user.role, 'hr.leave.approve')
 
-  const [revenueTrend, lowStock, deliveries, activity, appointments, labOrders, leaveApprovals] = await Promise.all([
+  const [revenueTrend, lowStock, deliveries, activity, appointments, labOrders, leaveApprovals, branchName] = await Promise.all([
     canViewRevenue ? buildRevenueTrend(user) : Promise.resolve(null),
     canViewLowStock ? getDashboardLowStock(user) : Promise.resolve(null),
     canViewDeliveries ? getDashboardPendingDeliveries(user) : Promise.resolve(null),
@@ -39,6 +40,7 @@ export default async function DashboardPage() {
     canViewAppointments ? getAppointments({ upcomingOnly: true }, user) : Promise.resolve(null),
     canViewLabOrders ? getPendingLabOrders(user) : Promise.resolve(null),
     canViewLeaveApprovals ? getPendingLeaveApprovals(user) : Promise.resolve(null),
+    getBranchName(user.branchId),
   ])
 
   return (
@@ -47,7 +49,7 @@ export default async function DashboardPage() {
         <h1 className="text-xl font-semibold text-ink">Welcome, {user.email}</h1>
         <p className="text-sm text-slate">
           Role: <span className="font-medium text-ink">{user.role}</span> &middot; Branch:{' '}
-          <span className="font-medium text-ink">{user.branchId}</span>
+          <span className="font-medium text-ink">{branchName}</span>
         </p>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 items-start">
