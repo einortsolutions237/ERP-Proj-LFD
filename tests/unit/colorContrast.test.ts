@@ -1,4 +1,20 @@
 import { describe, it, expect } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+function readCssToken(varName: string): string {
+  const cssPath = join(__dirname, '..', '..', 'src', 'app', 'globals.css')
+  const css = readFileSync(cssPath, 'utf8')
+  const re = new RegExp(`--${varName}:\\s*(#[0-9a-fA-F]{6})`)
+  const match = css.match(re)
+  if (!match) {
+    throw new Error(
+      `Could not find CSS custom property --${varName} in ${cssPath} — ` +
+        `token may have been renamed or removed.`
+    )
+  }
+  return match[1]
+}
 
 function srgbToLinear(c: number): number {
   const cs = c / 255
@@ -37,8 +53,8 @@ function blend(fg: string, bg: string, alpha: number): string {
 
 const PAPER = '#f8fafc'
 const WHITE = '#ffffff'
-const SUCCESS = '#166534'
-const WARNING = '#92400e'
+const SUCCESS = readCssToken('color-success')
+const WARNING = readCssToken('color-warning')
 
 describe('success/warning token contrast (WCAG AA, 4.5:1)', () => {
   it('success text passes against the app paper background', () => {
