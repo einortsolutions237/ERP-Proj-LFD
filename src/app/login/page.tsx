@@ -76,48 +76,50 @@ export default function LoginPage() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto mt-24 max-w-sm space-y-4">
-      <h1 className="font-display text-xl font-semibold text-ink">LFD Services — Sign in</h1>
-      <div>
-        <label htmlFor="login-email" className="block text-sm font-medium text-ink">
-          Email
-        </label>
-        <input
-          id="login-email"
-          type="email"
-          required
-          autoComplete="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
-        />
-      </div>
-      <div>
-        <label htmlFor="login-password" className="block text-sm font-medium text-ink">
-          Password
-        </label>
-        <input
-          id="login-password"
-          type="password"
-          required
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
-        />
-      </div>
-      {error && (
-        <p role="alert" className="text-sm text-danger">
-          {error}
-        </p>
-      )}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="min-h-11 w-full rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
-      >
-        {submitting ? 'Signing in…' : 'Sign in'}
-      </button>
-    </form>
+    <main className="flex min-h-full flex-1 items-center justify-center p-4">
+      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
+        <h1 className="font-display text-xl font-semibold text-ink">LFD Services — Sign in</h1>
+        <div>
+          <label htmlFor="login-email" className="block text-sm font-medium text-ink">
+            Email
+          </label>
+          <input
+            id="login-email"
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="min-h-11 w-full rounded-lg border border-slate/70 bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          />
+        </div>
+        <div>
+          <label htmlFor="login-password" className="block text-sm font-medium text-ink">
+            Password
+          </label>
+          <input
+            id="login-password"
+            type="password"
+            required
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="min-h-11 w-full rounded-lg border border-slate/70 bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          />
+        </div>
+        {error && (
+          <p role="alert" className="text-sm text-danger">
+            {error}
+          </p>
+        )}
+        <button
+          type="submit"
+          disabled={submitting}
+          className="min-h-11 w-full rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
+        >
+          {submitting ? 'Signing in…' : 'Sign in'}
+        </button>
+      </form>
+    </main>
   )
 }
