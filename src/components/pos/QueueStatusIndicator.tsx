@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { listQueuedSales, type QueuedSale } from '@/lib/pos/offlineQueue'
 import { runSync, resolveNeedsAttention } from '@/lib/pos/syncQueue'
 
@@ -12,12 +12,40 @@ interface CustomerOption {
   phone: string
 }
 
+const BACKORDER_NEEDS_CUSTOMER_ERROR = 'A sale with a backordered item must have a customer attached'
+
+function friendlyQueueError(lastError: string | null): string {
+  if (lastError === BACKORDER_NEEDS_CUSTOMER_ERROR) {
+    return 'This sale needs a customer attached — search or add one below.'
+  }
+  return lastError ?? 'This sale could not be synced.'
+}
+
 export default function QueueStatusIndicator() {
   const [queue, setQueue] = useState<QueuedSale[]>([])
   const [open, setOpen] = useState(false)
   const [customers, setCustomers] = useState<CustomerOption[] | null>(null)
   const [attachingKey, setAttachingKey] = useState<string | null>(null)
   const [customerQuery, setCustomerQuery] = useState('')
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    function onMouseDown(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onMouseDown)
+    return () => document.removeEventListener('mousedown', onMouseDown)
+  }, [open])
 
   useEffect(() => {
     let cancelled = false
@@ -62,13 +90,6 @@ export default function QueueStatusIndicator() {
     setQueue(all)
   }
 
-  function handlePanelKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
-    if (e.key === 'Escape') {
-      e.stopPropagation()
-      setOpen(false)
-    }
-  }
-
   if (queuedCount === 0 && needsAttention.length === 0) return null
 
   const filteredCustomers = (customers ?? []).filter(
@@ -78,7 +99,7 @@ export default function QueueStatusIndicator() {
   )
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -93,10 +114,8 @@ export default function QueueStatusIndicator() {
       </button>
       {open && (
         <div
-          className="absolute right-0 z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] max-h-96 overflow-y-auto rounded-2xl border border-mist bg-paper p-3 shadow-[var(--shadow-card)]"
-          onKeyDown={handlePanelKeyDown}
+          className="fixed bottom-4 right-4 z-50 w-80 max-w-[calc(100vw-2rem)] max-h-96 overflow-y-auto rounded-2xl border border-mist bg-paper p-3 shadow-[var(--shadow-card)]"
         >
-          <p className="mb-1 text-xs text-slate">Press Esc to close.</p>
           {queue.length === 0 && <p className="text-sm text-slate">No queued sales.</p>}
           {queue.map((item) => (
             <div key={item.idempotencyKey} className="space-y-1 border-b border-mist py-2 text-sm last:border-0">
@@ -107,7 +126,7 @@ export default function QueueStatusIndicator() {
               {item.status === 'needs_attention' && (
                 <div className="space-y-1">
                   <p role="alert" className="text-xs text-danger">
-                    {item.lastError}
+                    {friendlyQueueError(item.lastError)}
                   </p>
                   {attachingKey === item.idempotencyKey ? (
                     <div className="space-y-1">
