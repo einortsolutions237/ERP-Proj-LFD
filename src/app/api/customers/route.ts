@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { writeAuditLog } from '@/lib/audit/log'
+import { EXCLUDED_FROM_SALE_PICKER_CUSTOMER_IDS } from '@/lib/customers/pickerExclusions'
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0
@@ -10,10 +11,17 @@ function isNonEmptyString(value: unknown): value is string {
 export async function GET() {
   try {
     await requireCapability('crm.customer.view')
-    // Unfiltered on purpose: customers are an org-wide collection, not
-    // branch-scoped (same reasoning as products/suppliers/branches).
+    // Unfiltered by branch on purpose: customers are an org-wide collection,
+    // not branch-scoped (same reasoning as products/suppliers/branches).
+    // This route only backs the offline-queue "attach customer" picker
+    // (QueueStatusIndicator.tsx), so the two non-deletable QA test
+    // customers are excluded here too — see pickerExclusions.ts.
     const snap = await getAdminFirestore().collection('customers').get()
-    return NextResponse.json(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+    return NextResponse.json(
+      snap.docs
+        .filter((d) => !EXCLUDED_FROM_SALE_PICKER_CUSTOMER_IDS.includes(d.id))
+        .map((d) => ({ id: d.id, ...d.data() }))
+    )
   } catch (err) {
     if (err instanceof AuthError) return NextResponse.json({ error: err.message }, { status: err.status })
     throw err

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import CheckoutForm from '@/components/pos/CheckoutForm'
+import { EXCLUDED_FROM_SALE_PICKER_CUSTOMER_IDS } from '@/lib/customers/pickerExclusions'
 
 export default async function PosPage() {
   let user
@@ -47,14 +48,16 @@ export default async function PosPage() {
     }
   })
 
-  const customers = customersSnap.docs.map((d) => {
-    const data = d.data()
-    return {
-      id: d.id,
-      name: data.name as string,
-      phone: data.phone as string,
-    }
-  })
+  const customers = customersSnap.docs
+    .filter((d) => !EXCLUDED_FROM_SALE_PICKER_CUSTOMER_IDS.includes(d.id))
+    .map((d) => {
+      const data = d.data()
+      return {
+        id: d.id,
+        name: data.name as string,
+        phone: data.phone as string,
+      }
+    })
 
   return (
     <div className="mx-auto mt-12 max-w-4xl space-y-6">
