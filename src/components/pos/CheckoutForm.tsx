@@ -6,6 +6,7 @@ import { saveCatalogCache, loadCatalogCache } from '@/lib/pos/catalogCache'
 import { useOnlineStatus } from '@/hooks/useOnlineStatus'
 import { isLowStock } from '@/lib/inventory/lowStock'
 import QueuedSaleReceipt from './QueuedSaleReceipt'
+import { useToast } from '@/components/ui/ToastProvider'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
 import Alert from '@/components/ui/Alert'
@@ -93,6 +94,7 @@ function TenderGlyph({ method, className }: { method: 'mtn_momo' | 'orange_money
 
 export default function CheckoutForm({ products, services, customers, branchId }: CheckoutFormProps) {
   const router = useRouter()
+  const { showToast } = useToast()
   const isOnline = useOnlineStatus()
   const [queuedReceipt, setQueuedReceipt] = useState<QueuedSaleReceiptData | null>(null)
   const [catalogCachedAt, setCatalogCachedAt] = useState<number | null>(null)
@@ -329,6 +331,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
         setSubmitting(false)
         return
       }
+      showToast('Sale completed', 'success')
       router.push(`/pos/sales/${body.id}`)
     } catch {
       // fetch() itself threw — a genuine network-level failure despite
