@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/auth/server-guard'
 import NavShell from '@/components/layout/NavShell'
+import ToastProvider from '@/components/ui/ToastProvider'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   // Middleware (Task 5) only checked cookie presence. This is the actual
@@ -8,5 +9,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const user = await getSessionUser()
   if (!user) redirect('/login')
 
-  return <NavShell user={user}>{children}</NavShell>
+  return (
+    <ToastProvider>
+      <NavShell user={user}>{children}</NavShell>
+    </ToastProvider>
+  )
 }
