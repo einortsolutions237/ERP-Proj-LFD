@@ -67,7 +67,7 @@ export default function ProductTable({ products }: { products: ProductRow[] }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-mist/40">
-                <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Name</th>
+                <th scope="col" className="sticky left-0 z-10 border-r border-mist bg-mist/40 px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Name</th>
                 <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">SKU</th>
                 <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">Category</th>
                 <th scope="col" className="px-3 py-2 text-right text-xs font-medium uppercase tracking-wide text-slate">Price</th>
@@ -86,8 +86,8 @@ export default function ProductTable({ products }: { products: ProductRow[] }) {
                 </tr>
               ) : (
                 filtered.map((row) => (
-                  <tr key={row.id} className="transition-colors duration-200 hover:bg-mist/40">
-                    <td className="max-w-[14rem] truncate px-3 py-2 text-ink" title={row.name}>
+                  <tr key={row.id} className="group transition-colors duration-200 hover:bg-mist/40">
+                    <td className="sticky left-0 z-10 max-w-[14rem] truncate border-r border-mist bg-surface px-3 py-2 text-ink transition-colors duration-200 group-hover:bg-mist/40" title={row.name}>
                       {row.name}
                     </td>
                     <td className="px-3 py-2 text-ink">{row.sku}</td>
