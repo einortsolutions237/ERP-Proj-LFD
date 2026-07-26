@@ -22,6 +22,12 @@
   --font-mono: var(--font-jetbrains-mono);
 
   --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 1px rgb(15 23 42 / 0.06);
+  --shadow-card-hover: 0 4px 6px -1px rgb(15 23 42 / 0.08), 0 2px 4px -2px rgb(15 23 42 / 0.06);
+  --shadow-popover: 0 10px 15px -3px rgb(15 23 42 / 0.1), 0 4px 6px -4px rgb(15 23 42 / 0.08);
+
+  --radius-card: 1rem;
+  --radius-control: 0.5rem;
+  --radius-badge: 9999px;
 }
 
 body {
