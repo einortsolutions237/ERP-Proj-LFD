@@ -1,4 +1,5 @@
 import type { IconComponent } from './icons'
+import Card from '@/components/ui/Card'
 
 type Tone = 'marine' | 'brass' | 'danger' | 'warning' | 'info'
 
@@ -23,7 +24,7 @@ export default function DashboardCard({
 }) {
   const styles = TONE_STYLES[tone]
   return (
-    <div className={`rounded-2xl border border-mist p-4 shadow-[var(--shadow-card)] ${styles.wash}`}>
+    <Card className={styles.wash}>
       <div className="mb-3 flex items-center gap-2.5">
         <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${styles.badgeBg}`}>
           <Icon className={`h-4 w-4 ${styles.badgeIcon}`} />
@@ -31,6 +32,6 @@ export default function DashboardCard({
         <h2 className="text-lg font-medium text-ink">{title}</h2>
       </div>
       {children}
-    </div>
+    </Card>
   )
 }

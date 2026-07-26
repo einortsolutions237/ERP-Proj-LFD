@@ -1,4 +1,5 @@
 import type { PendingLabOrderRow } from '@/lib/clinical/getPendingLabOrders'
+import StatSummary from '@/components/ui/StatSummary'
 
 export default function PendingLabOrdersWidget({ orders }: { orders: PendingLabOrderRow[] }) {
   return (
@@ -7,10 +8,7 @@ export default function PendingLabOrdersWidget({ orders }: { orders: PendingLabO
         <p className="text-sm text-slate">No pending lab orders.</p>
       ) : (
         <>
-          <p className="text-sm text-slate">
-            <span className="font-mono text-base font-medium text-warning">{orders.length}</span>{' '}
-            {orders.length === 1 ? 'order' : 'orders'} awaiting results
-          </p>
+          <StatSummary count={orders.length} tone="warning" label={`${orders.length === 1 ? 'order' : 'orders'} awaiting results`} />
           <ul className="divide-y divide-mist">
             {orders.slice(0, 5).map((order) => (
               <li key={order.id} className="flex items-center justify-between py-2 text-sm">

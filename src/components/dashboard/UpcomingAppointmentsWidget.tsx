@@ -1,4 +1,5 @@
 import type { AppointmentRow } from '@/lib/clinical/getAppointments'
+import StatSummary from '@/components/ui/StatSummary'
 
 export default function UpcomingAppointmentsWidget({ appointments }: { appointments: AppointmentRow[] }) {
   return (
@@ -7,10 +8,10 @@ export default function UpcomingAppointmentsWidget({ appointments }: { appointme
         <p className="text-sm text-slate">No upcoming appointments.</p>
       ) : (
         <>
-          <p className="text-sm text-slate">
-            <span className="font-mono text-base font-medium text-ink">{appointments.length}</span>{' '}
-            upcoming appointment{appointments.length === 1 ? '' : 's'}
-          </p>
+          <StatSummary
+            count={appointments.length}
+            label={`upcoming appointment${appointments.length === 1 ? '' : 's'}`}
+          />
           <ul className="divide-y divide-mist">
             {appointments.slice(0, 5).map((appt) => (
               <li key={appt.id} className="flex items-center justify-between py-2 text-sm">

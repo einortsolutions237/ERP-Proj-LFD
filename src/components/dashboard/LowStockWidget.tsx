@@ -1,4 +1,5 @@
 import type { LowStockSummary } from '@/lib/dashboard/lowStockSummary'
+import StatSummary from '@/components/ui/StatSummary'
 
 export default function LowStockWidget({ summary }: { summary: LowStockSummary }) {
   return (
@@ -7,10 +8,11 @@ export default function LowStockWidget({ summary }: { summary: LowStockSummary }
         <p className="text-sm text-slate">No products are currently low on stock.</p>
       ) : (
         <>
-          <p className="text-sm text-slate">
-            <span className="font-mono text-base font-medium text-danger">{summary.totalCount}</span>{' '}
-            product{summary.totalCount === 1 ? '' : 's'} at or below reorder threshold
-          </p>
+          <StatSummary
+            count={summary.totalCount}
+            tone="danger"
+            label={`product${summary.totalCount === 1 ? '' : 's'} at or below reorder threshold`}
+          />
           <ul className="divide-y divide-mist">
             {summary.rows.map((row) => (
               <li key={`${row.branchId}_${row.productId}`} className="flex items-center justify-between py-2 text-sm">

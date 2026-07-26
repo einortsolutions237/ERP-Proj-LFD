@@ -1,4 +1,5 @@
 import type { PendingDeliveriesSummary } from '@/lib/dashboard/pendingDeliveriesSummary'
+import StatSummary from '@/components/ui/StatSummary'
 
 export default function PendingDeliveriesWidget({ summary }: { summary: PendingDeliveriesSummary }) {
   return (
@@ -7,10 +8,11 @@ export default function PendingDeliveriesWidget({ summary }: { summary: PendingD
         <p className="text-sm text-slate">No pending deliveries.</p>
       ) : (
         <>
-          <p className="text-sm text-slate">
-            <span className="font-mono text-base font-medium text-warning">{summary.totalCount}</span>{' '}
-            {summary.totalCount === 1 ? 'delivery' : 'deliveries'} owed to customers
-          </p>
+          <StatSummary
+            count={summary.totalCount}
+            tone="warning"
+            label={`${summary.totalCount === 1 ? 'delivery' : 'deliveries'} owed to customers`}
+          />
           <ul className="divide-y divide-mist">
             {summary.rows.map((row) => (
               <li key={row.id} className="flex items-center justify-between py-2 text-sm">
