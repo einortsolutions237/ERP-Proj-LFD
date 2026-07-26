@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { enqueueSale, type QueuedSaleReceipt as QueuedSaleReceiptData } from '@/lib/pos/offlineQueue'
 import { saveCatalogCache, loadCatalogCache } from '@/lib/pos/catalogCache'
@@ -105,6 +105,22 @@ export default function CheckoutForm({ products, services, customers, branchId }
   const [customerId, setCustomerId] = useState<string | null>(null)
   const [customerPickerOpen, setCustomerPickerOpen] = useState(false)
   const pickerTrapRef = useFocusTrap(customerPickerOpen)
+  // useFocusTrap captures document.activeElement (the trigger button) when
+  // the picker opens and tries to refocus it on close — but the trigger
+  // button is conditionally unmounted while the picker is open (see the
+  // `{!customerPickerOpen && ...}` block below), so that captured DOM node
+  // is destroyed by the time focus needs to return, and .focus() on it is a
+  // silent no-op. Restore focus ourselves via a stable id lookup once the
+  // trigger has re-rendered, instead of relying on the trap's stale ref.
+  const wasPickerOpenRef = useRef(false)
+  useEffect(() => {
+    if (customerPickerOpen) {
+      wasPickerOpenRef.current = true
+    } else if (wasPickerOpenRef.current) {
+      document.getElementById('pos-customer-picker-trigger')?.focus()
+      wasPickerOpenRef.current = false
+    }
+  }, [customerPickerOpen])
   const [customerSearch, setCustomerSearch] = useState('')
   const [quickAddName, setQuickAddName] = useState('')
   const [quickAddPhone, setQuickAddPhone] = useState('')
@@ -451,7 +467,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
                     {selectedCustomer.name} <span className="text-slate">({selectedCustomer.phone})</span>
                   </span>
                   <div className="flex shrink-0 gap-2">
-                    <Button variant="secondary" onClick={() => setCustomerPickerOpen(true)}>
+                    <Button id="pos-customer-picker-trigger" variant="secondary" onClick={() => setCustomerPickerOpen(true)}>
                       Change
                     </Button>
                     <Button variant="danger" onClick={removeCustomer}>
@@ -462,7 +478,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
               ) : (
                 <>
                   <span className="text-sm text-slate">Walk-in</span>
-                  <Button variant="secondary" onClick={() => setCustomerPickerOpen(true)}>
+                  <Button id="pos-customer-picker-trigger" variant="secondary" onClick={() => setCustomerPickerOpen(true)}>
                     Attach customer
                   </Button>
                 </>
