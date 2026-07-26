@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ROLES, type RoleId } from '@/lib/auth/permissions'
 import type { Staff } from '@/lib/types/staff'
+import FormSection from '@/components/ui/FormSection'
+import Button from '@/components/ui/Button'
+import Alert from '@/components/ui/Alert'
 
 // super_admin is structurally absent from this list — not filtered out at
 // validation time, but never present for the <select> to render as an option.
@@ -123,113 +126,109 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
         </p>
         <div className="flex items-center gap-2">
           <code className="block flex-1 rounded-lg bg-mist/40 px-3 py-2 font-mono text-ink break-all">{tempPassword}</code>
-          <button
-            type="button"
-            onClick={handleCopyPassword}
-            className="min-h-11 shrink-0 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:bg-mist"
-          >
+          <Button variant="secondary" className="shrink-0" onClick={handleCopyPassword}>
             {copied ? 'Copied!' : 'Copy'}
-          </button>
+          </Button>
         </div>
-        <button
-          type="button"
-          className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
-          onClick={() => router.push('/staff')}
-        >
-          Done
-        </button>
+        <Button onClick={() => router.push('/staff')}>Done</Button>
       </div>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md space-y-4">
-      <div>
-        <label htmlFor="staff-name" className="block text-sm font-medium text-ink">
-          Name
-        </label>
-        <input
-          id="staff-name"
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
-        />
-      </div>
-      <div>
-        <label htmlFor="staff-email" className="block text-sm font-medium text-ink">
-          Email
-        </label>
-        <input
-          id="staff-email"
-          type="email"
-          required
-          disabled={mode === 'edit'}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
-        />
-      </div>
-      <div>
-        <label htmlFor="staff-role" className="block text-sm font-medium text-ink">
-          Role
-        </label>
-        {isSuperAdminTarget ? (
+    <form onSubmit={handleSubmit} className="max-w-md md:max-w-2xl space-y-4">
+      <FormSection>
+        <div>
+          <label htmlFor="staff-name" className="block text-sm font-medium text-ink">
+            Name
+          </label>
           <input
-            id="staff-role"
-            disabled
-            value="super_admin (protected — cannot be changed here)"
-            className="w-full rounded-lg border border-mist bg-mist/40 px-3 py-2 text-ink"
+            id="staff-name"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
           />
-        ) : (
-          <select
-            id="staff-role"
-            value={role}
-            onChange={(e) => setRole(e.target.value as RoleId)}
-            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
-          >
-            {ASSIGNABLE_ROLES.map((r) => (
-              <option key={r} value={r}>
-                {humanizeRole(r)}
-              </option>
-            ))}
-          </select>
-        )}
-      </div>
-      <div>
-        <label htmlFor="staff-department" className="block text-sm font-medium text-ink">
-          Department
-        </label>
-        <input
-          id="staff-department"
-          value={department}
-          onChange={(e) => setDepartment(e.target.value)}
-          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
-        />
-      </div>
-      <div>
-        <label htmlFor="staff-phone" className="block text-sm font-medium text-ink">
-          Phone
-        </label>
-        <input
-          id="staff-phone"
-          type="tel"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
-        />
-      </div>
-      <div>
-        <label htmlFor="staff-address" className="block text-sm font-medium text-ink">
-          Address
-        </label>
-        <input
-          id="staff-address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
-        />
-      </div>
+        </div>
+        <div>
+          <label htmlFor="staff-email" className="block text-sm font-medium text-ink">
+            Email
+          </label>
+          <input
+            id="staff-email"
+            type="email"
+            required
+            disabled={mode === 'edit'}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          />
+        </div>
+      </FormSection>
+      <FormSection>
+        <div>
+          <label htmlFor="staff-role" className="block text-sm font-medium text-ink">
+            Role
+          </label>
+          {isSuperAdminTarget ? (
+            <input
+              id="staff-role"
+              disabled
+              value="super_admin (protected — cannot be changed here)"
+              className="w-full rounded-lg border border-mist bg-mist/40 px-3 py-2 text-ink"
+            />
+          ) : (
+            <select
+              id="staff-role"
+              value={role}
+              onChange={(e) => setRole(e.target.value as RoleId)}
+              className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+            >
+              {ASSIGNABLE_ROLES.map((r) => (
+                <option key={r} value={r}>
+                  {humanizeRole(r)}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+        <div>
+          <label htmlFor="staff-department" className="block text-sm font-medium text-ink">
+            Department
+          </label>
+          <input
+            id="staff-department"
+            value={department}
+            onChange={(e) => setDepartment(e.target.value)}
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          />
+        </div>
+      </FormSection>
+      <FormSection>
+        <div>
+          <label htmlFor="staff-phone" className="block text-sm font-medium text-ink">
+            Phone
+          </label>
+          <input
+            id="staff-phone"
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          />
+        </div>
+        <div>
+          <label htmlFor="staff-address" className="block text-sm font-medium text-ink">
+            Address
+          </label>
+          <input
+            id="staff-address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          />
+        </div>
+      </FormSection>
       <fieldset className="rounded-2xl border border-mist shadow-[var(--shadow-card)] bg-surface p-3 space-y-2">
         <legend className="text-sm font-medium text-ink px-1">Emergency contact</legend>
         <label htmlFor="staff-emergency-name" className="sr-only">
@@ -264,84 +263,80 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </fieldset>
-      <div>
-        <label htmlFor="staff-start-date" className="block text-sm font-medium text-ink">
-          Start date
-        </label>
-        <input
-          id="staff-start-date"
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
-        />
-      </div>
-      {mode === 'edit' && (
+      <FormSection>
         <div>
-          <label htmlFor="staff-status" className="block text-sm font-medium text-ink">
-            Employment status
-          </label>
-          {isSuperAdminTarget ? (
-            <input
-              id="staff-status"
-              disabled
-              value="active (protected — cannot be deactivated here)"
-              className="w-full rounded-lg border border-mist bg-mist/40 px-3 py-2 text-ink"
-            />
-          ) : (
-            <select
-              id="staff-status"
-              value={status}
-              onChange={(e) => setStatus(e.target.value as 'active' | 'inactive')}
-              className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
-            >
-              <option value="active">active</option>
-              <option value="inactive">inactive</option>
-            </select>
-          )}
-        </div>
-      )}
-      <div>
-        <label htmlFor="staff-qualifications" className="block text-sm font-medium text-ink">
-          Qualifications (comma-separated)
-        </label>
-        <input
-          id="staff-qualifications"
-          value={qualifications}
-          onChange={(e) => setQualifications(e.target.value)}
-          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
-        />
-      </div>
-      {mode === 'edit' && (
-        <div>
-          <label htmlFor="staff-base-salary" className="block text-sm font-medium text-ink">
-            Base salary
+          <label htmlFor="staff-start-date" className="block text-sm font-medium text-ink">
+            Start date
           </label>
           <input
-            id="staff-base-salary"
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="Not set"
-            value={baseSalary}
-            onChange={(e) => setBaseSalary(e.target.value)}
-            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink placeholder:text-slate focus:border-marine"
+            id="staff-start-date"
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
           />
         </div>
-      )}
-      {error && (
-        <p role="alert" className="text-sm text-danger">
-          {error}
-        </p>
-      )}
+        {mode === 'edit' && (
+          <div>
+            <label htmlFor="staff-status" className="block text-sm font-medium text-ink">
+              Employment status
+            </label>
+            {isSuperAdminTarget ? (
+              <input
+                id="staff-status"
+                disabled
+                value="active (protected — cannot be deactivated here)"
+                className="w-full rounded-lg border border-mist bg-mist/40 px-3 py-2 text-ink"
+              />
+            ) : (
+              <select
+                id="staff-status"
+                value={status}
+                onChange={(e) => setStatus(e.target.value as 'active' | 'inactive')}
+                className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+              >
+                <option value="active">active</option>
+                <option value="inactive">inactive</option>
+              </select>
+            )}
+          </div>
+        )}
+      </FormSection>
+      <FormSection>
+        <div>
+          <label htmlFor="staff-qualifications" className="block text-sm font-medium text-ink">
+            Qualifications (comma-separated)
+          </label>
+          <input
+            id="staff-qualifications"
+            value={qualifications}
+            onChange={(e) => setQualifications(e.target.value)}
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          />
+        </div>
+        {mode === 'edit' && (
+          <div>
+            <label htmlFor="staff-base-salary" className="block text-sm font-medium text-ink">
+              Base salary
+            </label>
+            <input
+              id="staff-base-salary"
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="Not set"
+              value={baseSalary}
+              onChange={(e) => setBaseSalary(e.target.value)}
+              className="w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink placeholder:text-slate focus:border-marine"
+            />
+          </div>
+        )}
+      </FormSection>
+      {error && <Alert tone="error" inline>{error}</Alert>}
       <div className="flex items-center gap-2">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
-        >
-          {submitting ? 'Saving…' : mode === 'create' ? 'Create staff member' : 'Save changes'}
-        </button>
+        <Button type="submit" loading={submitting}>
+          {mode === 'create' ? 'Create staff member' : 'Save changes'}
+        </Button>
         <Link
           href={cancelHref}
           className="inline-flex min-h-11 items-center rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:bg-mist"
