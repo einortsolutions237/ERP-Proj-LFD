@@ -116,7 +116,10 @@ export default function QueueStatusIndicator() {
         )}
       </button>
       {open && (
-        <Card className="fixed bottom-4 right-4 z-50 w-80 max-w-[calc(100vw-2rem)] max-h-96 overflow-y-auto bg-paper">
+        <Card
+          padding="compact"
+          className="fixed bottom-4 right-4 z-50 w-80 max-w-[calc(100vw-2rem)] max-h-96 overflow-y-auto bg-paper"
+        >
           {queue.length === 0 && <p className="text-sm text-slate">No queued sales.</p>}
           {queue.map((item) => (
             <div key={item.idempotencyKey} className="space-y-1 border-b border-mist py-2 text-sm last:border-0">
@@ -126,7 +129,7 @@ export default function QueueStatusIndicator() {
               </div>
               {item.status === 'needs_attention' && (
                 <div className="space-y-1">
-                  <Alert tone="error" inline className="text-xs">
+                  <Alert tone="error" inline size="xs">
                     {friendlyQueueError(item.lastError)}
                   </Alert>
                   {attachingKey === item.idempotencyKey ? (

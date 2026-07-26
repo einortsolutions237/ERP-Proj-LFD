@@ -554,8 +554,8 @@ export default function CheckoutForm({ products, services, customers, branchId }
                     <p className="break-words text-sm text-ink" title={line.name}>
                       {line.name}
                       {willBackorder && (
-                        <span className="ml-2 inline-block rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning align-middle">
-                          Backorder
+                        <span className="ml-2 inline-block">
+                          <Badge tone="warning" className="align-middle">Backorder</Badge>
                         </span>
                       )}
                     </p>

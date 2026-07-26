@@ -10,9 +10,15 @@ const TONE_CLASSES: Record<BadgeTone, string> = {
   neutral: 'bg-mist text-slate',
 }
 
-export default function Badge({ tone = 'neutral', children }: { tone?: BadgeTone; children: ReactNode }) {
+interface BadgeProps {
+  tone?: BadgeTone
+  className?: string
+  children: ReactNode
+}
+
+export default function Badge({ tone = 'neutral', className = '', children }: BadgeProps) {
   return (
-    <span className={`inline-block rounded-[var(--radius-badge)] px-2 py-0.5 text-xs font-medium ${TONE_CLASSES[tone]}`}>
+    <span className={`inline-block rounded-[var(--radius-badge)] px-2 py-0.5 text-xs font-medium ${TONE_CLASSES[tone]} ${className}`}>
       {children}
     </span>
   )
