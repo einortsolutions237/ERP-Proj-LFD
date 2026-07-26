@@ -31,20 +31,28 @@ interface AlertProps {
   tone?: AlertTone
   inline?: boolean
   size?: AlertSize
+  role?: 'alert' | 'status'
   className?: string
   children: ReactNode
 }
 
-export default function Alert({ tone = 'info', inline = false, size = 'sm', className = '', children }: AlertProps) {
+export default function Alert({
+  tone = 'info',
+  inline = false,
+  size = 'sm',
+  role = 'alert',
+  className = '',
+  children,
+}: AlertProps) {
   if (inline) {
     return (
-      <p role="alert" className={`${SIZE_CLASSES[size]} ${TEXT_CLASSES[tone]} ${className}`}>
+      <p role={role} className={`${SIZE_CLASSES[size]} ${TEXT_CLASSES[tone]} ${className}`}>
         {children}
       </p>
     )
   }
   return (
-    <div role="alert" className={`rounded-[var(--radius-control)] border px-3 py-2 ${SIZE_CLASSES[size]} ${BOX_CLASSES[tone]} ${className}`}>
+    <div role={role} className={`rounded-[var(--radius-control)] border px-3 py-2 ${SIZE_CLASSES[size]} ${BOX_CLASSES[tone]} ${className}`}>
       {children}
     </div>
   )
