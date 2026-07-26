@@ -3,11 +3,11 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react'
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'success'
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
-  primary: 'bg-marine text-paper hover:bg-marine/90',
-  secondary: 'border border-mist text-ink hover:border-marine hover:bg-mist',
-  ghost: 'text-ink hover:bg-mist',
-  danger: 'border border-mist text-danger hover:border-danger hover:bg-danger/10',
-  success: 'bg-success text-paper hover:bg-success/90',
+  primary: 'bg-marine text-paper hover:bg-marine/90 active:bg-marine/80',
+  secondary: 'border border-mist text-ink hover:border-marine hover:bg-mist active:bg-mist/70',
+  ghost: 'text-ink hover:bg-mist active:bg-mist/70',
+  danger: 'border border-mist text-danger hover:border-danger hover:bg-danger/10 active:bg-danger/20',
+  success: 'bg-success text-paper hover:bg-success/90 active:bg-success/80',
 }
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -44,7 +44,7 @@ export default function Button({
     <button
       type={type}
       disabled={disabled || loading}
-      className={`rounded-[var(--radius-control)] text-sm font-medium transition-colors duration-200 disabled:pointer-events-none disabled:opacity-50 ${sizeClasses} ${VARIANT_CLASSES[variant]} ${className}`}
+      className={`rounded-[var(--radius-control)] text-sm font-medium transition duration-200 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 ${sizeClasses} ${VARIANT_CLASSES[variant]} ${className}`}
       {...rest}
     >
       {loading ? <LoadingSpinner /> : children}
