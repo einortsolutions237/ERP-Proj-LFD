@@ -569,7 +569,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
               return (
                 <div key={`${line.type}-${line.itemId}-${index}`} className="flex items-center justify-between gap-2 px-3 py-2">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm text-ink" title={line.name}>
+                    <p className="break-words text-sm text-ink" title={line.name}>
                       {line.name}
                       {willBackorder && (
                         <span className="ml-2 inline-block rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning align-middle">
