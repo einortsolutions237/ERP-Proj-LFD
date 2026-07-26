@@ -3,6 +3,7 @@ import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import CheckoutForm from '@/components/pos/CheckoutForm'
 import { EXCLUDED_FROM_SALE_PICKER_CUSTOMER_IDS } from '@/lib/customers/pickerExclusions'
+import PageHeader from '@/components/ui/PageHeader'
 
 export default async function PosPage() {
   let user
@@ -61,7 +62,7 @@ export default async function PosPage() {
 
   return (
     <div className="mx-auto mt-12 max-w-4xl space-y-6">
-      <h1 className="font-display text-xl font-semibold text-ink">Checkout</h1>
+      <PageHeader title="Checkout" />
       <CheckoutForm products={products} services={services} customers={customers} branchId={user.branchId} />
     </div>
   )

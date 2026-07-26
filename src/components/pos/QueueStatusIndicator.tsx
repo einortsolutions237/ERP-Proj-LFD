@@ -2,6 +2,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { listQueuedSales, type QueuedSale } from '@/lib/pos/offlineQueue'
 import { runSync, resolveNeedsAttention } from '@/lib/pos/syncQueue'
+import Button from '@/components/ui/Button'
+import Card from '@/components/ui/Card'
+import Alert from '@/components/ui/Alert'
 
 const POLL_INTERVAL_MS = 3000
 const SYNC_INTERVAL_MS = 20000
@@ -113,9 +116,7 @@ export default function QueueStatusIndicator() {
         )}
       </button>
       {open && (
-        <div
-          className="fixed bottom-4 right-4 z-50 w-80 max-w-[calc(100vw-2rem)] max-h-96 overflow-y-auto rounded-2xl border border-mist bg-paper p-3 shadow-[var(--shadow-card)]"
-        >
+        <Card className="fixed bottom-4 right-4 z-50 w-80 max-w-[calc(100vw-2rem)] max-h-96 overflow-y-auto bg-paper">
           {queue.length === 0 && <p className="text-sm text-slate">No queued sales.</p>}
           {queue.map((item) => (
             <div key={item.idempotencyKey} className="space-y-1 border-b border-mist py-2 text-sm last:border-0">
@@ -125,9 +126,9 @@ export default function QueueStatusIndicator() {
               </div>
               {item.status === 'needs_attention' && (
                 <div className="space-y-1">
-                  <p role="alert" className="text-xs text-danger">
+                  <Alert tone="error" inline className="text-xs">
                     {friendlyQueueError(item.lastError)}
-                  </p>
+                  </Alert>
                   {attachingKey === item.idempotencyKey ? (
                     <div className="space-y-1">
                       <label htmlFor={`queue-attach-search-${item.idempotencyKey}`} className="sr-only">
@@ -156,22 +157,21 @@ export default function QueueStatusIndicator() {
                       </div>
                     </div>
                   ) : (
-                    <button
-                      type="button"
+                    <Button
+                      variant="secondary"
                       onClick={() => {
                         setAttachingKey(item.idempotencyKey)
                         loadCustomersIfNeeded()
                       }}
-                      className="rounded-lg border border-mist px-2 py-1 text-xs text-ink hover:bg-mist"
                     >
                       Attach customer &amp; retry
-                    </button>
+                    </Button>
                   )}
                 </div>
               )}
             </div>
           ))}
-        </div>
+        </Card>
       )}
     </div>
   )

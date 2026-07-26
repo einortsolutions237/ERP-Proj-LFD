@@ -6,6 +6,9 @@ import { saveCatalogCache, loadCatalogCache } from '@/lib/pos/catalogCache'
 import { useOnlineStatus } from '@/hooks/useOnlineStatus'
 import { isLowStock } from '@/lib/inventory/lowStock'
 import QueuedSaleReceipt from './QueuedSaleReceipt'
+import Button from '@/components/ui/Button'
+import Badge from '@/components/ui/Badge'
+import Alert from '@/components/ui/Alert'
 
 type CartLineType = 'product' | 'service'
 type PaymentMethod = 'cash' | 'mtn_momo' | 'orange_money'
@@ -397,13 +400,13 @@ export default function CheckoutForm({ products, services, customers, branchId }
                 <span className="min-w-0 truncate text-ink" title={product.name}>
                   {product.name} <span className="text-sm text-slate">({product.sku})</span>
                   {outOfStock && (
-                    <span className="ml-2 inline-block rounded-full bg-danger/10 px-2 py-0.5 text-xs font-medium text-danger">
-                      Out of stock
+                    <span className="ml-2 inline-block">
+                      <Badge tone="error">Out of stock</Badge>
                     </span>
                   )}
                   {lowStock && (
-                    <span className="ml-2 inline-block rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning">
-                      Low stock
+                    <span className="ml-2 inline-block">
+                      <Badge tone="warning">Low stock</Badge>
                     </span>
                   )}
                 </span>
@@ -443,32 +446,20 @@ export default function CheckoutForm({ products, services, customers, branchId }
                     {selectedCustomer.name} <span className="text-slate">({selectedCustomer.phone})</span>
                   </span>
                   <div className="flex shrink-0 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setCustomerPickerOpen(true)}
-                      className="min-h-11 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
-                    >
+                    <Button variant="secondary" onClick={() => setCustomerPickerOpen(true)}>
                       Change
-                    </button>
-                    <button
-                      type="button"
-                      onClick={removeCustomer}
-                      className="min-h-11 rounded-lg border border-mist px-3 text-sm text-danger transition-colors duration-200 hover:border-danger hover:bg-danger/10"
-                    >
+                    </Button>
+                    <Button variant="danger" onClick={removeCustomer}>
                       Remove
-                    </button>
+                    </Button>
                   </div>
                 </>
               ) : (
                 <>
                   <span className="text-sm text-slate">Walk-in</span>
-                  <button
-                    type="button"
-                    onClick={() => setCustomerPickerOpen(true)}
-                    className="min-h-11 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
-                  >
+                  <Button variant="secondary" onClick={() => setCustomerPickerOpen(true)}>
                     Attach customer
-                  </button>
+                  </Button>
                 </>
               )}
             </div>
@@ -487,13 +478,9 @@ export default function CheckoutForm({ products, services, customers, branchId }
                   placeholder="Search name or phone…"
                   className="min-h-11 flex-1 rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
                 />
-                <button
-                  type="button"
-                  onClick={() => setCustomerPickerOpen(false)}
-                  className="min-h-11 shrink-0 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
-                >
+                <Button variant="secondary" className="shrink-0" onClick={() => setCustomerPickerOpen(false)}>
                   Close
-                </button>
+                </Button>
               </div>
               <p className="text-xs text-slate">Press Esc to close.</p>
               <div className="max-h-40 divide-y divide-mist overflow-y-auto rounded-lg border border-mist">
@@ -537,19 +524,14 @@ export default function CheckoutForm({ products, services, customers, branchId }
                   placeholder="Phone"
                   className="min-h-11 w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
                 />
-                {quickAddError && (
-                  <p role="alert" className="text-sm text-danger">
-                    {quickAddError}
-                  </p>
-                )}
-                <button
-                  type="button"
+                {quickAddError && <Alert tone="error" inline>{quickAddError}</Alert>}
+                <Button
                   onClick={handleQuickAdd}
-                  disabled={quickAddSubmitting || !quickAddName.trim() || !quickAddPhone.trim()}
-                  className="min-h-11 rounded-lg bg-marine px-3 py-2.5 text-paper transition-opacity duration-200 disabled:opacity-50"
+                  disabled={!quickAddName.trim() || !quickAddPhone.trim()}
+                  loading={quickAddSubmitting}
                 >
-                  {quickAddSubmitting ? 'Adding…' : 'Add customer'}
-                </button>
+                  Add customer
+                </Button>
               </div>
             </div>
           )}
@@ -581,14 +563,14 @@ export default function CheckoutForm({ products, services, customers, branchId }
                   </div>
                   {line.type === 'product' ? (
                     <div className="flex shrink-0 items-center gap-1">
-                      <button
-                        type="button"
+                      <Button
+                        variant="secondary"
+                        icon
                         onClick={() => setLineQuantity(index, line.quantity - 1)}
                         aria-label={`Decrease quantity of ${line.name}`}
-                        className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-mist text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
                       >
                         −
-                      </button>
+                      </Button>
                       <input
                         type="number"
                         min={1}
@@ -598,27 +580,22 @@ export default function CheckoutForm({ products, services, customers, branchId }
                         aria-label={`Quantity of ${line.name}`}
                         className="w-14 rounded-lg border border-mist px-2 py-1 text-center font-mono text-ink"
                       />
-                      <button
-                        type="button"
+                      <Button
+                        variant="secondary"
+                        icon
                         onClick={() => setLineQuantity(index, line.quantity + 1)}
                         aria-label={`Increase quantity of ${line.name}`}
-                        className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-mist text-ink transition-colors duration-200 hover:border-marine hover:bg-mist"
                       >
                         +
-                      </button>
+                      </Button>
                     </div>
                   ) : (
                     <span className="shrink-0 font-mono text-sm text-slate">qty 1</span>
                   )}
                   <p className="w-20 shrink-0 text-right font-mono text-sm text-ink">{(line.unitPrice * line.quantity).toFixed(2)}</p>
-                  <button
-                    type="button"
-                    onClick={() => removeLine(index)}
-                    aria-label={`Remove ${line.name} from cart`}
-                    className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-danger transition-colors duration-200 hover:bg-danger/10"
-                  >
+                  <Button variant="danger" icon onClick={() => removeLine(index)} aria-label={`Remove ${line.name} from cart`}>
                     ×
-                  </button>
+                  </Button>
                 </div>
               )
             })}
@@ -714,19 +691,16 @@ export default function CheckoutForm({ products, services, customers, branchId }
           </div>
         </div>
 
-        {error && (
-          <p role="alert" className="text-sm text-danger">
-            {error}
-          </p>
-        )}
+        {error && <Alert tone="error" inline>{error}</Alert>}
 
-        <button
+        <Button
           type="submit"
           disabled={submitDisabled}
-          className="fixed inset-x-0 bottom-0 z-30 w-full rounded-none border-t border-mist bg-marine px-4 py-3 font-medium text-paper transition-opacity duration-200 disabled:opacity-50 md:static md:inset-auto md:z-auto md:w-auto md:rounded-lg md:border-0 md:px-4 md:py-2.5"
+          loading={submitting}
+          className="fixed inset-x-0 bottom-0 z-30 w-full rounded-none border-t border-mist md:static md:inset-auto md:z-auto md:w-auto md:rounded-[var(--radius-control)] md:border-0"
         >
-          {submitting ? 'Completing sale…' : 'Complete sale'}
-        </button>
+          Complete sale
+        </Button>
       </div>
     </form>
     </>
