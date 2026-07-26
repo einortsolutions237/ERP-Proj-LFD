@@ -5,6 +5,7 @@ import { enqueueSale, type QueuedSaleReceipt as QueuedSaleReceiptData } from '@/
 import { saveCatalogCache, loadCatalogCache } from '@/lib/pos/catalogCache'
 import { useOnlineStatus } from '@/hooks/useOnlineStatus'
 import { isLowStock } from '@/lib/inventory/lowStock'
+import { useFocusTrap } from '@/hooks/useFocusTrap'
 import QueuedSaleReceipt from './QueuedSaleReceipt'
 import { useToast } from '@/components/ui/ToastProvider'
 import Button from '@/components/ui/Button'
@@ -103,6 +104,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
   const [cart, setCart] = useState<CartLine[]>([])
   const [customerId, setCustomerId] = useState<string | null>(null)
   const [customerPickerOpen, setCustomerPickerOpen] = useState(false)
+  const pickerTrapRef = useFocusTrap(customerPickerOpen)
   const [customerSearch, setCustomerSearch] = useState('')
   const [quickAddName, setQuickAddName] = useState('')
   const [quickAddPhone, setQuickAddPhone] = useState('')
@@ -469,7 +471,7 @@ export default function CheckoutForm({ products, services, customers, branchId }
           )}
 
           {customerPickerOpen && (
-            <div className="space-y-3" onKeyDown={handlePickerKeyDown}>
+            <div ref={pickerTrapRef} className="space-y-3" onKeyDown={handlePickerKeyDown}>
               <div className="flex items-center justify-between gap-2">
                 <label htmlFor="pos-customer-search" className="sr-only">
                   Search customers by name or phone

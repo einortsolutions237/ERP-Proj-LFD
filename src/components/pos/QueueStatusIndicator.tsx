@@ -5,6 +5,7 @@ import { runSync, resolveNeedsAttention } from '@/lib/pos/syncQueue'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
 import Alert from '@/components/ui/Alert'
+import { useFocusTrap } from '@/hooks/useFocusTrap'
 
 const POLL_INTERVAL_MS = 3000
 const SYNC_INTERVAL_MS = 20000
@@ -31,6 +32,7 @@ export default function QueueStatusIndicator() {
   const [attachingKey, setAttachingKey] = useState<string | null>(null)
   const [customerQuery, setCustomerQuery] = useState('')
   const containerRef = useRef<HTMLDivElement>(null)
+  const trapRef = useFocusTrap(open)
 
   useEffect(() => {
     if (!open) return
@@ -116,10 +118,11 @@ export default function QueueStatusIndicator() {
         )}
       </button>
       {open && (
-        <Card
-          padding="compact"
-          className="fixed bottom-4 right-4 z-50 w-80 max-w-[calc(100vw-2rem)] max-h-96 overflow-y-auto bg-paper"
-        >
+        <div ref={trapRef}>
+          <Card
+            padding="compact"
+            className="fixed bottom-4 right-4 z-50 w-80 max-w-[calc(100vw-2rem)] max-h-96 overflow-y-auto bg-paper"
+          >
           {queue.length === 0 && <p className="text-sm text-slate">No queued sales.</p>}
           {queue.map((item) => (
             <div key={item.idempotencyKey} className="space-y-1 border-b border-mist py-2 text-sm last:border-0">
@@ -174,7 +177,8 @@ export default function QueueStatusIndicator() {
               )}
             </div>
           ))}
-        </Card>
+          </Card>
+        </div>
       )}
     </div>
   )
