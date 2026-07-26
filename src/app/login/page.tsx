@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { getFirebaseAuth } from '@/lib/firebase/client'
+import Alert from '@/components/ui/Alert'
+import Button from '@/components/ui/Button'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -107,18 +109,10 @@ export default function LoginPage() {
             className="min-h-11 w-full rounded-lg border border-slate/70 bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
           />
         </div>
-        {error && (
-          <p role="alert" className="text-sm text-danger">
-            {error}
-          </p>
-        )}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="min-h-11 w-full rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
-        >
-          {submitting ? 'Signing in…' : 'Sign in'}
-        </button>
+        {error && <Alert tone="error" inline>{error}</Alert>}
+        <Button type="submit" loading={submitting} className="w-full">
+          Sign in
+        </Button>
       </form>
     </main>
   )
