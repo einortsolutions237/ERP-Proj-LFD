@@ -24,7 +24,7 @@ const ACTIVITY_ACTION_SET = new Set<AuditAction>(DASHBOARD_ACTIVITY_ACTIONS)
 export interface RecentActivityItem {
   id: string
   action: AuditAction
-  actorEmail: string | null
+  actorName: string
   branchId: string | null
   createdAt: string
 }
@@ -49,20 +49,39 @@ export async function getRecentActivity(viewer: SessionUser): Promise<RecentActi
   const snap = await db.collection('auditLogs').orderBy('createdAt', 'desc').limit(RECENT_WINDOW_SIZE).get()
 
   const branchLocked = isBranchLocked(viewer.role)
-  const items: RecentActivityItem[] = []
+  const matched: { id: string; action: AuditAction; actorUid: string | null; actorEmail: string | null; branchId: string | null; createdAt: string }[] = []
   for (const doc of snap.docs) {
     const entry = doc.data() as AuditLogEntry
     if (!ACTIVITY_ACTION_SET.has(entry.action)) continue
     if (branchLocked && entry.branchId !== viewer.branchId && entry.branchId !== null) continue
-    items.push({
+    matched.push({
       id: doc.id,
       action: entry.action,
+      actorUid: entry.actorUid,
       actorEmail: entry.actorEmail,
       branchId: entry.branchId,
       createdAt: entry.createdAt.toDate().toISOString(),
     })
-    if (items.length >= RESULT_LIMIT) break
+    if (matched.length >= RESULT_LIMIT) break
   }
 
-  return items
+  // Resolve raw actor identities to real staff names — the same class of
+  // raw-identifier leak Phase 37 fixed for the Dashboard's own branch
+  // display (getBranchName), and the same batch-fetch shape
+  // getSaleDetail.ts already established for resolving cashierName.
+  const uniqueActorUids = Array.from(new Set(matched.map((m) => m.actorUid).filter((uid): uid is string => uid !== null)))
+  const staffDocs = await Promise.all(uniqueActorUids.map((uid) => db.collection('staff').doc(uid).get()))
+  const staffNames: Record<string, string> = {}
+  uniqueActorUids.forEach((uid, i) => {
+    const name = staffDocs[i].data()?.name as string | undefined
+    if (name) staffNames[uid] = name
+  })
+
+  return matched.map((m) => ({
+    id: m.id,
+    action: m.action,
+    actorName: m.actorUid ? (staffNames[m.actorUid] ?? m.actorEmail ?? m.actorUid) : (m.actorEmail ?? 'Unknown'),
+    branchId: m.branchId,
+    createdAt: m.createdAt,
+  }))
 }

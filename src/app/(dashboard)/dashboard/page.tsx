@@ -57,7 +57,7 @@ export default async function DashboardPage({
         </div>
       )}
       <div>
-        <h1 className="text-xl font-semibold text-ink">Welcome, {user.email}</h1>
+        <h1 className="text-xl font-semibold text-ink">Welcome</h1>
         <p className="text-sm text-slate">
           Role: <span className="font-medium text-ink">{user.role}</span> &middot; Branch:{' '}
           <span className="font-medium text-ink">{branchName}</span>

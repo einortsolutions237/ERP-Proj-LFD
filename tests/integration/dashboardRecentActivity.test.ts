@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest'
-import { resetEmulator, seedBranch, seedAuditLogEntry } from '../setup/fixtures'
+import { resetEmulator, seedBranch, seedAuditLogEntry, seedStaff } from '../setup/fixtures'
 import { getRecentActivity, DASHBOARD_ACTIVITY_ACTIONS } from '@/lib/dashboard/recentActivity'
 import type { SessionUser } from '@/lib/auth/server-guard'
 
@@ -43,6 +43,9 @@ describe('getRecentActivity', () => {
     await seedAuditLogEntry({ action: 'product_edit', branchId: null, createdAt: t(30) }) // whitelisted, org-wide (null branchId)
     await seedAuditLogEntry({ action: 'login', branchId: branchA, createdAt: t(35) }) // NOT whitelisted (security telemetry)
     await seedAuditLogEntry({ action: 'clinical_record_view', branchId: branchA, createdAt: t(39) }) // NOT whitelisted (clinical wall)
+
+    const namedStaff = await seedStaff({ role: 'cashier', branchId: branchA, email: 'named-actor@test.local' })
+    await seedAuditLogEntry({ action: 'sale_create', branchId: branchA, createdAt: t(45), actorUid: namedStaff.uid })
   })
 
   it('exports the exact approved whitelist', () => {
@@ -80,5 +83,15 @@ describe('getRecentActivity', () => {
 
   it('rejects cashier, which does not hold dashboard.activity.view', async () => {
     await expect(getRecentActivity(cashierUser)).rejects.toThrow('Forbidden')
+  })
+
+  it('resolves a matching staff uid to their real name, not the raw email', async () => {
+    const items = await getRecentActivity(branchManagerUser)
+    expect(items.some((i) => i.actorName === 'Test cashier')).toBe(true)
+  })
+
+  it('falls back to the raw email when actorUid has no matching staff doc', async () => {
+    const items = await getRecentActivity(branchManagerUser)
+    expect(items.some((i) => i.actorName === 'actor@test.local')).toBe(true)
   })
 })

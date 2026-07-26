@@ -36,7 +36,7 @@ export default function RecentActivityWidget({ items }: { items: RecentActivityI
             <li key={item.id} className="flex items-center justify-between py-2 text-sm">
               <span className="text-ink">
                 {ACTION_LABELS[item.action] ?? item.action}
-                {item.actorEmail && <span className="ml-2 text-xs text-slate">{item.actorEmail}</span>}
+                <span className="ml-2 text-xs text-slate">{item.actorName}</span>
               </span>
               <span className="font-mono text-xs text-slate">{new Date(item.createdAt).toLocaleString()}</span>
             </li>
