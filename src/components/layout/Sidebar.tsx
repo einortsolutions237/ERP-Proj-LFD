@@ -276,7 +276,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: 'POS',
     links: [
-      { href: '/pos', label: 'New Sale', capability: 'pos.sale.create', icon: CartIcon },
+      { href: '/pos', label: 'Checkout', capability: 'pos.sale.create', icon: CartIcon },
       { href: '/pos/sales', label: 'Sales Log', capability: 'pos.sale.view', icon: ReceiptIcon },
     ],
   },
