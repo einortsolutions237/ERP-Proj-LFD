@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import type { Sale } from '@/lib/types/sale'
+import Badge from '@/components/ui/Badge'
 
 // Server Components can't pass Firestore Timestamp instances to Client
 // Components (Next.js only serializes plain objects across that boundary),
@@ -20,7 +21,40 @@ export type SaleRow = Omit<Sale, 'createdAt' | 'voidedAt'> & {
 export default function SalesTable({ sales }: { sales: SaleRow[] }) {
   return (
     <div className="space-y-3">
-      <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
+      <div className="space-y-3 md:hidden">
+        {sales.length === 0 ? (
+          <p className="rounded-2xl border border-mist bg-surface px-3 py-8 text-center text-sm text-slate shadow-[var(--shadow-card)]">
+            No sales recorded yet — completed sales will appear here.
+          </p>
+        ) : (
+          sales.map((row) => (
+            <div key={row.id} className="space-y-2 rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-sm text-ink">{row.createdAt ? new Date(row.createdAt).toLocaleString() : ''}</p>
+                  <p className="truncate text-xs text-slate" title={row.cashierUid}>
+                    {row.cashierName}
+                  </p>
+                </div>
+                {row.voided && <Badge tone="error">Voided</Badge>}
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate">
+                  {row.lineItems.length} item{row.lineItems.length === 1 ? '' : 's'} · {row.payments.map((p) => p.method).join(' + ')}
+                </span>
+                <span className="font-mono text-ink">{row.total.toFixed(2)} FCFA</span>
+              </div>
+              <Link
+                href={`/pos/sales/${row.id}`}
+                className="inline-flex min-h-11 items-center text-marine underline underline-offset-2 transition-colors duration-200 hover:text-ink"
+              >
+                View
+              </Link>
+            </div>
+          ))
+        )}
+      </div>
+      <div className="hidden overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)] md:block">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
