@@ -62,7 +62,55 @@ export default function ProductTable({ products }: { products: ProductRow[] }) {
           {error}
         </p>
       )}
-      <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
+      <div className="space-y-3 md:hidden">
+        {filtered.length === 0 ? (
+          <p className="rounded-2xl border border-mist bg-surface px-3 py-8 text-center text-sm text-slate shadow-[var(--shadow-card)]">
+            {products.length === 0 ? 'No products yet — add one to get started.' : 'No products match your search.'}
+          </p>
+        ) : (
+          filtered.map((row) => (
+            <div key={row.id} className="space-y-2 rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-ink" title={row.name}>
+                    {row.name}
+                  </p>
+                  <p className="truncate text-xs text-slate" title={row.category}>
+                    {row.sku} · {row.category}
+                  </p>
+                </div>
+                {row.active ? (
+                  <span className="inline-block shrink-0 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
+                    active
+                  </span>
+                ) : (
+                  <span className="inline-block shrink-0 rounded-full bg-slate/10 px-2 py-0.5 text-xs font-medium text-slate">
+                    inactive
+                  </span>
+                )}
+              </div>
+              <p className="font-mono text-sm text-ink">{row.price.toFixed(2)}</p>
+              <div className="flex items-center gap-2 border-t border-mist pt-2">
+                <Link
+                  href={`/products/${row.id}`}
+                  className="inline-flex min-h-11 items-center rounded-lg px-2 text-marine transition-colors duration-200 hover:bg-mist"
+                >
+                  Edit
+                </Link>
+                <button
+                  type="button"
+                  disabled={deletingId === row.id}
+                  onClick={() => handleDelete(row)}
+                  className="inline-flex min-h-11 items-center rounded-lg px-2 text-danger transition-colors duration-200 hover:bg-danger/10 disabled:opacity-50"
+                >
+                  {deletingId === row.id ? 'Deleting…' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+      <div className="hidden overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)] md:block">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
