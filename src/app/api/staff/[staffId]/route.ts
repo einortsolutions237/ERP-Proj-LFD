@@ -33,7 +33,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ st
     if ('role' in body && body.role !== undefined && !ROLES.includes(body.role)) {
       return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
     }
-    if (existing.role === 'super_admin' && user.role !== 'super_admin') {
+    if (existing.role === 'super_admin' && (user.role !== 'super_admin' || user.uid === staffId)) {
       const attemptsRoleChange = 'role' in body && body.role !== 'super_admin'
       const attemptsDeactivate = body.employment?.status === 'inactive'
       if (attemptsRoleChange || attemptsDeactivate) {

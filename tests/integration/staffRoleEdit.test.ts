@@ -69,4 +69,18 @@ describe('PATCH /api/staff/[staffId] — super_admin protection guard checks the
     )
     expect(res.status).toBe(403)
   })
+
+  it('a super_admin actor is blocked from changing their OWN role or deactivating their OWN account, even though they can do both to another super_admin', async () => {
+    const selfActor = await seedStaff({ role: 'super_admin', branchId: branchA, email: 'sa-self-roleedit@test.local' })
+
+    const roleChangeRes = await withSession(selfActor.sessionCookie, () =>
+      patchStaff(editRequest({ role: 'admin' }), { params: Promise.resolve({ staffId: selfActor.uid }) })
+    )
+    expect(roleChangeRes.status).toBe(403)
+
+    const deactivateRes = await withSession(selfActor.sessionCookie, () =>
+      patchStaff(editRequest({ employment: { status: 'inactive' } }), { params: Promise.resolve({ staffId: selfActor.uid }) })
+    )
+    expect(deactivateRes.status).toBe(403)
+  })
 })
