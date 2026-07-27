@@ -418,15 +418,17 @@ export default function CheckoutForm({ products, services, customers, branchId }
                 onClick={() => addProduct(product)}
                 className="flex min-h-11 w-full items-center justify-between gap-2 px-3 py-2 text-left transition-colors duration-200 hover:bg-mist"
               >
-                <span className="min-w-0 truncate text-ink" title={product.name}>
-                  {product.name} <span className="text-sm text-slate">({product.sku})</span>
+                <span className="flex min-w-0 items-center gap-2">
+                  <span className="truncate text-ink" title={product.name}>
+                    {product.name} <span className="text-sm text-slate">({product.sku})</span>
+                  </span>
                   {outOfStock && (
-                    <span className="ml-2 inline-block">
+                    <span className="shrink-0">
                       <Badge tone="error">Out of stock</Badge>
                     </span>
                   )}
                   {lowStock && (
-                    <span className="ml-2 inline-block">
+                    <span className="shrink-0">
                       <Badge tone="warning">Low stock</Badge>
                     </span>
                   )}
@@ -570,7 +572,10 @@ export default function CheckoutForm({ products, services, customers, branchId }
               const willBackorder =
                 line.type === 'product' && line.availableQuantity !== undefined && line.quantity > line.availableQuantity
               return (
-                <div key={`${line.type}-${line.itemId}-${index}`} className="flex items-center justify-between gap-2 px-3 py-2">
+                <div
+                  key={`${line.type}-${line.itemId}-${index}`}
+                  className="flex flex-col gap-2 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+                >
                   <div className="min-w-0 flex-1">
                     <p className="break-words text-sm text-ink" title={line.name}>
                       {line.name}
@@ -582,41 +587,43 @@ export default function CheckoutForm({ products, services, customers, branchId }
                     </p>
                     <p className="font-mono text-xs text-slate">{line.unitPrice.toFixed(2)} each</p>
                   </div>
-                  {line.type === 'product' ? (
-                    <div className="flex shrink-0 items-center gap-1">
-                      <Button
-                        variant="secondary"
-                        icon
-                        onClick={() => setLineQuantity(index, line.quantity - 1)}
-                        aria-label={`Decrease quantity of ${line.name}`}
-                      >
-                        −
-                      </Button>
-                      <input
-                        type="number"
-                        min={1}
-                        step={1}
-                        value={line.quantity}
-                        onChange={(e) => setLineQuantity(index, Number(e.target.value))}
-                        aria-label={`Quantity of ${line.name}`}
-                        className="w-14 rounded-lg border border-mist px-2 py-1 text-center font-mono text-ink"
-                      />
-                      <Button
-                        variant="secondary"
-                        icon
-                        onClick={() => setLineQuantity(index, line.quantity + 1)}
-                        aria-label={`Increase quantity of ${line.name}`}
-                      >
-                        +
-                      </Button>
-                    </div>
-                  ) : (
-                    <span className="shrink-0 font-mono text-sm text-slate">qty 1</span>
-                  )}
-                  <p className="w-20 shrink-0 text-right font-mono text-sm text-ink">{(line.unitPrice * line.quantity).toFixed(2)}</p>
-                  <Button variant="danger" icon onClick={() => removeLine(index)} aria-label={`Remove ${line.name} from cart`}>
-                    ×
-                  </Button>
+                  <div className="flex items-center justify-between gap-2 sm:shrink-0">
+                    {line.type === 'product' ? (
+                      <div className="flex shrink-0 items-center gap-1">
+                        <Button
+                          variant="secondary"
+                          icon
+                          onClick={() => setLineQuantity(index, line.quantity - 1)}
+                          aria-label={`Decrease quantity of ${line.name}`}
+                        >
+                          −
+                        </Button>
+                        <input
+                          type="number"
+                          min={1}
+                          step={1}
+                          value={line.quantity}
+                          onChange={(e) => setLineQuantity(index, Number(e.target.value))}
+                          aria-label={`Quantity of ${line.name}`}
+                          className="w-14 rounded-lg border border-mist px-2 py-1 text-center font-mono text-ink"
+                        />
+                        <Button
+                          variant="secondary"
+                          icon
+                          onClick={() => setLineQuantity(index, line.quantity + 1)}
+                          aria-label={`Increase quantity of ${line.name}`}
+                        >
+                          +
+                        </Button>
+                      </div>
+                    ) : (
+                      <span className="shrink-0 font-mono text-sm text-slate">qty 1</span>
+                    )}
+                    <p className="w-20 shrink-0 text-right font-mono text-sm text-ink">{(line.unitPrice * line.quantity).toFixed(2)}</p>
+                    <Button variant="danger" icon onClick={() => removeLine(index)} aria-label={`Remove ${line.name} from cart`}>
+                      ×
+                    </Button>
+                  </div>
                 </div>
               )
             })}
