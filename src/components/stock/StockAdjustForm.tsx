@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import type { StockMovementType } from '@/lib/types/stock'
 
 type AdjustDirection = 'increase' | 'decrease'
@@ -19,6 +19,7 @@ export default function StockAdjustForm({ productId, branchId, currentQuantity, 
   const [reason, setReason] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const uid = useId()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -55,10 +56,10 @@ export default function StockAdjustForm({ productId, branchId, currentQuantity, 
     }
   }
 
-  const typeFieldId = `stock-adjust-type-${productId}`
-  const directionFieldId = `stock-adjust-direction-${productId}`
-  const quantityFieldId = `stock-adjust-quantity-${productId}`
-  const reasonFieldId = `stock-adjust-reason-${productId}`
+  const typeFieldId = `stock-adjust-type-${uid}`
+  const directionFieldId = `stock-adjust-direction-${uid}`
+  const quantityFieldId = `stock-adjust-quantity-${uid}`
+  const reasonFieldId = `stock-adjust-reason-${uid}`
 
   return (
     <form onSubmit={handleSubmit} className="max-w-sm space-y-3">

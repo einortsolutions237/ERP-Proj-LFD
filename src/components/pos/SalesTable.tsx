@@ -36,7 +36,7 @@ export default function SalesTable({ sales }: { sales: SaleRow[] }) {
                     {row.cashierName}
                   </p>
                 </div>
-                {row.voided && <Badge tone="error">Voided</Badge>}
+                {row.voided && <Badge tone="error" className="shrink-0">Voided</Badge>}
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate">

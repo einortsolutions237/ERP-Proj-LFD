@@ -79,12 +79,16 @@ export default function StockTable({ rows, branches, canAdjust, canTransfer, sho
                   <p className="truncate text-sm font-medium text-ink" title={row.productName}>
                     {row.productName}
                   </p>
-                  <p className="text-xs text-slate">
+                  <p className="truncate text-xs text-slate">
                     {row.sku}
                     {showBranch ? ` · ${branchNameById.get(row.branchId) ?? '—'}` : ''}
                   </p>
                 </div>
-                {row.lowStock ? <Badge tone="error">Low stock</Badge> : <Badge tone="success">OK</Badge>}
+                {row.lowStock ? (
+                  <Badge tone="error" className="shrink-0">Low stock</Badge>
+                ) : (
+                  <Badge tone="success" className="shrink-0">OK</Badge>
+                )}
               </div>
               <div className="flex items-center justify-between text-sm text-ink">
                 <span>

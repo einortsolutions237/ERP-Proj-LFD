@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 
 export interface StockTransferFormProps {
   productId: string
@@ -23,6 +23,7 @@ export default function StockTransferForm({
   const [reason, setReason] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const uid = useId()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -64,9 +65,9 @@ export default function StockTransferForm({
     }
   }
 
-  const destFieldId = `stock-transfer-dest-${productId}`
-  const quantityFieldId = `stock-transfer-quantity-${productId}`
-  const reasonFieldId = `stock-transfer-reason-${productId}`
+  const destFieldId = `stock-transfer-dest-${uid}`
+  const quantityFieldId = `stock-transfer-quantity-${uid}`
+  const reasonFieldId = `stock-transfer-reason-${uid}`
 
   return (
     <form onSubmit={handleSubmit} className="max-w-sm space-y-3">
