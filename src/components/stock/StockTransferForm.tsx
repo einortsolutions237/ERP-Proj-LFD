@@ -1,5 +1,7 @@
 'use client'
 import { useId, useState } from 'react'
+import Button from '@/components/ui/Button'
+import Alert from '@/components/ui/Alert'
 
 export interface StockTransferFormProps {
   productId: string
@@ -121,27 +123,14 @@ export default function StockTransferForm({
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
         />
       </div>
-      {error && (
-        <p role="alert" className="text-sm text-danger">
-          {error}
-        </p>
-      )}
+      {error && <Alert tone="error" inline>{error}</Alert>}
       <div className="flex items-center gap-2">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
-        >
-          {submitting ? 'Saving…' : 'Submit'}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          disabled={submitting}
-          className="min-h-11 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:bg-mist disabled:opacity-50"
-        >
+        <Button type="submit" loading={submitting}>
+          Submit
+        </Button>
+        <Button type="button" variant="secondary" onClick={onCancel} disabled={submitting}>
           Cancel
-        </button>
+        </Button>
       </div>
     </form>
   )

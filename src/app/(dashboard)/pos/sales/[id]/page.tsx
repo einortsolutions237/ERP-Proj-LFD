@@ -4,10 +4,11 @@ import { hasCapability } from '@/lib/auth/permissions'
 import { getSaleDetail } from '@/lib/pos/getSaleDetail'
 import VoidSaleButton from '@/components/pos/VoidSaleButton'
 import PrintReceiptButton from '@/components/pos/PrintReceiptButton'
+import Badge, { type BadgeTone } from '@/components/ui/Badge'
 
-const DELIVERY_STATUS_BADGE: Record<string, string> = {
-  pending: 'bg-warning/10 text-warning',
-  fulfilled: 'bg-success/10 text-success',
+const DELIVERY_STATUS_TONE: Record<string, BadgeTone> = {
+  pending: 'warning',
+  fulfilled: 'success',
 }
 
 export default async function SaleDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -39,9 +40,7 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ id:
             {sale.customerName && <p className="text-sm text-slate">Customer: {sale.customerName}</p>}
             {sale.voided ? (
               <div className="mt-2 space-y-1">
-                <span className="inline-block rounded-full bg-danger/10 px-2 py-0.5 text-xs font-medium text-danger">
-                  Voided
-                </span>
+                <Badge tone="error">Voided</Badge>
                 <p className="text-sm text-slate">
                   Voided {sale.voidedAt ? new Date(sale.voidedAt).toLocaleString() : ''} by {sale.voidedByName} —{' '}
                   {sale.voidReason}
@@ -174,13 +173,7 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ id:
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-ink">{d.quantityOwed}</td>
                         <td className="px-3 py-2">
-                          <span
-                            className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                              DELIVERY_STATUS_BADGE[d.status] ?? 'bg-slate/10 text-slate'
-                            }`}
-                          >
-                            {d.status}
-                          </span>
+                          <Badge tone={DELIVERY_STATUS_TONE[d.status] ?? 'neutral'}>{d.status}</Badge>
                           {d.status === 'fulfilled' && (
                             <span className="ml-2 text-xs text-slate">
                               {d.fulfilledByName ? `by ${d.fulfilledByName}` : ''}

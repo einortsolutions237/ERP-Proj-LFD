@@ -3,6 +3,7 @@ import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { isBranchLocked } from '@/lib/auth/permissions'
 import SalesTable, { type SaleRow } from '@/components/pos/SalesTable'
+import PageHeader from '@/components/ui/PageHeader'
 
 export default async function SalesLogPage() {
   let user
@@ -41,7 +42,7 @@ export default async function SalesLogPage() {
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-6">
-      <h1 className="font-display text-xl font-semibold text-ink">Sales log</h1>
+      <PageHeader title="Sales log" />
       <SalesTable sales={sales} />
     </div>
   )

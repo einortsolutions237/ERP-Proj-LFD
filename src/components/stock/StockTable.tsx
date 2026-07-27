@@ -199,21 +199,17 @@ export default function StockTable({ rows, branches, canAdjust, canTransfer, sho
                       <td className="px-3 py-2 font-mono text-right text-ink">{row.reorderThreshold}</td>
                       <td className="px-3 py-2 text-ink">
                         {row.lowStock ? (
-                          <span className="inline-block rounded-full bg-danger/10 px-2 py-0.5 text-xs font-medium text-danger">
-                            Low stock
-                          </span>
+                          <Badge tone="error">Low stock</Badge>
                         ) : (
-                          <span className="inline-block rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
-                            OK
-                          </span>
+                          <Badge tone="success">OK</Badge>
                         )}
                       </td>
                       {showActions && (
                         <td className="px-3 py-2">
                           <div className="flex flex-wrap items-center gap-1">
                             {canAdjust && (
-                              <button
-                                type="button"
+                              <Button
+                                variant="secondary"
                                 onClick={() =>
                                   setOpenForm(
                                     openForm?.productId === row.productId && openForm.kind === 'adjust'
@@ -221,14 +217,13 @@ export default function StockTable({ rows, branches, canAdjust, canTransfer, sho
                                       : { productId: row.productId, kind: 'adjust' }
                                   )
                                 }
-                                className="min-h-11 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:bg-mist"
                               >
                                 Adjust
-                              </button>
+                              </Button>
                             )}
                             {canTransfer && (
-                              <button
-                                type="button"
+                              <Button
+                                variant="secondary"
                                 onClick={() =>
                                   setOpenForm(
                                     openForm?.productId === row.productId && openForm.kind === 'transfer'
@@ -236,10 +231,9 @@ export default function StockTable({ rows, branches, canAdjust, canTransfer, sho
                                       : { productId: row.productId, kind: 'transfer' }
                                   )
                                 }
-                                className="min-h-11 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:bg-mist"
                               >
                                 Transfer
-                              </button>
+                              </Button>
                             )}
                           </div>
                         </td>

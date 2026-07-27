@@ -102,11 +102,7 @@ export default function SalesTable({ sales }: { sales: SaleRow[] }) {
                     <td className="px-3 py-2 text-right font-mono text-ink">{row.total.toFixed(2)}</td>
                     <td className="px-3 py-2 text-ink">{row.payments.map((p) => p.method).join(' + ')}</td>
                     <td className="px-3 py-2">
-                      {row.voided && (
-                        <span className="inline-block rounded-full bg-danger/10 px-2 py-0.5 text-xs font-medium text-danger">
-                          Voided
-                        </span>
-                      )}
+                      {row.voided && <Badge tone="error">Voided</Badge>}
                     </td>
                     <td className="px-3 py-2">
                       <Link
