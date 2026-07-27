@@ -55,6 +55,7 @@ const PAPER = '#f8fafc'
 const WHITE = '#ffffff'
 const SUCCESS = readCssToken('color-success')
 const WARNING = readCssToken('color-warning')
+const DANGER = readCssToken('color-danger')
 
 describe('success/warning token contrast (WCAG AA, 4.5:1)', () => {
   it('success text passes against the app paper background', () => {
@@ -68,5 +69,14 @@ describe('success/warning token contrast (WCAG AA, 4.5:1)', () => {
   })
   it('warning text passes against its own /10 badge background (tightest real case)', () => {
     expect(contrastRatio(WARNING, blend(WARNING, WHITE, 0.1))).toBeGreaterThanOrEqual(4.5)
+  })
+})
+
+describe('danger token contrast (WCAG AA, 4.5:1)', () => {
+  it('danger text passes against the app paper background', () => {
+    expect(contrastRatio(DANGER, PAPER)).toBeGreaterThanOrEqual(4.5)
+  })
+  it('danger text passes against its own /10 badge background (tightest real case)', () => {
+    expect(contrastRatio(DANGER, blend(DANGER, WHITE, 0.1))).toBeGreaterThanOrEqual(4.5)
   })
 })
