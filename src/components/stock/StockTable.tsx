@@ -3,6 +3,8 @@ import { Fragment, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import StockAdjustForm from './StockAdjustForm'
 import StockTransferForm from './StockTransferForm'
+import Badge from '@/components/ui/Badge'
+import Button from '@/components/ui/Button'
 
 export interface StockRow {
   id: string
@@ -64,7 +66,94 @@ export default function StockTable({ rows, branches, canAdjust, canTransfer, sho
         placeholder="Search by product or SKU…"
         className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
       />
-      <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
+      <div className="space-y-3 md:hidden">
+        {filtered.length === 0 ? (
+          <p className="rounded-2xl border border-mist bg-surface px-3 py-8 text-center text-sm text-slate shadow-[var(--shadow-card)]">
+            {rows.length === 0 ? 'No stock records yet.' : 'No stock records match your search.'}
+          </p>
+        ) : (
+          filtered.map((row) => (
+            <div key={row.id} className="space-y-2 rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-ink" title={row.productName}>
+                    {row.productName}
+                  </p>
+                  <p className="text-xs text-slate">
+                    {row.sku}
+                    {showBranch ? ` · ${branchNameById.get(row.branchId) ?? '—'}` : ''}
+                  </p>
+                </div>
+                {row.lowStock ? <Badge tone="error">Low stock</Badge> : <Badge tone="success">OK</Badge>}
+              </div>
+              <div className="flex items-center justify-between text-sm text-ink">
+                <span>
+                  Quantity <span className="font-mono">{row.quantity}</span>
+                </span>
+                <span>
+                  Reorder at <span className="font-mono">{row.reorderThreshold}</span>
+                </span>
+              </div>
+              {showActions && (
+                <div className="flex flex-wrap items-center gap-2 border-t border-mist pt-2">
+                  {canAdjust && (
+                    <Button
+                      variant="secondary"
+                      onClick={() =>
+                        setOpenForm(
+                          openForm?.productId === row.productId && openForm.kind === 'adjust'
+                            ? null
+                            : { productId: row.productId, kind: 'adjust' }
+                        )
+                      }
+                    >
+                      Adjust
+                    </Button>
+                  )}
+                  {canTransfer && (
+                    <Button
+                      variant="secondary"
+                      onClick={() =>
+                        setOpenForm(
+                          openForm?.productId === row.productId && openForm.kind === 'transfer'
+                            ? null
+                            : { productId: row.productId, kind: 'transfer' }
+                        )
+                      }
+                    >
+                      Transfer
+                    </Button>
+                  )}
+                </div>
+              )}
+              {openForm?.productId === row.productId && openForm.kind === 'adjust' && (
+                <div className="border-t border-mist pt-3">
+                  <StockAdjustForm
+                    productId={row.productId}
+                    branchId={row.branchId}
+                    currentQuantity={row.quantity}
+                    onDone={handleDone}
+                    onCancel={handleCancel}
+                  />
+                </div>
+              )}
+              {openForm?.productId === row.productId && openForm.kind === 'transfer' && (
+                <div className="border-t border-mist pt-3">
+                  <StockTransferForm
+                    productId={row.productId}
+                    sourceBranchId={row.branchId}
+                    currentQuantity={row.quantity}
+                    destinationBranches={branches.filter((b) => b.id !== row.branchId)}
+                    onDone={handleDone}
+                    onCancel={handleCancel}
+                  />
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+      <div className="hidden overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)] md:block">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>

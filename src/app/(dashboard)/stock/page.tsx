@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { hasCapability, isBranchLocked } from '@/lib/auth/permissions'
+import { isLowStock } from '@/lib/inventory/lowStock'
 import StockTable, { type StockRow } from '@/components/stock/StockTable'
 
 export default async function StockPage() {
@@ -43,7 +44,7 @@ export default async function StockPage() {
         sku: product.sku as string,
         quantity,
         reorderThreshold,
-        lowStock: quantity < reorderThreshold,
+        lowStock: isLowStock(quantity, reorderThreshold),
       },
     ]
   })
