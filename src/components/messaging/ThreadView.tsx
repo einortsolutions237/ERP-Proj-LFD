@@ -86,7 +86,11 @@ export default function ThreadView({ peerUid, ownUid }: { peerUid: string; ownUi
     await load()
   }
 
-  if (notFound) return <p className="text-sm text-slate">This contact is not reachable.</p>
+  if (notFound) return (
+    <Alert tone="info" inline role="status">
+      This contact is not reachable.
+    </Alert>
+  )
   if (!thread) return <p className="text-sm text-slate">Loading conversation…</p>
 
   return (
