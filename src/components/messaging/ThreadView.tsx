@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Alert from '@/components/ui/Alert'
 
 interface ThreadMessage {
   id: string
@@ -155,9 +156,9 @@ export default function ThreadView({ peerUid, ownUid }: { peerUid: string; ownUi
           </div>
         </div>
       ) : (
-        <p className="text-sm text-danger">
+        <Alert tone="error" inline>
           This conversation is no longer available — a participant&apos;s role or branch has changed.
-        </p>
+        </Alert>
       )}
     </div>
   )
