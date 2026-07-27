@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import type { AttendanceMethod } from '@/lib/types/seminarAttendance'
+import Alert from '@/components/ui/Alert'
 
 export interface AttendanceFormProps {
   seminarId: string
@@ -84,7 +85,7 @@ export default function AttendanceForm({ seminarId, customers, onDone }: Attenda
           <option value="online">Online</option>
         </select>
       </div>
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && <Alert tone="error" inline>{error}</Alert>}
       <button
         type="submit"
         disabled={submitting}

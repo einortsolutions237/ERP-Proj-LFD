@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import AttachReceiptForm from './AttachReceiptForm'
+import Alert from '@/components/ui/Alert'
 
 const CATEGORY_SUGGESTIONS = ['Rent', 'Utilities', 'Supplies', 'Salaries', 'Other']
 
@@ -117,7 +118,7 @@ export default function ExpenseForm() {
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && <Alert tone="error" inline>{error}</Alert>}
       <button
         type="submit"
         disabled={submitting}

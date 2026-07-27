@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { SeminarFormat } from '@/lib/types/seminar'
+import Alert from '@/components/ui/Alert'
 
 export interface SeminarFormProps {
   mode: 'create' | 'edit'
@@ -125,7 +126,7 @@ export default function SeminarForm({ mode, seminarId, branches, initial, onDone
           </select>
         </div>
       )}
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && <Alert tone="error" inline>{error}</Alert>}
       <button
         type="submit"
         disabled={submitting}

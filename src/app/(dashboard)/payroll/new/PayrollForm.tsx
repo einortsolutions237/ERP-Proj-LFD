@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Alert from '@/components/ui/Alert'
 
 interface StaffOption {
   uid: string
@@ -109,7 +110,7 @@ export default function PayrollForm({ staffOptions }: { staffOptions: StaffOptio
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && <Alert tone="error" inline>{error}</Alert>}
       <button
         type="submit"
         disabled={submitting}

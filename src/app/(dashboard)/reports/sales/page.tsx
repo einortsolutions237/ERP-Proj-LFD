@@ -4,6 +4,7 @@ import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { buildSalesReport, ReportValidationError } from '@/lib/reports/sales'
 import { toCsv } from '@/lib/csv'
 import DownloadCsvButton from '@/components/reports/DownloadCsvButton'
+import Alert from '@/components/ui/Alert'
 
 export default async function SalesReportPage({
   searchParams,
@@ -102,7 +103,7 @@ export default async function SalesReportPage({
         </button>
       </form>
 
-      {rangeError && <p className="text-sm text-danger">{rangeError}</p>}
+      {rangeError && <Alert tone="error" inline>{rangeError}</Alert>}
 
       {report && (
         <>

@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Branch } from '@/lib/types/branch'
+import Alert from '@/components/ui/Alert'
 
 export interface BranchFormProps {
   mode: 'create' | 'edit'
@@ -86,7 +87,7 @@ export default function BranchForm({ mode, branchId, initial }: BranchFormProps)
           </select>
         </div>
       )}
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && <Alert tone="error" inline>{error}</Alert>}
       <button
         type="submit"
         disabled={submitting}

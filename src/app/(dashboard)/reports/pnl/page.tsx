@@ -3,6 +3,7 @@ import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { buildPnLReport, ReportValidationError, PnLValidationError } from '@/lib/reports/pnl'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { isBranchLocked } from '@/lib/auth/permissions'
+import Alert from '@/components/ui/Alert'
 
 export default async function PnLReportPage({
   searchParams,
@@ -81,7 +82,7 @@ export default async function PnLReportPage({
         </button>
       </form>
 
-      {rangeError && <p className="text-sm text-danger">{rangeError}</p>}
+      {rangeError && <Alert tone="error" inline>{rangeError}</Alert>}
 
       {report && (
         <>

@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Alert from '@/components/ui/Alert'
 
 // Server Components can't pass Firestore Timestamp instances to Client
 // Components, so the page converts updatedAt to an ISO string before handing
@@ -117,7 +118,7 @@ export default function SettingsTable({ settings }: { settings: SettingRow[] }) 
 
   return (
     <div className="space-y-4">
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && <Alert tone="error" inline>{error}</Alert>}
 
       <div className="rounded-2xl border border-mist bg-surface p-4 shadow-[var(--shadow-card)] space-y-3">
         <h2 className="text-sm font-medium text-ink">Add setting</h2>

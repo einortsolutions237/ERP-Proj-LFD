@@ -1,5 +1,6 @@
 'use client'
 import { useState, useRef } from 'react'
+import Alert from '@/components/ui/Alert'
 
 export interface AttachReceiptFormProps {
   expenseId: string
@@ -58,7 +59,7 @@ export default function AttachReceiptForm({ expenseId, onUploaded }: AttachRecei
       >
         {uploading ? 'Uploading…' : 'Attach receipt'}
       </button>
-      {error && <p className="w-full text-xs text-danger">{error}</p>}
+      {error && <Alert tone="error" inline size="xs" className="w-full">{error}</Alert>}
     </form>
   )
 }

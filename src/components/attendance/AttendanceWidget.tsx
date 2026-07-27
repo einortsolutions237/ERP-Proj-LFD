@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import Alert from '@/components/ui/Alert'
 
 interface AttendanceMe {
   status: 'checked_in' | 'checked_out'
@@ -77,7 +78,7 @@ export default function AttendanceWidget() {
         >
           Check In
         </button>
-        {error && <p className="text-sm text-danger">{error}</p>}
+        {error && <Alert tone="error" inline>{error}</Alert>}
       </div>
     )
   }
@@ -94,7 +95,7 @@ export default function AttendanceWidget() {
         >
           Check Out
         </button>
-        {error && <p className="text-sm text-danger">{error}</p>}
+        {error && <Alert tone="error" inline>{error}</Alert>}
       </div>
     )
   }

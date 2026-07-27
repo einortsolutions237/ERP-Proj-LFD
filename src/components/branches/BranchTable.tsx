@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { Branch } from '@/lib/types/branch'
+import Alert from '@/components/ui/Alert'
 
 // Server Components can't pass Firestore Timestamp instances to Client
 // Components (Next.js only serializes plain objects across that boundary),
@@ -38,7 +39,7 @@ export default function BranchTable({ branches }: { branches: BranchRow[] }) {
 
   return (
     <div className="space-y-3">
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && <Alert tone="error" inline>{error}</Alert>}
       <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
         <table className="w-full text-sm">
           <thead>
