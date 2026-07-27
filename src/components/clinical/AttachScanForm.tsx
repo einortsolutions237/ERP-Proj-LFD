@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useId, useState, useRef } from 'react'
 
 export interface AttachScanFormProps {
   labResultId: string
@@ -10,7 +10,8 @@ export default function AttachScanForm({ labResultId, onDone }: AttachScanFormPr
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const fieldId = `attach-scan-file-${labResultId}`
+  const uid = useId()
+  const fieldId = `attach-scan-file-${uid}`
 
   async function handleUpload(e: React.FormEvent) {
     e.preventDefault()

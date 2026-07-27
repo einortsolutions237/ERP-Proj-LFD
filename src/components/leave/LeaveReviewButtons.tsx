@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export interface LeaveReviewButtonsProps {
@@ -12,6 +12,7 @@ export default function LeaveReviewButtons({ requestId }: LeaveReviewButtonsProp
   const [reviewNote, setReviewNote] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const uid = useId()
 
   function handleCancel() {
     setPendingAction(null)
@@ -68,11 +69,11 @@ export default function LeaveReviewButtons({ requestId }: LeaveReviewButtonsProp
   return (
     <div className="max-w-sm space-y-3">
       <div>
-        <label htmlFor={`leave-review-note-${requestId}`} className="block text-sm font-medium text-ink">
+        <label htmlFor={`leave-review-note-${uid}`} className="block text-sm font-medium text-ink">
           Review note
         </label>
         <textarea
-          id={`leave-review-note-${requestId}`}
+          id={`leave-review-note-${uid}`}
           value={reviewNote}
           onChange={(e) => setReviewNote(e.target.value)}
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
