@@ -4,6 +4,8 @@ import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { queryExpenses } from '@/lib/expenses/store'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { hasCapability } from '@/lib/auth/permissions'
+import { toCsv } from '@/lib/csv'
+import DownloadCsvButton from '@/components/reports/DownloadCsvButton'
 
 export default async function ExpensesPage() {
   let user
@@ -24,6 +26,21 @@ export default async function ExpensesPage() {
   const staffDocs = await Promise.all(recorderUids.map((uid) => db.collection('staff').doc(uid).get()))
   const emailByUid = new Map(staffDocs.filter((d) => d.exists).map((d) => [d.id, d.data()!.email as string]))
 
+  // CSV shape: one row per expense, matching the on-screen table exactly,
+  // except the Receipts column — file links don't serialize meaningfully
+  // into a CSV cell, so they're deliberately omitted here.
+  const csv = toCsv(
+    ['Date', 'Category', 'Description', 'Branch', 'Recorded by', 'Amount'],
+    expenses.map((expense) => [
+      expense.date.toDate().toISOString().slice(0, 10),
+      expense.category,
+      expense.description,
+      branchNameById.get(expense.branchId) ?? expense.branchId,
+      emailByUid.get(expense.recordedBy) ?? expense.recordedBy,
+      expense.amount.toFixed(2),
+    ])
+  )
+
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-6">
       <div className="flex items-center justify-between">
@@ -34,6 +51,7 @@ export default async function ExpensesPage() {
           </Link>
         )}
       </div>
+      <DownloadCsvButton filename="expenses.csv" csv={csv} />
       {expenses.length === 0 ? (
         <p className="text-sm text-slate">No expenses recorded yet.</p>
       ) : (

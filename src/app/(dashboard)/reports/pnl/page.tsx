@@ -4,6 +4,8 @@ import { buildPnLReport, ReportValidationError, PnLValidationError } from '@/lib
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { isBranchLocked } from '@/lib/auth/permissions'
 import Alert from '@/components/ui/Alert'
+import { toCsv } from '@/lib/csv'
+import DownloadCsvButton from '@/components/reports/DownloadCsvButton'
 
 export default async function PnLReportPage({
   searchParams,
@@ -34,6 +36,17 @@ export default async function PnLReportPage({
 
   const startValue = report ? report.range.start.slice(0, 10) : startParam ?? ''
   const endValue = report ? report.range.end.slice(0, 10) : endParam ?? ''
+
+  // CSV shape: one row per expense category, matching the on-screen
+  // "Expenses by category" table exactly — the report's most granular
+  // breakdown. Revenue/expense/net-income totals are already visible as
+  // single tiles above and don't need a CSV row of their own.
+  const csv = report
+    ? toCsv(
+        ['Category', 'Amount'],
+        report.expensesByCategory.map((row) => [row.category, row.amount.toFixed(2)])
+      )
+    : ''
 
   const db = getAdminFirestore()
   const branchesSnap = await db.collection('branches').get()
@@ -102,6 +115,8 @@ export default async function PnLReportPage({
               </div>
             </div>
           </div>
+
+          <DownloadCsvButton filename="pnl-report.csv" csv={csv} />
 
           <section>
             <h2 className="text-lg font-medium text-ink mb-2">Expenses by category</h2>
