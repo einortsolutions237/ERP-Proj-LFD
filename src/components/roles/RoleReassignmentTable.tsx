@@ -9,6 +9,13 @@ import type { StaffRow } from '@/components/staff/StaffTable'
 // exclusion appears (staff create form, staff edit form, and here).
 const ASSIGNABLE_ROLES = ROLES.filter((r) => r !== 'super_admin')
 
+// Mirrors StaffForm.tsx's identical constant (Phase 38.6 Task 6) — only used
+// when a super_admin actor is reassigning a DIFFERENT super_admin's role.
+// 'super_admin' must be a real, present <option> in this one case so the
+// <select>'s current value always matches a real option (never silently
+// defaults to the first option and gets submitted as an accidental demotion).
+const ROLE_OPTIONS_FOR_SUPER_ADMIN_TARGET: RoleId[] = ['super_admin', ...ASSIGNABLE_ROLES]
+
 // Display-only — same humanizeRole every other role-displaying component in
 // this app duplicates locally (StaffTable, StaffForm, NavShell, messaging) —
 // never used for any access decision.
@@ -19,15 +26,33 @@ function humanizeRole(role: string): string {
     .join(' ')
 }
 
-export default function RoleReassignmentTable({ staff, canAssign }: { staff: StaffRow[]; canAssign: boolean }) {
+export default function RoleReassignmentTable({
+  staff,
+  canAssign,
+  viewerRole,
+  viewerUid,
+}: {
+  staff: StaffRow[]
+  canAssign: boolean
+  viewerRole?: RoleId
+  viewerUid?: string
+}) {
   const router = useRouter()
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const sorted = [...staff].sort((a, b) => a.role.localeCompare(b.role) || a.name.localeCompare(b.name))
 
+  // A super_admin actor may reassign a DIFFERENT super_admin's role (Phase
+  // 38.6's server-side fix, src/app/api/staff/[staffId]/route.ts:36); every
+  // other combination — including a super_admin reassigning themselves —
+  // stays protected. Mirrors StaffForm.tsx's canEditSuperAdminTarget exactly.
+  function canEditRow(row: StaffRow): boolean {
+    return row.role === 'super_admin' && viewerRole === 'super_admin' && viewerUid !== row.id
+  }
+
   async function handleRoleChange(row: StaffRow, newRole: RoleId) {
-    if (row.role === 'super_admin') return // structurally disabled below too; belt and suspenders
+    if (row.role === 'super_admin' && !canEditRow(row)) return // structurally disabled below too; belt and suspenders
     setError(null)
     setUpdatingId(row.id)
     try {
@@ -76,6 +101,7 @@ export default function RoleReassignmentTable({ staff, canAssign }: { staff: Sta
             <tbody className="divide-y divide-mist">
               {sorted.map((row) => {
                 const isSuperAdmin = row.role === 'super_admin'
+                const canEditThisRow = canEditRow(row)
                 return (
                   <tr key={row.id} className="transition-colors duration-200 hover:bg-mist/40">
                     <td className="max-w-[12rem] truncate px-3 py-2 text-ink" title={row.name}>
@@ -86,7 +112,7 @@ export default function RoleReassignmentTable({ staff, canAssign }: { staff: Sta
                     </td>
                     <td className="px-3 py-2 text-ink">{humanizeRole(row.role)}</td>
                     <td className="px-3 py-2">
-                      {isSuperAdmin ? (
+                      {isSuperAdmin && !canEditThisRow ? (
                         <span className="italic text-slate">protected — no reassignment control</span>
                       ) : canAssign ? (
                         <>
@@ -100,9 +126,9 @@ export default function RoleReassignmentTable({ staff, canAssign }: { staff: Sta
                             onChange={(e) => handleRoleChange(row, e.target.value as RoleId)}
                             className="rounded-lg border border-mist bg-paper px-2 py-1 text-ink focus:border-marine disabled:opacity-50"
                           >
-                            {ASSIGNABLE_ROLES.map((r) => (
+                            {(canEditThisRow ? ROLE_OPTIONS_FOR_SUPER_ADMIN_TARGET : ASSIGNABLE_ROLES).map((r) => (
                               <option key={r} value={r}>
-                                {humanizeRole(r)}
+                                {r === 'super_admin' ? 'super_admin (current — no change)' : humanizeRole(r)}
                               </option>
                             ))}
                           </select>

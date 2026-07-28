@@ -44,7 +44,8 @@ export default async function RolesPage() {
       <div>
         <h1 className="font-display text-2xl font-semibold text-ink">Roles & permissions</h1>
         <p className="mt-1 text-sm text-slate">
-          Capability matrix by role. super_admin is protected and cannot be reassigned or edited from this screen.
+          Capability matrix by role. A super_admin account is protected from every other role and from itself — only a
+          different super_admin can reassign its role here.
         </p>
       </div>
 
@@ -55,7 +56,7 @@ export default async function RolesPage() {
 
       <section className="space-y-3">
         <h2 className="text-lg font-medium text-ink">Staff by role</h2>
-        <RoleReassignmentTable staff={staff} canAssign={canAssign} />
+        <RoleReassignmentTable staff={staff} canAssign={canAssign} viewerRole={user.role} viewerUid={user.uid} />
       </section>
     </div>
   )
