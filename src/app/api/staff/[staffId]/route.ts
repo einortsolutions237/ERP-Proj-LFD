@@ -35,7 +35,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ st
     }
     if (existing.role === 'super_admin' && (user.role !== 'super_admin' || user.uid === staffId)) {
       const attemptsRoleChange = 'role' in body && body.role !== 'super_admin'
-      const attemptsDeactivate = body.employment?.status === 'inactive'
+      const attemptsDeactivate = body.employment?.status === 'inactive' && existing.employment?.status !== 'inactive'
       if (attemptsRoleChange || attemptsDeactivate) {
         return NextResponse.json({ error: 'super_admin role/status cannot be modified' }, { status: 403 })
       }

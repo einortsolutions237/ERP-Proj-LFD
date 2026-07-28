@@ -299,7 +299,7 @@ export default function StaffForm({ mode, staffId, initial, viewerRole, viewerUi
               <input
                 id="staff-status"
                 disabled
-                value="active (protected — cannot be deactivated here)"
+                value={`${status} (protected — cannot be changed here)`}
                 className="w-full rounded-lg border border-mist bg-mist/40 px-3 py-2 text-ink"
               />
             ) : (

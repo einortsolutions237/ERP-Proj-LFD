@@ -75,3 +75,17 @@ Tracked deviations, deferred hardening, and known limitations accepted during a 
 **Proposed enhancement (for whenever this gets prioritized):** exclude `employment.status === 'inactive'` staff from the candidate set in `GET /api/messaging/conversations`, and have `getMessagingParty()` also read the `staff` doc's `employment.status` and return `null` (or a distinct "recipient inactive" signal) when it's `'inactive'`, so `canMessage` correctly stops passing for a deactivated recipient the same way it already does for a deleted one.
 
 **Constraints for the fix (per project decision):** should be resolved deliberately, same discipline as TD-3/TD-4 — not as a byproduct of unrelated staff-lifecycle work.
+
+## TD-6: Design-rollout primitives (Button/Card/Badge/PageHeader/StatSummary/FormSection) not adopted across 7 modules
+
+**Deferred to:** Not scheduled — flagged during Phase 38.6's final cross-initiative consistency audit, 2026-07-27.
+
+**Found during:** Phase 38.6, Task 2 (final consistency audit).
+
+**Current state:** Roles, Seminars (list + detail), the clinical-record sections of the customer detail page, Messaging, Accounting (Expenses/P&L), Payroll, and all four Reports pages (Sales/Inventory/P&L; Expenses has no separate report route) still render entirely with the pre-Phase-38.1 raw-Tailwind pattern — confirmed by grepping actual imports, zero uses of `Button`/`Card`/`Badge`/`PageHeader`/`StatSummary`/`FormSection` across any of them. The one partial exception is `Alert`, already present in several of these files via Phase 38.5's unrelated error-announcement sweep.
+
+**Why not fixed now:** extending the six primitives across these seven modules is real and substantial (dozens of files) — genuinely its own scoped phase, not something to silently fold into a consistency-audit task.
+
+**Proposed enhancement:** a dedicated design-rollout phase applying `Button`/`Card`/`Badge`/`PageHeader`/`StatSummary`/`FormSection` to these seven modules, following the same mechanical, zero-color/font-change discipline every prior design-rollout phase (10, 21, 22, 27, 28, 33, 34) has used.
+
+**Constraints for the fix (per project decision):** should follow this project's established design-rollout playbook — a dedicated final review pass checking for drift *between* independently-styled screens, not just within each one (per Phase 10's own good practice).
