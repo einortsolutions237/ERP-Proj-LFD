@@ -17,10 +17,10 @@ describe('buildRevenueTrend', () => {
     const b = await seedBranch('Dashboard Revenue Trend Branch B')
     branchA = a.id
     branchB = b.id
-    branchManagerUser = { uid: 'dashboard-revtrend-bm', email: 'bm@test.local', role: 'branch_manager', branchId: branchA }
-    superAdminUser = { uid: 'dashboard-revtrend-sa', email: 'sa@test.local', role: 'super_admin', branchId: branchA }
-    financeAdminUser = { uid: 'dashboard-revtrend-fa', email: 'fa@test.local', role: 'finance_admin', branchId: branchA }
-    cashierUser = { uid: 'dashboard-revtrend-cash', email: 'cash@test.local', role: 'cashier', branchId: branchA }
+    branchManagerUser = { uid: 'dashboard-revtrend-bm', email: 'bm@test.local', role: 'branch_manager', branchId: branchA, effectiveCapabilities: null }
+    superAdminUser = { uid: 'dashboard-revtrend-sa', email: 'sa@test.local', role: 'super_admin', branchId: branchA, effectiveCapabilities: null }
+    financeAdminUser = { uid: 'dashboard-revtrend-fa', email: 'fa@test.local', role: 'finance_admin', branchId: branchA, effectiveCapabilities: null }
+    cashierUser = { uid: 'dashboard-revtrend-cash', email: 'cash@test.local', role: 'cashier', branchId: branchA, effectiveCapabilities: null }
 
     const today = new Date()
     today.setUTCHours(12, 0, 0, 0)

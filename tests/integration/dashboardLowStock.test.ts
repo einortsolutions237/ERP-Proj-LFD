@@ -16,9 +16,9 @@ describe('getDashboardLowStock', () => {
     const b = await seedBranch('Dashboard Low Stock Branch B')
     branchA = a.id
     branchB = b.id
-    branchManagerUser = { uid: 'dashboard-lowstock-bm', email: 'bm@test.local', role: 'branch_manager', branchId: branchA }
-    superAdminUser = { uid: 'dashboard-lowstock-sa', email: 'sa@test.local', role: 'super_admin', branchId: branchA }
-    generalManagerUser = { uid: 'dashboard-lowstock-gm', email: 'gm@test.local', role: 'general_manager', branchId: branchA }
+    branchManagerUser = { uid: 'dashboard-lowstock-bm', email: 'bm@test.local', role: 'branch_manager', branchId: branchA, effectiveCapabilities: null }
+    superAdminUser = { uid: 'dashboard-lowstock-sa', email: 'sa@test.local', role: 'super_admin', branchId: branchA, effectiveCapabilities: null }
+    generalManagerUser = { uid: 'dashboard-lowstock-gm', email: 'gm@test.local', role: 'general_manager', branchId: branchA, effectiveCapabilities: null }
 
     const lowProduct = await seedProduct({ name: 'Low Widget', price: 100, reorderThreshold: 10 })
     const boundaryProduct = await seedProduct({ name: 'Boundary Widget', price: 100, reorderThreshold: 5 })

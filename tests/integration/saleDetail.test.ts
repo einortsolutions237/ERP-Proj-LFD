@@ -67,11 +67,11 @@ describe('getSaleDetail', () => {
 
     await seedPendingDelivery({ branchId: branchA, productId, customerId, saleId, status: 'pending' })
 
-    branchAManager = { uid: 'sd-bm', email: 'bm@test.local', role: 'branch_manager', branchId: branchA }
-    branchBManager = { uid: 'sd-bm-b', email: 'bm-b@test.local', role: 'branch_manager', branchId: branchB }
-    branchACashier = { uid: 'sd-cash', email: 'cash@test.local', role: 'cashier', branchId: branchA }
-    superAdmin = { uid: 'sd-sa', email: 'sa@test.local', role: 'super_admin', branchId: branchA }
-    financeAdmin = { uid: 'sd-fa', email: 'fa@test.local', role: 'finance_admin', branchId: branchA }
+    branchAManager = { uid: 'sd-bm', email: 'bm@test.local', role: 'branch_manager', branchId: branchA, effectiveCapabilities: null }
+    branchBManager = { uid: 'sd-bm-b', email: 'bm-b@test.local', role: 'branch_manager', branchId: branchB, effectiveCapabilities: null }
+    branchACashier = { uid: 'sd-cash', email: 'cash@test.local', role: 'cashier', branchId: branchA, effectiveCapabilities: null }
+    superAdmin = { uid: 'sd-sa', email: 'sa@test.local', role: 'super_admin', branchId: branchA, effectiveCapabilities: null }
+    financeAdmin = { uid: 'sd-fa', email: 'fa@test.local', role: 'finance_admin', branchId: branchA, effectiveCapabilities: null }
   })
 
   it('resolves line items, payments, customer, branch, and cashier names', async () => {

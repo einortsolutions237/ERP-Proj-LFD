@@ -17,10 +17,10 @@ describe('getDashboardPendingDeliveries', () => {
     const b = await seedBranch('Dashboard Pending Deliveries Branch B')
     branchA = a.id
     branchB = b.id
-    branchManagerUser = { uid: 'dashboard-pd-bm', email: 'bm@test.local', role: 'branch_manager', branchId: branchA }
-    cashierUser = { uid: 'dashboard-pd-cashier', email: 'cash@test.local', role: 'cashier', branchId: branchA }
-    generalManagerUser = { uid: 'dashboard-pd-gm', email: 'gm@test.local', role: 'general_manager', branchId: branchA }
-    hrAdminUser = { uid: 'dashboard-pd-hr', email: 'hr@test.local', role: 'hr_admin', branchId: branchA }
+    branchManagerUser = { uid: 'dashboard-pd-bm', email: 'bm@test.local', role: 'branch_manager', branchId: branchA, effectiveCapabilities: null }
+    cashierUser = { uid: 'dashboard-pd-cashier', email: 'cash@test.local', role: 'cashier', branchId: branchA, effectiveCapabilities: null }
+    generalManagerUser = { uid: 'dashboard-pd-gm', email: 'gm@test.local', role: 'general_manager', branchId: branchA, effectiveCapabilities: null }
+    hrAdminUser = { uid: 'dashboard-pd-hr', email: 'hr@test.local', role: 'hr_admin', branchId: branchA, effectiveCapabilities: null }
 
     const product = await seedProduct({ name: 'Backordered Widget', price: 100 })
     const customer = await seedCustomer({ name: 'Test Customer', phone: '+1000000001' })

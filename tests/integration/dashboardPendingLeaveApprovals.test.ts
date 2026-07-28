@@ -18,9 +18,9 @@ describe('getPendingLeaveApprovals', () => {
     branchB = b.id
     const staffA = await seedStaff({ role: 'cashier', branchId: branchA, email: 'dashboard-leave-staff-a@test.local' })
     const staffB = await seedStaff({ role: 'cashier', branchId: branchB, email: 'dashboard-leave-staff-b@test.local' })
-    branchManagerUser = { uid: 'dashboard-leave-bm', email: 'bm@test.local', role: 'branch_manager', branchId: branchA }
-    hrAdminUser = { uid: 'dashboard-leave-hr', email: 'hr@test.local', role: 'hr_admin', branchId: branchA }
-    cashierUser = { uid: 'dashboard-leave-cashier', email: 'cashier@test.local', role: 'cashier', branchId: branchA }
+    branchManagerUser = { uid: 'dashboard-leave-bm', email: 'bm@test.local', role: 'branch_manager', branchId: branchA, effectiveCapabilities: null }
+    hrAdminUser = { uid: 'dashboard-leave-hr', email: 'hr@test.local', role: 'hr_admin', branchId: branchA, effectiveCapabilities: null }
+    cashierUser = { uid: 'dashboard-leave-cashier', email: 'cashier@test.local', role: 'cashier', branchId: branchA, effectiveCapabilities: null }
 
     await seedLeaveRequest({ staffId: staffA.uid, branchId: branchA, type: 'annual', status: 'pending' })
     await seedLeaveRequest({ staffId: staffA.uid, branchId: branchA, type: 'sick', status: 'approved' }) // must be excluded

@@ -32,7 +32,7 @@ describe('queryExpenses — attachments', () => {
     const branch = await seedBranch('queryExpenses Test Branch')
     const financeAdmin = await seedStaff({ role: 'finance_admin', branchId: branch.id, email: 'fa-qe@test.local' })
     financeAdminCookie = financeAdmin.sessionCookie
-    financeAdminUser = { uid: financeAdmin.uid, email: 'fa-qe@test.local', role: 'finance_admin', branchId: branch.id }
+    financeAdminUser = { uid: financeAdmin.uid, email: 'fa-qe@test.local', role: 'finance_admin', branchId: branch.id, effectiveCapabilities: null }
 
     const expenseRes = await withSession(financeAdminCookie, () =>
       postExpense(jsonRequest('http://localhost/api/expenses', { date: '2026-07-20', category: 'Supplies', amount: 60, description: 'Office supplies' }))

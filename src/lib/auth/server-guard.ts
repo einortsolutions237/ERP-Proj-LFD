@@ -1,13 +1,19 @@
 import { cookies } from 'next/headers'
 import { getAdminAuth } from '@/lib/firebase/admin'
 import { SESSION_COOKIE_NAME } from './session'
-import { hasCapability, type Capability, type RoleId } from './permissions'
+import { hasEffectiveCapability, type Capability, type RoleId } from './permissions'
+import { getRoleOverride } from './roleOverrides'
 
 export interface SessionUser {
   uid: string
   email: string
   role: RoleId
   branchId: string
+  // Phase 39 — null means no override exists for this role; the
+  // hardcoded default applies. Resolved once per request, here, so
+  // hasEffectiveCapability never needs to be async at any of its call
+  // sites.
+  effectiveCapabilities: Capability[] | null
 }
 
 export class AuthError extends Error {
@@ -26,11 +32,14 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   try {
     const decoded = await getAdminAuth().verifySessionCookie(sessionCookie, true)
     if (!decoded.role || !decoded.branchId) return null
+    const role = decoded.role as RoleId
+    const effectiveCapabilities = await getRoleOverride(role)
     return {
       uid: decoded.uid,
       email: decoded.email ?? '',
-      role: decoded.role as RoleId,
+      role,
       branchId: decoded.branchId as string,
+      effectiveCapabilities,
     }
   } catch {
     return null
@@ -40,13 +49,13 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 export async function requireCapability(capability: Capability): Promise<SessionUser> {
   const user = await getSessionUser()
   if (!user) throw new AuthError('Not signed in', 401)
-  if (!hasCapability(user.role, capability)) throw new AuthError('Forbidden', 403)
+  if (!hasEffectiveCapability(user, capability)) throw new AuthError('Forbidden', 403)
   return user
 }
 
 export async function requireAnyCapability(capabilities: Capability[]): Promise<SessionUser> {
   const user = await getSessionUser()
   if (!user) throw new AuthError('Not signed in', 401)
-  if (!capabilities.some((c) => hasCapability(user.role, c))) throw new AuthError('Forbidden', 403)
+  if (!capabilities.some((c) => hasEffectiveCapability(user, c))) throw new AuthError('Forbidden', 403)
   return user
 }

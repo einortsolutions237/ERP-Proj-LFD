@@ -34,7 +34,7 @@ describe('getLabRecords — result id and attachments', () => {
     const branch = await seedBranch('getLabRecords Test Branch')
     const doctor = await seedStaff({ role: 'doctor', branchId: branch.id, email: 'doc-glr@test.local' })
     doctorCookie = doctor.sessionCookie
-    doctorUser = { uid: doctor.uid, email: 'doc-glr@test.local', role: 'doctor', branchId: branch.id }
+    doctorUser = { uid: doctor.uid, email: 'doc-glr@test.local', role: 'doctor', branchId: branch.id, effectiveCapabilities: null }
 
     const customer = await seedCustomer({ name: 'getLabRecords Test Customer', phone: '+1000000066' })
     customerId = customer.id

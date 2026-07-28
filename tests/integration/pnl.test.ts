@@ -29,7 +29,7 @@ describe('P&L report', () => {
 
     const fa = await seedStaff({ role: 'finance_admin', branchId: branchA, email: 'fa-pnl@test.local' })
     financeAdminCookie = fa.sessionCookie
-    financeAdminUser = { uid: fa.uid, email: 'fa-pnl@test.local', role: 'finance_admin', branchId: branchA }
+    financeAdminUser = { uid: fa.uid, email: 'fa-pnl@test.local', role: 'finance_admin', branchId: branchA, effectiveCapabilities: null }
     cashierCookie = (await seedStaff({ role: 'cashier', branchId: branchA, email: 'cash-pnl@test.local' })).sessionCookie
     adminCookie = (await seedStaff({ role: 'admin', branchId: branchA, email: 'admin-pnl@test.local' })).sessionCookie
     branchManagerCookie = (await seedStaff({ role: 'branch_manager', branchId: branchA, email: 'bm-pnl@test.local' })).sessionCookie

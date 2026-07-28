@@ -16,9 +16,9 @@ describe('getRecentActivity', () => {
     const b = await seedBranch('Dashboard Recent Activity Branch B')
     branchA = a.id
     branchB = b.id
-    branchManagerUser = { uid: 'dashboard-activity-bm', email: 'bm@test.local', role: 'branch_manager', branchId: branchA }
-    generalManagerUser = { uid: 'dashboard-activity-gm', email: 'gm@test.local', role: 'general_manager', branchId: branchA }
-    cashierUser = { uid: 'dashboard-activity-cashier', email: 'cash@test.local', role: 'cashier', branchId: branchA }
+    branchManagerUser = { uid: 'dashboard-activity-bm', email: 'bm@test.local', role: 'branch_manager', branchId: branchA, effectiveCapabilities: null }
+    generalManagerUser = { uid: 'dashboard-activity-gm', email: 'gm@test.local', role: 'general_manager', branchId: branchA, effectiveCapabilities: null }
+    cashierUser = { uid: 'dashboard-activity-cashier', email: 'cash@test.local', role: 'cashier', branchId: branchA, effectiveCapabilities: null }
 
     // IMPORTANT: use timestamps AHEAD of "now", not behind it. getRecentActivity
     // fetches only the most recent 300 auditLogs entries (RESULT_LIMIT caps at
