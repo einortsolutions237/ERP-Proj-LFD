@@ -1,6 +1,6 @@
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { writeAuditLog } from '@/lib/audit/log'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasEffectiveCapability } from '@/lib/auth/permissions'
 import { AuthError, type SessionUser } from '@/lib/auth/server-guard'
 import type { LabOrder, LabOrderStatus } from '@/lib/types/labOrder'
 import type { LabResult, LabResultFlag } from '@/lib/types/labResult'
@@ -56,7 +56,7 @@ export interface LabOrderRow {
 // listing route — no new audit surface, no new capability check, since
 // clinical.lab.view already gates the whole function.
 export async function getLabRecords(customerId: string, viewer: SessionUser): Promise<LabOrderRow[]> {
-  if (!hasCapability(viewer.role, 'clinical.lab.view')) {
+  if (!hasEffectiveCapability(viewer, 'clinical.lab.view')) {
     throw new AuthError('Forbidden', 403)
   }
 

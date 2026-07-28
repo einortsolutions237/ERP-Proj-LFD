@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasEffectiveCapability } from '@/lib/auth/permissions'
 import { getSaleDetail } from '@/lib/pos/getSaleDetail'
 import VoidSaleButton from '@/components/pos/VoidSaleButton'
 import PrintReceiptButton from '@/components/pos/PrintReceiptButton'
@@ -47,7 +47,7 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ id:
                 </p>
               </div>
             ) : (
-              hasCapability(user.role, 'pos.sale.void') && (
+              hasEffectiveCapability(user, 'pos.sale.void') && (
                 <div className="mt-2">
                   <VoidSaleButton saleId={id} />
                 </div>

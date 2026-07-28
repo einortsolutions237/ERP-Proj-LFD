@@ -1,5 +1,5 @@
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { hasCapability, isBranchLocked } from '@/lib/auth/permissions'
+import { hasEffectiveCapability, isBranchLocked } from '@/lib/auth/permissions'
 import { AuthError, type SessionUser } from '@/lib/auth/server-guard'
 import type { ProductStock } from '@/lib/types/stock'
 import type { Product } from '@/lib/types/product'
@@ -26,7 +26,7 @@ export interface LowStockSummary {
 // set. isBranchLocked matches this widget's own capability's actual read
 // route (stock/page.tsx, Phase-12-fixed), not the unrelated reports pattern.
 export async function getDashboardLowStock(viewer: SessionUser): Promise<LowStockSummary> {
-  if (!hasCapability(viewer.role, 'inventory.stock.view')) {
+  if (!hasEffectiveCapability(viewer, 'inventory.stock.view')) {
     throw new AuthError('Forbidden', 403)
   }
 

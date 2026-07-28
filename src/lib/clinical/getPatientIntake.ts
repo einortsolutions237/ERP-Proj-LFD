@@ -1,6 +1,6 @@
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { writeAuditLog } from '@/lib/audit/log'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasEffectiveCapability } from '@/lib/auth/permissions'
 import { AuthError, type SessionUser } from '@/lib/auth/server-guard'
 import type { PatientDemographics } from '@/lib/types/patientDemographics'
 import type { NursingVisit } from '@/lib/types/nursingVisit'
@@ -39,7 +39,7 @@ export interface PatientIntake {
 // Re-checks the capability itself rather than trusting the caller already
 // did, same belt-and-suspenders discipline as its clinical precedents.
 export async function getPatientIntake(customerId: string, viewer: SessionUser): Promise<PatientIntake> {
-  if (!hasCapability(viewer.role, 'clinical.intake.view')) {
+  if (!hasEffectiveCapability(viewer, 'clinical.intake.view')) {
     throw new AuthError('Forbidden', 403)
   }
 

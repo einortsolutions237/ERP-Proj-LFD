@@ -1,5 +1,5 @@
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { hasCapability, isBranchLocked } from '@/lib/auth/permissions'
+import { hasEffectiveCapability, isBranchLocked } from '@/lib/auth/permissions'
 import { AuthError, type SessionUser } from '@/lib/auth/server-guard'
 import type { PendingDelivery, PendingDeliveryStatus } from '@/lib/types/pendingDelivery'
 
@@ -24,7 +24,7 @@ export interface PendingDeliveryRow {
 // rather than trusting the caller already did, same belt-and-suspenders
 // discipline as getAppointments/getLabRecords.
 export async function getPendingDeliveries(customerId: string, viewer: SessionUser): Promise<PendingDeliveryRow[]> {
-  if (!hasCapability(viewer.role, 'pos.delivery.fulfill')) {
+  if (!hasEffectiveCapability(viewer, 'pos.delivery.fulfill')) {
     throw new AuthError('Forbidden', 403)
   }
 

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { hasCapability, isBranchLocked } from '@/lib/auth/permissions'
+import { hasEffectiveCapability, isBranchLocked } from '@/lib/auth/permissions'
 import RoleMatrix from '@/components/roles/RoleMatrix'
 import RoleReassignmentTable from '@/components/roles/RoleReassignmentTable'
 import type { StaffRow } from '@/components/staff/StaffTable'
@@ -37,7 +37,7 @@ export default async function RolesPage() {
   // 'admin.staff.edit' (Task 6), not 'admin.roles.assign' — that mismatch is
   // pre-existing and out of scope here. This check only controls whether the
   // reassignment control renders; the server enforces its own guard regardless.
-  const canAssign = hasCapability(user.role, 'admin.roles.assign')
+  const canAssign = hasEffectiveCapability(user, 'admin.roles.assign')
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-10">

@@ -1,5 +1,5 @@
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { hasCapability, isBranchLocked } from '@/lib/auth/permissions'
+import { hasEffectiveCapability, isBranchLocked } from '@/lib/auth/permissions'
 import { AuthError, type SessionUser } from '@/lib/auth/server-guard'
 import type { AuditAction, AuditLogEntry } from '@/lib/types/audit'
 
@@ -41,7 +41,7 @@ const RECENT_WINDOW_SIZE = 300
 const RESULT_LIMIT = 10
 
 export async function getRecentActivity(viewer: SessionUser): Promise<RecentActivityItem[]> {
-  if (!hasCapability(viewer.role, 'dashboard.activity.view')) {
+  if (!hasEffectiveCapability(viewer, 'dashboard.activity.view')) {
     throw new AuthError('Forbidden', 403)
   }
 

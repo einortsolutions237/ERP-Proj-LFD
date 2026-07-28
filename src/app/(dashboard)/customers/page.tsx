@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasEffectiveCapability } from '@/lib/auth/permissions'
 import CustomerTable, { type CustomerRow } from '@/components/customers/CustomerTable'
 
 export default async function CustomersPage() {
@@ -27,7 +27,7 @@ export default async function CustomersPage() {
     }
   })
 
-  const canCreate = hasCapability(user.role, 'crm.customer.create')
+  const canCreate = hasEffectiveCapability(user, 'crm.customer.create')
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-6">

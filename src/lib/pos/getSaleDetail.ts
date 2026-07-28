@@ -1,5 +1,5 @@
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { hasCapability, isBranchLocked } from '@/lib/auth/permissions'
+import { hasEffectiveCapability, isBranchLocked } from '@/lib/auth/permissions'
 import { AuthError, type SessionUser } from '@/lib/auth/server-guard'
 import type { Sale, SaleLineItem, SalePayment } from '@/lib/types/sale'
 import type { PendingDelivery, PendingDeliveryStatus } from '@/lib/types/pendingDelivery'
@@ -47,7 +47,7 @@ export interface SaleDetail {
 // now keyed off isBranchLocked() instead of an unconditional branchId
 // comparison, matching GET /api/sales's Phase 20 fix.
 export async function getSaleDetail(saleId: string, viewer: SessionUser): Promise<SaleDetail | null> {
-  if (!hasCapability(viewer.role, 'pos.sale.view')) {
+  if (!hasEffectiveCapability(viewer, 'pos.sale.view')) {
     throw new AuthError('Forbidden', 403)
   }
 

@@ -1,6 +1,6 @@
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { writeAuditLog } from '@/lib/audit/log'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasEffectiveCapability } from '@/lib/auth/permissions'
 import { AuthError, type SessionUser } from '@/lib/auth/server-guard'
 import type { Treatment } from '@/lib/types/treatment'
 
@@ -22,7 +22,7 @@ export interface TreatmentRow {
 // caller already did, the same belt-and-suspenders discipline as
 // StaffTable's super_admin delete guard.
 export async function getPatientTreatments(customerId: string, viewer: SessionUser): Promise<TreatmentRow[]> {
-  if (!hasCapability(viewer.role, 'clinical.record.view')) {
+  if (!hasEffectiveCapability(viewer, 'clinical.record.view')) {
     throw new AuthError('Forbidden', 403)
   }
 

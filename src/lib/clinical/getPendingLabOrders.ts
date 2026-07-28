@@ -1,6 +1,6 @@
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { writeAuditLog } from '@/lib/audit/log'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasEffectiveCapability } from '@/lib/auth/permissions'
 import { AuthError, type SessionUser } from '@/lib/auth/server-guard'
 import type { LabOrder } from '@/lib/types/labOrder'
 
@@ -22,7 +22,7 @@ export interface PendingLabOrderRow {
 // lab_staff, super_admin), not everyone who can merely view results
 // (medical_secretary/general_manager/nurse do not get this view).
 export async function getPendingLabOrders(viewer: SessionUser): Promise<PendingLabOrderRow[]> {
-  if (!hasCapability(viewer.role, 'clinical.lab.results.enter')) {
+  if (!hasEffectiveCapability(viewer, 'clinical.lab.results.enter')) {
     throw new AuthError('Forbidden', 403)
   }
 

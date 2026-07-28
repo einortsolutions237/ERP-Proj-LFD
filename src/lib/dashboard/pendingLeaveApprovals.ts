@@ -1,5 +1,5 @@
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasEffectiveCapability } from '@/lib/auth/permissions'
 import { AuthError, type SessionUser } from '@/lib/auth/server-guard'
 import type { LeaveRequest } from '@/lib/types/leave-request'
 
@@ -17,7 +17,7 @@ export interface PendingLeaveApprovalRow {
 // shared function to import, so this is the reuse-without-reimplementation
 // path for this one widget. leave/review/page.tsx itself is untouched.
 export async function getPendingLeaveApprovals(viewer: SessionUser): Promise<PendingLeaveApprovalRow[]> {
-  if (!hasCapability(viewer.role, 'hr.leave.approve')) {
+  if (!hasEffectiveCapability(viewer, 'hr.leave.approve')) {
     throw new AuthError('Forbidden', 403)
   }
 

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getAdminFirestore, getAdminStorage } from '@/lib/firebase/admin'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasEffectiveCapability } from '@/lib/auth/permissions'
 import { getSessionUser, AuthError } from '@/lib/auth/server-guard'
 import { writeAuditLog } from '@/lib/audit/log'
 import { ATTACHMENT_CAPABILITIES, isAttachableCollection } from '@/lib/attachments/capabilityMap'
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     }
 
     const { manage } = ATTACHMENT_CAPABILITIES[relatedCollection]
-    if (!hasCapability(user.role, manage)) {
+    if (!hasEffectiveCapability(user, manage)) {
       throw new AuthError('Forbidden', 403)
     }
 

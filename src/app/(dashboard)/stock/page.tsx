@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { hasCapability, isBranchLocked } from '@/lib/auth/permissions'
+import { hasEffectiveCapability, isBranchLocked } from '@/lib/auth/permissions'
 import { isLowStock } from '@/lib/inventory/lowStock'
 import StockTable, { type StockRow } from '@/components/stock/StockTable'
 import PageHeader from '@/components/ui/PageHeader'
@@ -52,8 +52,8 @@ export default async function StockPage() {
 
   const branches = branchesSnap.docs.map((d) => ({ id: d.id, name: d.data().name as string }))
 
-  const canAdjust = hasCapability(user.role, 'inventory.stock.adjust')
-  const canTransfer = hasCapability(user.role, 'inventory.stock.transfer')
+  const canAdjust = hasEffectiveCapability(user, 'inventory.stock.adjust')
+  const canTransfer = hasEffectiveCapability(user, 'inventory.stock.transfer')
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-6">

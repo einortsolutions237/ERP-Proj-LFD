@@ -1,6 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import { requireAnyCapability, AuthError } from '@/lib/auth/server-guard'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasEffectiveCapability } from '@/lib/auth/permissions'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { getSeminarAttendance } from '@/lib/clinical/getSeminarAttendance'
 import SeminarDetailClient from '@/components/seminars/SeminarDetailClient'
@@ -22,9 +22,9 @@ export default async function SeminarDetailPage({ params }: { params: Promise<{ 
   if (!doc.exists) notFound()
   const data = doc.data() as Seminar
 
-  const canManage = hasCapability(user.role, 'seminars.manage')
-  const canRecord = hasCapability(user.role, 'seminars.attendance.record')
-  const canView = hasCapability(user.role, 'seminars.attendance.view')
+  const canManage = hasEffectiveCapability(user, 'seminars.manage')
+  const canRecord = hasEffectiveCapability(user, 'seminars.attendance.record')
+  const canView = hasEffectiveCapability(user, 'seminars.attendance.view')
 
   const [attendance, branches, customers, branchDoc] = await Promise.all([
     canView ? getSeminarAttendance({ seminarId: id }, user) : Promise.resolve([]),

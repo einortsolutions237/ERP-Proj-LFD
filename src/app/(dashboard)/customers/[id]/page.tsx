@@ -2,7 +2,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { requireAnyCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { hasCapability, isBranchLocked } from '@/lib/auth/permissions'
+import { hasEffectiveCapability, isBranchLocked } from '@/lib/auth/permissions'
 import DeleteCustomerButton from '@/components/customers/DeleteCustomerButton'
 import { getPatientTreatments } from '@/lib/clinical/getPatientTreatments'
 import { getAppointments } from '@/lib/clinical/getAppointments'
@@ -100,29 +100,29 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
     })
     .sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0))
 
-  const canManage = hasCapability(user.role, 'crm.customer.manage')
-  const canViewCommercial = hasCapability(user.role, 'crm.customer.view')
-  const canViewClinical = hasCapability(user.role, 'clinical.record.view')
-  const canCreateTreatment = hasCapability(user.role, 'clinical.record.create')
-  const canManageAppointments = hasCapability(user.role, 'clinical.appointments.manage')
+  const canManage = hasEffectiveCapability(user, 'crm.customer.manage')
+  const canViewCommercial = hasEffectiveCapability(user, 'crm.customer.view')
+  const canViewClinical = hasEffectiveCapability(user, 'clinical.record.view')
+  const canCreateTreatment = hasEffectiveCapability(user, 'clinical.record.create')
+  const canManageAppointments = hasEffectiveCapability(user, 'clinical.appointments.manage')
   const upcomingAppointments = canManageAppointments
     ? await getAppointments({ customerId: id, upcomingOnly: true }, user)
     : []
-  const canViewLab = hasCapability(user.role, 'clinical.lab.view')
-  const canOrderLab = hasCapability(user.role, 'clinical.lab.order')
-  const canEnterLabResults = hasCapability(user.role, 'clinical.lab.results.enter')
+  const canViewLab = hasEffectiveCapability(user, 'clinical.lab.view')
+  const canOrderLab = hasEffectiveCapability(user, 'clinical.lab.order')
+  const canEnterLabResults = hasEffectiveCapability(user, 'clinical.lab.results.enter')
   const labOrders = canViewLab ? await getLabRecords(id, user) : []
   const treatments = canViewClinical ? await getPatientTreatments(id, user) : []
-  const canViewSeminarAttendance = hasCapability(user.role, 'seminars.attendance.view')
+  const canViewSeminarAttendance = hasEffectiveCapability(user, 'seminars.attendance.view')
   const seminarAttendance = canViewSeminarAttendance
     ? await getSeminarAttendance({ customerId: id }, user)
     : []
-  const canFulfillDeliveries = hasCapability(user.role, 'pos.delivery.fulfill')
+  const canFulfillDeliveries = hasEffectiveCapability(user, 'pos.delivery.fulfill')
   const pendingDeliveries = canFulfillDeliveries
     ? await getPendingDeliveries(id, user)
     : []
-  const canViewIntake = hasCapability(user.role, 'clinical.intake.view')
-  const canRecordIntake = hasCapability(user.role, 'clinical.intake.record')
+  const canViewIntake = hasEffectiveCapability(user, 'clinical.intake.view')
+  const canRecordIntake = hasEffectiveCapability(user, 'clinical.intake.record')
   const intake = canViewIntake ? await getPatientIntake(id, user) : { demographics: null, visits: [] }
 
   return (

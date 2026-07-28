@@ -1,5 +1,5 @@
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasEffectiveCapability } from '@/lib/auth/permissions'
 import { AuthError, type SessionUser } from '@/lib/auth/server-guard'
 import type { Sale } from '@/lib/types/sale'
 
@@ -17,7 +17,7 @@ function dayKey(date: Date): string {
 // and must behave identically for who sees what — see GET /api/reports/sales,
 // deliberately left unchanged since Phase 20.
 export async function buildRevenueTrend(user: SessionUser, days = 30): Promise<RevenueTrendPoint[]> {
-  if (!hasCapability(user.role, 'reports.sales.view')) {
+  if (!hasEffectiveCapability(user, 'reports.sales.view')) {
     throw new AuthError('Forbidden', 403)
   }
 

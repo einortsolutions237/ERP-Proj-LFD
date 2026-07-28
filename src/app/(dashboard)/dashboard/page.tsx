@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/auth/server-guard'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasEffectiveCapability } from '@/lib/auth/permissions'
 import AttendanceWidget from '@/components/attendance/AttendanceWidget'
 import DashboardCard from '@/components/dashboard/DashboardCard'
 import RevenueTrendChart from '@/components/dashboard/RevenueTrendChart'
@@ -32,13 +32,13 @@ export default async function DashboardPage({
 
   const { error } = await searchParams
 
-  const canViewRevenue = hasCapability(user.role, 'reports.sales.view')
-  const canViewLowStock = hasCapability(user.role, 'inventory.stock.view')
-  const canViewDeliveries = hasCapability(user.role, 'pos.delivery.fulfill')
-  const canViewActivity = hasCapability(user.role, 'dashboard.activity.view')
-  const canViewAppointments = hasCapability(user.role, 'clinical.appointments.manage')
-  const canViewLabOrders = hasCapability(user.role, 'clinical.lab.results.enter')
-  const canViewLeaveApprovals = hasCapability(user.role, 'hr.leave.approve')
+  const canViewRevenue = hasEffectiveCapability(user, 'reports.sales.view')
+  const canViewLowStock = hasEffectiveCapability(user, 'inventory.stock.view')
+  const canViewDeliveries = hasEffectiveCapability(user, 'pos.delivery.fulfill')
+  const canViewActivity = hasEffectiveCapability(user, 'dashboard.activity.view')
+  const canViewAppointments = hasEffectiveCapability(user, 'clinical.appointments.manage')
+  const canViewLabOrders = hasEffectiveCapability(user, 'clinical.lab.results.enter')
+  const canViewLeaveApprovals = hasEffectiveCapability(user, 'hr.leave.approve')
 
   const [revenueTrend, lowStock, deliveries, activity, appointments, labOrders, leaveApprovals, branchName] = await Promise.all([
     canViewRevenue ? buildRevenueTrend(user) : Promise.resolve(null),

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { requireAnyCapability, AuthError } from '@/lib/auth/server-guard'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasEffectiveCapability } from '@/lib/auth/permissions'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import type { SeminarFormat } from '@/lib/types/seminar'
 
@@ -40,7 +40,7 @@ export default async function SeminarsPage() {
     branchName: data.branchId ? branchNames[data.branchId as string] ?? (data.branchId as string) : null,
   }))
 
-  const canManage = hasCapability(user.role, 'seminars.manage')
+  const canManage = hasEffectiveCapability(user, 'seminars.manage')
 
   return (
     <div className="mx-auto mt-12 max-w-4xl space-y-6">

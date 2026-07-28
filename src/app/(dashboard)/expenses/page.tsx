@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { queryExpenses } from '@/lib/expenses/store'
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasEffectiveCapability } from '@/lib/auth/permissions'
 import { toCsv } from '@/lib/csv'
 import DownloadCsvButton from '@/components/reports/DownloadCsvButton'
 
@@ -45,7 +45,7 @@ export default async function ExpensesPage() {
     <div className="max-w-4xl mx-auto mt-12 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-semibold text-ink">Expenses</h1>
-        {hasCapability(user.role, 'accounting.expense.create') && (
+        {hasEffectiveCapability(user, 'accounting.expense.create') && (
           <Link href="/expenses/new" className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50">
             Record expense
           </Link>

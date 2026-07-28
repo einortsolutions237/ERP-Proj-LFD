@@ -1,6 +1,6 @@
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { writeAuditLog } from '@/lib/audit/log'
-import { hasCapability } from '@/lib/auth/permissions'
+import { hasEffectiveCapability } from '@/lib/auth/permissions'
 import { AuthError, type SessionUser } from '@/lib/auth/server-guard'
 import type { Seminar } from '@/lib/types/seminar'
 import type { SeminarAttendance, AttendanceMethod } from '@/lib/types/seminarAttendance'
@@ -34,7 +34,7 @@ export async function getSeminarAttendance(
   filters: SeminarAttendanceFilters,
   viewer: SessionUser
 ): Promise<SeminarAttendanceRow[]> {
-  if (!hasCapability(viewer.role, 'seminars.attendance.view')) {
+  if (!hasEffectiveCapability(viewer, 'seminars.attendance.view')) {
     throw new AuthError('Forbidden', 403)
   }
 
