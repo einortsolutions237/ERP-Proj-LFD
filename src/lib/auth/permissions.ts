@@ -90,6 +90,12 @@ export type Capability =
   // CLINICAL_VIEW_ROLES rather than composed by reference.
   | 'payroll.record.create'
   | 'payroll.record.view'
+  // Phase 39 — Dynamic Role Capability Editing. Gates viewing/editing the
+  // roleCapabilityOverrides collection itself. Permanently super_admin-only
+  // — see ROLE_OVERRIDES_MANAGE_ROLES below and
+  // validateRoleCapabilityOverride's self-referential-escalation check:
+  // no override may ever grant this capability to any role.
+  | 'admin.roleOverrides.manage'
 
 export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'admin.staff.view': 'admin',
@@ -139,6 +145,7 @@ export const CAPABILITY_MODULE: Record<Capability, ModuleId> = {
   'accounting.pnl.view': 'accounting',
   'payroll.record.create': 'accounting',
   'payroll.record.view': 'accounting',
+  'admin.roleOverrides.manage': 'admin',
 }
 
 const ALL_ROLES: RoleId[] = [...ROLES]
@@ -201,6 +208,13 @@ const CASHIER_BRANCH_MGR: RoleId[] = ['super_admin', 'branch_manager', 'cashier'
 // Backs admin.settings.manage/admin.auditLog.view — admin's other two
 // "system/access administration" capabilities, unchanged by Phase 17.
 const ADMIN_IT: RoleId[] = ['super_admin', 'admin', 'it_admin']
+// Phase 39 — permanently exactly one role. Not extended to admin despite
+// admin holding other roles-adjacent capabilities (admin.roles.view/assign)
+// — this is the single highest-leverage capability-adjacent action in the
+// system, deliberately not shared. Never editable via an override itself
+// (validateRoleCapabilityOverride rejects any attempt to include this
+// capability in an override's list, for any role).
+const ROLE_OVERRIDES_MANAGE_ROLES: RoleId[] = ['super_admin']
 const REPORTS_ROLES: RoleId[] = ['super_admin', 'general_manager', 'branch_manager', 'finance_admin']
 // admin is deliberately absent here — CLAUDE.md's hybrid-business/clinical-wall
 // section states clinical data is walled off from admin despite admin being
@@ -360,10 +374,27 @@ export const ROLE_CAPABILITIES: Record<Capability, RoleId[]> = {
   'accounting.pnl.view': ACCOUNTING_VIEW_ROLES,
   'payroll.record.create': PAYROLL_RECORD_CREATE_ROLES,
   'payroll.record.view': PAYROLL_RECORD_VIEW_ROLES,
+  'admin.roleOverrides.manage': ROLE_OVERRIDES_MANAGE_ROLES,
 }
 
 export function hasCapability(role: RoleId, capability: Capability): boolean {
   return ROLE_CAPABILITIES[capability].includes(role)
+}
+
+// Phase 39 — the override-aware capability check. Takes a structural
+// shape (not the full SessionUser type) specifically to avoid a circular
+// import: SessionUser is defined in server-guard.ts, which already
+// imports hasCapability from this file. effectiveCapabilities is the
+// pre-resolved override for this user's role — null means no override
+// exists, fall back to the permanent hardcoded default. This is the ONLY
+// place override vs. default is decided; hasCapability itself never
+// changes.
+export function hasEffectiveCapability(
+  user: { role: RoleId; effectiveCapabilities: Capability[] | null },
+  capability: Capability
+): boolean {
+  if (user.effectiveCapabilities) return user.effectiveCapabilities.includes(capability)
+  return hasCapability(user.role, capability)
 }
 
 export function isSuperAdmin(role: RoleId): boolean {
