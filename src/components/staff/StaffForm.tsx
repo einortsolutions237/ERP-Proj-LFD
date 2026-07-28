@@ -12,6 +12,13 @@ import Alert from '@/components/ui/Alert'
 // validation time, but never present for the <select> to render as an option.
 const ASSIGNABLE_ROLES = ROLES.filter((r) => r !== 'super_admin')
 
+// Only used when a super_admin actor is editing a DIFFERENT super_admin
+// account — see Phase 38.6 Task 6. 'super_admin' must be a real, present
+// <option> in this one case so the <select>'s current value always
+// matches a real option (never silently defaults to something else and
+// gets submitted as an accidental demotion).
+const ROLE_OPTIONS_FOR_SUPER_ADMIN_TARGET: RoleId[] = ['super_admin', ...ASSIGNABLE_ROLES]
+
 // Display-only — humanizes the raw role enum ("branch_manager" ->
 // "Branch Manager") for the <option> label; the submitted value is still the
 // raw RoleId, never this display string.
@@ -26,9 +33,11 @@ export interface StaffFormProps {
   mode: 'create' | 'edit'
   staffId?: string
   initial?: Partial<Staff>
+  viewerRole?: RoleId
+  viewerUid?: string
 }
 
-export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
+export default function StaffForm({ mode, staffId, initial, viewerRole, viewerUid }: StaffFormProps) {
   const router = useRouter()
   const [name, setName] = useState(initial?.name ?? '')
   const [email, setEmail] = useState(initial?.email ?? '')
@@ -49,6 +58,11 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
   const [submitting, setSubmitting] = useState(false)
 
   const isSuperAdminTarget = initial?.role === 'super_admin'
+  const isSelfEdit = mode === 'edit' && !!viewerUid && viewerUid === staffId
+  // A super_admin actor may edit a DIFFERENT super_admin's role/status
+  // (Phase 38.6 Task 3's server-side fix); every other combination —
+  // including a super_admin editing their OWN record — stays protected.
+  const canEditSuperAdminTarget = isSuperAdminTarget && viewerRole === 'super_admin' && !isSelfEdit
   const cancelHref = mode === 'create' ? '/staff' : `/staff/${staffId}`
 
   async function handleSubmit(e: React.FormEvent) {
@@ -170,7 +184,7 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
           <label htmlFor="staff-role" className="block text-sm font-medium text-ink">
             Role
           </label>
-          {isSuperAdminTarget ? (
+          {isSuperAdminTarget && !canEditSuperAdminTarget ? (
             <input
               id="staff-role"
               disabled
@@ -184,9 +198,9 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
               onChange={(e) => setRole(e.target.value as RoleId)}
               className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
             >
-              {ASSIGNABLE_ROLES.map((r) => (
+              {(canEditSuperAdminTarget ? ROLE_OPTIONS_FOR_SUPER_ADMIN_TARGET : ASSIGNABLE_ROLES).map((r) => (
                 <option key={r} value={r}>
-                  {humanizeRole(r)}
+                  {r === 'super_admin' ? 'super_admin (current — no change)' : humanizeRole(r)}
                 </option>
               ))}
             </select>
@@ -281,7 +295,7 @@ export default function StaffForm({ mode, staffId, initial }: StaffFormProps) {
             <label htmlFor="staff-status" className="block text-sm font-medium text-ink">
               Employment status
             </label>
-            {isSuperAdminTarget ? (
+            {isSuperAdminTarget && !canEditSuperAdminTarget ? (
               <input
                 id="staff-status"
                 disabled

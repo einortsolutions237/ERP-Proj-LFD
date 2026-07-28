@@ -59,7 +59,7 @@ export default async function EditStaffPage({ params }: { params: Promise<{ staf
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-6">
       <PageHeader title="Edit staff member" />
-      <StaffForm mode="edit" staffId={staffId} initial={initial} />
+      <StaffForm mode="edit" staffId={staffId} initial={initial} viewerRole={user.role} viewerUid={user.uid} />
     </div>
   )
 }
