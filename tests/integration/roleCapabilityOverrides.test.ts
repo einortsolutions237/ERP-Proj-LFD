@@ -75,6 +75,8 @@ describe('PUT/DELETE /api/role-capability-overrides/[role]', () => {
       putOverride(putRequest(['admin.roleOverrides.manage']), { params: Promise.resolve({ role: 'hr_admin' }) })
     )
     expect(res.status).toBe(400)
+    const doc = await getAdminFirestore().collection('roleCapabilityOverrides').doc('hr_admin').get()
+    expect(doc.exists).toBe(false)
   })
 
   it('rejects a request body with a non-array or unknown capability string', async () => {
@@ -105,6 +107,20 @@ describe('PUT/DELETE /api/role-capability-overrides/[role]', () => {
       deleteOverride(new Request('http://localhost', { method: 'DELETE' }), { params: Promise.resolve({ role: 'it_admin' }) })
     )
     expect(res.status).toBe(200)
+  })
+
+  it('a non-super_admin actor (hr_admin) gets 403 attempting DELETE, even for a role that is not itself super_admin', async () => {
+    const res = await withSession(hrAdminCookie, () =>
+      deleteOverride(new Request('http://localhost', { method: 'DELETE' }), { params: Promise.resolve({ role: 'it_admin' }) })
+    )
+    expect(res.status).toBe(403)
+  })
+
+  it('rejects DELETE for the super_admin role itself, even by a real super_admin actor', async () => {
+    const res = await withSession(superAdminCookie, () =>
+      deleteOverride(new Request('http://localhost', { method: 'DELETE' }), { params: Promise.resolve({ role: 'super_admin' }) })
+    )
+    expect(res.status).toBe(400)
   })
 
   it('rejects an invalid role param that is not one of the fourteen real roles', async () => {

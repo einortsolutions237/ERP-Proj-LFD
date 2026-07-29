@@ -20,7 +20,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ role
     }
     const role = roleParam
 
-    const body = await request.json()
+    const body = await request.json().catch(() => null)
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({ error: 'Request body must be a JSON object' }, { status: 400 })
+    }
     if (!Array.isArray(body.capabilities) || !body.capabilities.every((c: unknown) => typeof c === 'string' && c in ROLE_CAPABILITIES)) {
       return NextResponse.json({ error: 'capabilities must be an array of known capability strings' }, { status: 400 })
     }
