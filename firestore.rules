@@ -118,6 +118,9 @@ service cloud.firestore {
     match /attachments/{attachmentId} {
       allow read, write: if false; // all access goes through the Admin SDK via /api/attachments
     }
+    match /roleCapabilityOverrides/{role} {
+      allow read, write: if false; // all access goes through /api/role-capability-overrides — see CLAUDE.md's Phase 39 section for why overrides don't extend into this file's other two hardcoded role checks (auditLogs/staff)
+    }
     match /{document=**} {
       allow read, write: if false;
     }
