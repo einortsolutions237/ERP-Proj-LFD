@@ -1,10 +1,15 @@
-import { ROLES, ROLE_CAPABILITIES, type Capability } from '@/lib/auth/permissions'
+import { ROLES, ROLE_CAPABILITIES, type Capability, type RoleId } from '@/lib/auth/permissions'
+import RoleCapabilityEditor from './RoleCapabilityEditor'
 
-// Read-only, no client state — this is just a projection of the static
-// ROLE_CAPABILITIES table (Task 3). No API call, nothing to fetch.
 const CAPABILITIES = Object.keys(ROLE_CAPABILITIES) as Capability[]
 
-export default function RoleMatrix() {
+export default function RoleMatrix({
+  overrides,
+  canEdit,
+}: {
+  overrides: Partial<Record<RoleId, Capability[]>>
+  canEdit: boolean
+}) {
   return (
     <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
       <div className="overflow-x-auto">
@@ -23,29 +28,35 @@ export default function RoleMatrix() {
                   {cap}
                 </th>
               ))}
+              {canEdit && (
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide text-slate">
+                  Override
+                </th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-mist">
             {ROLES.map((role) => {
-              // super_admin has no entry in ROLE_CAPABILITIES by design (Task 3) —
-              // it is intentionally out-of-band, not "granted every capability" in
-              // the data model. Render that fact explicitly instead of computing
-              // (and thus fabricating) a row from the capability list.
               if (role === 'super_admin') {
                 return (
                   <tr key={role} className="bg-mist/40">
                     <td className="px-3 py-2 font-medium text-ink">{role}</td>
-                    <td colSpan={CAPABILITIES.length} className="px-3 py-2 italic text-slate">
+                    <td colSpan={CAPABILITIES.length + (canEdit ? 1 : 0)} className="px-3 py-2 italic text-slate">
                       (full access, protected)
                     </td>
                   </tr>
                 )
               }
+              const override = overrides[role] ?? null
+              const effective = override ?? CAPABILITIES.filter((cap) => ROLE_CAPABILITIES[cap].includes(role))
               return (
                 <tr key={role} className="transition-colors duration-200 hover:bg-mist/40">
-                  <td className="px-3 py-2 font-medium text-ink">{role}</td>
+                  <td className="px-3 py-2 font-medium text-ink">
+                    {role}
+                    {override && <span className="ml-2 rounded-full bg-warning/10 px-2 py-0.5 text-xs text-warning">overridden</span>}
+                  </td>
                   {CAPABILITIES.map((cap) => {
-                    const granted = ROLE_CAPABILITIES[cap].includes(role)
+                    const granted = effective.includes(cap)
                     return (
                       <td key={cap} className="px-3 py-2 text-center">
                         {granted ? (
@@ -61,6 +72,11 @@ export default function RoleMatrix() {
                       </td>
                     )
                   })}
+                  {canEdit && (
+                    <td className="px-3 py-2">
+                      <RoleCapabilityEditor role={role} capabilities={CAPABILITIES} effectiveCapabilities={effective} hasOverride={!!override} />
+                    </td>
+                  )}
                 </tr>
               )
             })}

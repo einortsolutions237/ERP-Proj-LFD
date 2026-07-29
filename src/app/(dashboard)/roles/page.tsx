@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { hasEffectiveCapability, isBranchLocked } from '@/lib/auth/permissions'
+import { getAllRoleOverrides } from '@/lib/auth/roleOverrides'
 import RoleMatrix from '@/components/roles/RoleMatrix'
 import RoleReassignmentTable from '@/components/roles/RoleReassignmentTable'
 import type { StaffRow } from '@/components/staff/StaffTable'
@@ -39,6 +40,9 @@ export default async function RolesPage() {
   // reassignment control renders; the server enforces its own guard regardless.
   const canAssign = hasEffectiveCapability(user, 'admin.roles.assign')
 
+  const canManageOverrides = hasEffectiveCapability(user, 'admin.roleOverrides.manage')
+  const overrides = canManageOverrides ? await getAllRoleOverrides() : {}
+
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-10">
       <div>
@@ -51,7 +55,7 @@ export default async function RolesPage() {
 
       <section className="space-y-3">
         <h2 className="text-lg font-medium text-ink">Capability matrix</h2>
-        <RoleMatrix />
+        <RoleMatrix overrides={overrides} canEdit={canManageOverrides} />
       </section>
 
       <section className="space-y-3">
