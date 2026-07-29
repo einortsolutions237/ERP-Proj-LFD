@@ -47,6 +47,8 @@ export default function RoleCapabilityEditor({
       }
       setOpen(false)
       router.refresh()
+    } catch {
+      setError('Could not reach the server — the change was not saved.')
     } finally {
       setSaving(false)
     }
@@ -64,6 +66,8 @@ export default function RoleCapabilityEditor({
       }
       setOpen(false)
       router.refresh()
+    } catch {
+      setError('Could not reach the server — the reset was not applied.')
     } finally {
       setSaving(false)
     }
