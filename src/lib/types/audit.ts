@@ -23,6 +23,7 @@ export type AuditAction =
   | 'expense_create'
   | 'payroll_record_create'
   | 'attachment_upload'
+  | 'role_capability_override_change'
 
 export interface AuditLogEntry {
   id: string
