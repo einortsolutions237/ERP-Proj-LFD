@@ -53,7 +53,7 @@ export default function NavShell({ user, children }: { user: SessionUser; childr
       {/* Desktop/tablet: sidebar is always visible, no toggle needed. Icon
           + label at lg+, icon-only (tooltip via title attribute) at md-lg. */}
       <div className="hidden md:block print:hidden">
-        <Sidebar role={user.role} variant="persistent" />
+        <Sidebar role={user.role} effectiveCapabilities={user.effectiveCapabilities} variant="persistent" />
       </div>
 
       {/* Mobile: sidebar becomes a dismissible drawer over a backdrop */}
@@ -61,7 +61,7 @@ export default function NavShell({ user, children }: { user: SessionUser; childr
         <div className="md:hidden fixed inset-0 z-40 flex">
           <div className="absolute inset-0 bg-ink/40" onClick={() => setMobileNavOpen(false)} aria-hidden="true" />
           <div className="relative z-50 shadow-[var(--shadow-card)]" onClick={() => setMobileNavOpen(false)}>
-            <Sidebar role={user.role} variant="drawer" />
+            <Sidebar role={user.role} effectiveCapabilities={user.effectiveCapabilities} variant="drawer" />
           </div>
         </div>
       )}

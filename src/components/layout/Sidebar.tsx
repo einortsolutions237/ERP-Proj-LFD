@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { ReactElement } from 'react'
-import { hasCapability, type Capability, type RoleId } from '@/lib/auth/permissions'
+import { hasEffectiveCapability, type Capability, type RoleId } from '@/lib/auth/permissions'
 
 interface IconProps {
   className?: string
@@ -337,7 +337,7 @@ const NAV_GROUPS: NavGroup[] = [
 // lg+, handled via responsive classes below). 'drawer' = the mobile
 // slide-over rendered by NavShell only below md, which always shows full
 // labels since it's already an explicit, deliberately-opened overlay.
-export default function Sidebar({ role, variant = 'persistent' }: { role: RoleId; variant?: 'persistent' | 'drawer' }) {
+export default function Sidebar({ role, effectiveCapabilities, variant = 'persistent' }: { role: RoleId; effectiveCapabilities: Capability[] | null; variant?: 'persistent' | 'drawer' }) {
   const isDrawer = variant === 'drawer'
   const pathname = usePathname()
   const isActive = (href: string) => pathname === href
@@ -377,7 +377,9 @@ export default function Sidebar({ role, variant = 'persistent' }: { role: RoleId
 
       {NAV_GROUPS.map((group) => {
         const visibleLinks = group.links.filter((link) =>
-          (Array.isArray(link.capability) ? link.capability : [link.capability]).some((c) => hasCapability(role, c))
+          (Array.isArray(link.capability) ? link.capability : [link.capability]).some((c) =>
+            hasEffectiveCapability({ role, effectiveCapabilities }, c)
+          )
         )
         if (visibleLinks.length === 0) return null
         return (
