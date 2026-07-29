@@ -11,7 +11,13 @@ export async function getRoleOverride(role: RoleId): Promise<Capability[] | null
   if (role === 'super_admin') return null
   const db = getAdminFirestore()
   const doc = await db.collection('roleCapabilityOverrides').doc(role).get()
-  return doc.exists ? (doc.data()!.capabilities as Capability[]) : null
+  if (!doc.exists) return null
+  const raw = doc.data()!.capabilities
+  if (!Array.isArray(raw)) return null
+  // Defense-in-depth: even a hand-written document (outside this app's own
+  // write path, which already refuses this) can never grant the capability
+  // that gates the override mechanism itself.
+  return (raw as Capability[]).filter((c) => c !== 'admin.roleOverrides.manage')
 }
 
 // Used by Task 6's UI to render every role's effective set in one page

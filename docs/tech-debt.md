@@ -89,3 +89,17 @@ Tracked deviations, deferred hardening, and known limitations accepted during a 
 **Proposed enhancement:** a dedicated design-rollout phase applying `Button`/`Card`/`Badge`/`PageHeader`/`StatSummary`/`FormSection` to these seven modules, following the same mechanical, zero-color/font-change discipline every prior design-rollout phase (10, 21, 22, 27, 28, 33, 34) has used.
 
 **Constraints for the fix (per project decision):** should follow this project's established design-rollout playbook — a dedicated final review pass checking for drift *between* independently-styled screens, not just within each one (per Phase 10's own good practice).
+
+## TD-7: A role with an active capability override does not automatically receive new capabilities added to its hardcoded default
+
+**Deferred to:** Not scheduled — flagged during Phase 39's final whole-branch review, 2026-07-28.
+
+**Found during:** Phase 39 (Dynamic Role Capability Editing), final whole-branch review.
+
+**Current state:** `roleCapabilityOverrides` is complete-replacement, by design — the doc for a given role's capabilities is used exclusively when present, never merged with `ROLE_CAPABILITIES`'s hardcoded default for that role (see the Phase 39 section above). This means that once `super_admin` sets an override for a role, that role's effective capability set is pinned to exactly what was written at override time. If a later phase adds a new capability to that role's hardcoded default in `permissions.ts` (the normal way this project has always granted new roles access to new features), a role with an active override will *not* pick up that new capability automatically — it silently stays on the older, overridden set, with nothing in the UI (`RoleMatrix`, the override editor) surfacing that the role's effective capabilities have drifted from what a fresh read of `permissions.ts` alone would suggest.
+
+**Why not fixed now:** this is an inherent property of complete-replacement semantics, which was itself a deliberate, reviewed design decision (a delta-merge model was considered and is a materially different, riskier design — order-of-application and conflict semantics between "hardcoded default plus override delta" are exactly the kind of ambiguity Option B's complete-replacement choice was meant to avoid). Detecting and surfacing staleness is a real, separate piece of UI/product work, not a one-line fix, and wasn't in Phase 39's scope.
+
+**Proposed enhancement:** a UI warning on the override editor (`RoleMatrix`/the per-role override screen) when a role has an active override, and/or a "stale override" detector — e.g., comparing the override's `updatedAt` against a tracked last-changed timestamp for that role's hardcoded default, or diffing the override's capability set against the current hardcoded default to flag newly-added capabilities the override predates — so `super_admin` can make an informed decision about whether to update or clear the override after a phase changes that role's default.
+
+**Constraints for the fix (per project decision):** must not change complete-replacement semantics itself — the fix is detection/surfacing only, not a switch to delta-merge. Should be scoped as its own deliberate phase once prioritized, not folded into whichever future phase happens to next add a capability to an overridden role's default.

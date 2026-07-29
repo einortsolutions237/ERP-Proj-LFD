@@ -67,4 +67,22 @@ describe('getSessionUser / requireCapability — role capability override resolu
     })
     await db.collection('roleCapabilityOverrides').doc('super_admin').delete()
   })
+
+  it('a hand-written override doc granting admin.roleOverrides.manage to a non-super_admin role never actually grants it', async () => {
+    const db = getAdminFirestore()
+    await db.collection('roleCapabilityOverrides').doc('hr_admin').set({
+      role: 'hr_admin',
+      capabilities: ['admin.roleOverrides.manage', 'inventory.stock.view'],
+      updatedAt: new Date(),
+      updatedBy: 'test-harness',
+    })
+    const hrAdminCookie = (await seedStaff({ role: 'hr_admin', branchId: branchA, email: 'hr-hostile-override@test.local' })).sessionCookie
+    await withSession(hrAdminCookie, async () => {
+      await expect(requireCapability('admin.roleOverrides.manage')).rejects.toThrow('Forbidden')
+      // The rest of the hostile doc's grant is still honored — this proves
+      // the filter removes only the one dangerous capability, not the whole doc.
+      await expect(requireCapability('inventory.stock.view')).resolves.toBeTruthy()
+    })
+    await db.collection('roleCapabilityOverrides').doc('hr_admin').delete()
+  })
 })

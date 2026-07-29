@@ -41,7 +41,11 @@ export default async function RolesPage() {
   const canAssign = hasEffectiveCapability(user, 'admin.roles.assign')
 
   const canManageOverrides = hasEffectiveCapability(user, 'admin.roleOverrides.manage')
-  const overrides = canManageOverrides ? await getAllRoleOverrides() : {}
+  // Anyone who can view this page sees the REAL effective capability set —
+  // an override is not confidential relative to the default matrix they
+  // already see in full. Only editing stays gated behind canManageOverrides
+  // (passed to RoleMatrix separately, unchanged).
+  const overrides = await getAllRoleOverrides()
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-10">
