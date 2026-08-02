@@ -1,4 +1,5 @@
 import { ROLES, ROLE_CAPABILITIES, type Capability, type RoleId } from '@/lib/auth/permissions'
+import Badge from '@/components/ui/Badge'
 import RoleCapabilityEditor from './RoleCapabilityEditor'
 
 const CAPABILITIES = Object.keys(ROLE_CAPABILITIES) as Capability[]
@@ -53,7 +54,11 @@ export default function RoleMatrix({
                 <tr key={role} className="transition-colors duration-200 hover:bg-mist/40">
                   <td className="px-3 py-2 font-medium text-ink">
                     {role}
-                    {override && <span className="ml-2 rounded-full bg-warning/10 px-2 py-0.5 text-xs text-warning">overridden</span>}
+                    {override && (
+                      <Badge tone="warning" className="ml-2">
+                        overridden
+                      </Badge>
+                    )}
                   </td>
                   {CAPABILITIES.map((cap) => {
                     const granted = effective.includes(cap)
