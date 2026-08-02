@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import type { AttendanceMethod } from '@/lib/types/seminarAttendance'
 import Alert from '@/components/ui/Alert'
+import Button from '@/components/ui/Button'
 
 export interface AttendanceFormProps {
   seminarId: string
@@ -86,13 +87,9 @@ export default function AttendanceForm({ seminarId, customers, onDone }: Attenda
         </select>
       </div>
       {error && <Alert tone="error" inline>{error}</Alert>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
-      >
+      <Button type="submit" loading={submitting}>
         Record attendance
-      </button>
+      </Button>
     </form>
   )
 }
