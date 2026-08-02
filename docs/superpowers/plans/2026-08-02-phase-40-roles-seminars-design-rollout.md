@@ -354,7 +354,7 @@ with:
       </Button>
 ```
 
-`Button`'s default `variant="primary"` (`bg-marine text-paper`) plus its base classes (`min-h-11`, rounded via `--radius-control`, `disabled:opacity-50` when `disabled || loading`) reproduce the raw markup exactly, and its `loading` prop swaps in the spinner — the same pattern already used for `RoleCapabilityEditor.tsx`'s Save button.
+`Button`'s default `variant="primary"` (bg-marine text-paper) plus its base classes normalize the raw button onto the established primitive appearance used by every other migrated button in the app (text-sm/font-medium, min-h-11, rounded via `--radius-control`, hover/active states via `hover:bg-marine/90 active:bg-marine/80 active:scale-[0.98]`, `disabled:opacity-50` when `disabled || loading`) — this is the correct, intended visual outcome (confirmed in live UAT), not a byte-identical no-op. The `loading` prop swaps in the spinner, matching the same pattern already used for `RoleCapabilityEditor.tsx`'s Save button.
 
 - [ ] **Step 2: Migrate `AttendanceForm.tsx`'s submit button**
 

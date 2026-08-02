@@ -105,3 +105,17 @@ Tracked deviations, deferred hardening, and known limitations accepted during a 
 **Proposed enhancement:** a UI warning on the override editor (`RoleMatrix`/the per-role override screen) when a role has an active override, and/or a "stale override" detector — e.g., comparing the override's `updatedAt` against a tracked last-changed timestamp for that role's hardcoded default, or diffing the override's capability set against the current hardcoded default to flag newly-added capabilities the override predates — so `super_admin` can make an informed decision about whether to update or clear the override after a phase changes that role's default.
 
 **Constraints for the fix (per project decision):** must not change complete-replacement semantics itself — the fix is detection/surfacing only, not a switch to delta-merge. Should be scoped as its own deliberate phase once prioritized, not folded into whichever future phase happens to next add a capability to an overridden role's default.
+
+## TD-8: Button's loading state hides accessible text, affecting screen-reader users
+
+**Deferred to:** Not scheduled — flagged during Phase 40's final whole-branch review, 2026-08-02.
+
+**Found during:** Phase 40 (Roles & Seminars Design-Primitive Rollout), final whole-branch review.
+
+**Current state:** `Button.tsx:50` renders `{loading ? <LoadingSpinner /> : children}`, which replaces the button's label entirely with a spinner icon during submission. The spinner itself carries `aria-hidden="true"` (Button.tsx:22), so a screen reader announces the button as unnamed while a request is in flight. This affects nine call sites app-wide that pass the `loading` prop to `Button`: Login, StaffForm, StockAdjustForm, StockTransferForm, CheckoutForm, RoleCapabilityEditor (pre-existing, unchanged by Phase 40), plus SeminarForm.tsx and AttendanceForm.tsx (added by Phase 40, 2026-08-02). Phase 40 did not introduce this defect — it's `Button.tsx`'s own pre-existing behavior — but it did widen the count of affected call sites from seven to nine by adopting the same `Button` primitive for two new forms.
+
+**Why not fixed now:** fixing `Button.tsx` itself is a cross-cutting change well outside Phase 40's scope (a pure mechanical primitive-rollout phase); fixing only the two new Phase-40 call sites would create new inconsistency with the other seven rather than resolve the underlying issue. This belongs as its own deliberate, scoped task.
+
+**Proposed enhancement:** keep `children` visible alongside the spinner (e.g. spinner + text side-by-side) instead of replacing it entirely, or add an `sr-only` label / `aria-label` fallback when `loading` is true, applied once in `Button.tsx` so all nine existing call sites (and any future ones) benefit automatically. Either approach preserves the button's accessible name for screen readers throughout submission.
+
+**Constraints for the fix (per project decision):** should be its own deliberate, scoped phase/task — matches this project's own precedent for TD-4/TD-5/TD-6/TD-7 (documented, not folded into whichever phase happens to touch a call site next). Consistent with this project's already-accepted, documented screen-reader-verification gap (Phase 38.5/38.6) — live screen-reader behavior (not just correct `role`/`aria-live` attributes) cannot be verified in this environment, so a real screen-reader manual-check against the fixed version is part of the acceptance criteria.

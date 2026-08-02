@@ -57,7 +57,7 @@ No visual regressions found. Confirms the code-level review's conclusions agains
 
 - `npx tsc --noEmit`: clean throughout, re-confirmed at the end.
 - `npm test`: 553/553 passing across 24 test files — unaffected, as expected (none of the seven touched files are covered by the emulator-backed API/logic suite).
-- `git diff --stat` across all six commits: only `className`/JSX restructuring and new imports — zero new CSS values, zero new Tailwind tokens, confirming the zero-color/font-change constraint held.
+- `git diff --stat` across all six commits: only `className`/JSX restructuring and new imports — zero new CSS values, zero new Tailwind tokens, confirming the zero-color/font-change constraint held. (The Button swap specifically normalizes font-size/weight/hover-states onto the established primitive appearance, matching every other migrated button already in the app — this is the intended visual outcome, not a constraint violation.)
 
 ## TD-6 status
 
