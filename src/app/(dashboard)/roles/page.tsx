@@ -5,6 +5,7 @@ import { hasEffectiveCapability, isBranchLocked } from '@/lib/auth/permissions'
 import { getAllRoleOverrides } from '@/lib/auth/roleOverrides'
 import RoleMatrix from '@/components/roles/RoleMatrix'
 import RoleReassignmentTable from '@/components/roles/RoleReassignmentTable'
+import PageHeader from '@/components/ui/PageHeader'
 import type { StaffRow } from '@/components/staff/StaffTable'
 
 export default async function RolesPage() {
@@ -50,11 +51,10 @@ export default async function RolesPage() {
   return (
     <div className="mx-auto mt-12 max-w-7xl space-y-10">
       <div className="max-w-4xl">
-        <h1 className="font-display text-2xl font-semibold text-ink">Roles & permissions</h1>
-        <p className="mt-1 text-sm text-slate">
-          Capability matrix by role. A super_admin account is protected from every other role and from itself — only a
-          different super_admin can reassign its role here.
-        </p>
+        <PageHeader
+          title="Roles & permissions"
+          description="Capability matrix by role. A super_admin account is protected from every other role and from itself — only a different super_admin can reassign its role here."
+        />
       </div>
 
       <section className="space-y-3">
