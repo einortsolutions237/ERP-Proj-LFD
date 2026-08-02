@@ -48,8 +48,8 @@ export default async function RolesPage() {
   const overrides = await getAllRoleOverrides()
 
   return (
-    <div className="max-w-4xl mx-auto mt-12 space-y-10">
-      <div>
+    <div className="mx-auto mt-12 max-w-7xl space-y-10">
+      <div className="max-w-4xl">
         <h1 className="font-display text-2xl font-semibold text-ink">Roles & permissions</h1>
         <p className="mt-1 text-sm text-slate">
           Capability matrix by role. A super_admin account is protected from every other role and from itself — only a
@@ -62,7 +62,7 @@ export default async function RolesPage() {
         <RoleMatrix overrides={overrides} canEdit={canManageOverrides} />
       </section>
 
-      <section className="space-y-3">
+      <section className="max-w-4xl space-y-3">
         <h2 className="text-lg font-medium text-ink">Staff by role</h2>
         <RoleReassignmentTable staff={staff} canAssign={canAssign} viewerRole={user.role} viewerUid={user.uid} />
       </section>
