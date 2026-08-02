@@ -4,6 +4,7 @@ import { requireAnyCapability, AuthError } from '@/lib/auth/server-guard'
 import { hasEffectiveCapability } from '@/lib/auth/permissions'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import type { SeminarFormat } from '@/lib/types/seminar'
+import PageHeader from '@/components/ui/PageHeader'
 
 interface SeminarRow {
   id: string
@@ -44,17 +45,19 @@ export default async function SeminarsPage() {
 
   return (
     <div className="mx-auto mt-12 max-w-4xl space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-xl font-semibold text-ink">Seminars</h1>
-        {canManage && (
-          <Link
-            href="/seminars/new"
-            className="inline-flex min-h-11 items-center rounded-lg bg-marine px-3 text-paper transition-opacity duration-200"
-          >
-            New seminar
-          </Link>
-        )}
-      </div>
+      <PageHeader
+        title="Seminars"
+        actions={
+          canManage ? (
+            <Link
+              href="/seminars/new"
+              className="inline-flex min-h-11 items-center rounded-lg bg-marine px-3 text-paper transition-opacity duration-200"
+            >
+              New seminar
+            </Link>
+          ) : undefined
+        }
+      />
 
       {seminars.length === 0 ? (
         <p className="text-sm text-slate">No seminars yet.</p>
