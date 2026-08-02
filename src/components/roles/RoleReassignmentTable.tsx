@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ROLES, type RoleId } from '@/lib/auth/permissions'
 import type { StaffRow } from '@/components/staff/StaffTable'
+import Alert from '@/components/ui/Alert'
 
 // Same list StaffForm uses — super_admin is structurally absent, never an
 // option a caller can select into. This is the third place this exact
@@ -74,11 +75,7 @@ export default function RoleReassignmentTable({
 
   return (
     <div className="space-y-3">
-      {error && (
-        <p role="alert" className="text-sm text-danger">
-          {error}
-        </p>
-      )}
+      {error && <Alert tone="error" inline>{error}</Alert>}
       <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
