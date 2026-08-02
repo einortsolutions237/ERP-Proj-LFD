@@ -6,6 +6,8 @@ import AttendanceForm from './AttendanceForm'
 import AttendanceTable from './AttendanceTable'
 import type { SeminarFormat } from '@/lib/types/seminar'
 import type { SeminarAttendanceRow } from '@/lib/clinical/getSeminarAttendance'
+import PageHeader from '@/components/ui/PageHeader'
+import Button from '@/components/ui/Button'
 
 // `seminar.scheduledAt` arrives as a UTC ISO string (server-serialized via
 // .toISOString()); a <input type="datetime-local"> needs local-time
@@ -52,18 +54,20 @@ export default function SeminarDetailClient({
 
   return (
     <div className="mx-auto mt-12 max-w-4xl space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-semibold text-ink">{seminar.title}</h1>
-        {canManage && (
-          <button
-            type="button"
-            onClick={() => setShowEdit((prev) => !prev)}
-            className="text-marine underline-offset-2 hover:underline"
-          >
-            {showEdit ? 'Cancel' : 'Edit'}
-          </button>
-        )}
-      </div>
+      <PageHeader
+        title={seminar.title}
+        actions={
+          canManage ? (
+            <button
+              type="button"
+              onClick={() => setShowEdit((prev) => !prev)}
+              className="text-marine underline-offset-2 hover:underline"
+            >
+              {showEdit ? 'Cancel' : 'Edit'}
+            </button>
+          ) : undefined
+        }
+      />
 
       {showEdit ? (
         <SeminarForm
@@ -108,13 +112,7 @@ export default function SeminarDetailClient({
 
       {canRecord && (
         <div className="space-y-3">
-          <button
-            type="button"
-            onClick={() => setShowRecordForm((prev) => !prev)}
-            className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
-          >
-            Record attendance
-          </button>
+          <Button onClick={() => setShowRecordForm((prev) => !prev)}>Record attendance</Button>
           {showRecordForm && (
             <AttendanceForm
               seminarId={seminar.id}
