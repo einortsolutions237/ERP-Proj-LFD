@@ -1,5 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
+import Button from '@/components/ui/Button'
+import Alert from '@/components/ui/Alert'
 
 export interface NursingVisitFormProps {
   customerId: string
@@ -56,11 +58,7 @@ export default function NursingVisitForm({ customerId, onDone }: NursingVisitFor
   }
 
   if (loadError) {
-    return (
-      <p role="alert" className="text-sm text-danger">
-        {loadError}
-      </p>
-    )
+    return <Alert tone="error" inline>{loadError}</Alert>
   }
 
   if (questions === null) {
@@ -119,19 +117,11 @@ export default function NursingVisitForm({ customerId, onDone }: NursingVisitFor
         </div>
       )}
 
-      {error && (
-        <p role="alert" className="text-sm text-danger">
-          {error}
-        </p>
-      )}
+      {error && <Alert tone="error" inline>{error}</Alert>}
       <div className="space-y-1">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
-        >
-          {submitting ? 'Recording…' : 'Record visit'}
-        </button>
+        <Button type="submit" loading={submitting}>
+          Record visit
+        </Button>
         <p className="text-xs text-slate">This visit can&rsquo;t be edited after saving.</p>
       </div>
     </form>

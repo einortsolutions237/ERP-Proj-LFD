@@ -1,5 +1,7 @@
 'use client'
 import { useState } from 'react'
+import Button from '@/components/ui/Button'
+import Alert from '@/components/ui/Alert'
 
 export interface DemographicsFormProps {
   customerId: string
@@ -79,18 +81,10 @@ export default function DemographicsForm({ customerId, initial, onDone }: Demogr
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
-      {error && (
-        <p role="alert" className="text-sm text-danger">
-          {error}
-        </p>
-      )}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
-      >
-        {submitting ? 'Saving…' : 'Save demographics'}
-      </button>
+      {error && <Alert tone="error" inline>{error}</Alert>}
+      <Button type="submit" loading={submitting}>
+        Save demographics
+      </Button>
     </form>
   )
 }
