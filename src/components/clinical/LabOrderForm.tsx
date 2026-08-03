@@ -1,5 +1,7 @@
 'use client'
 import { useState } from 'react'
+import Button from '@/components/ui/Button'
+import Alert from '@/components/ui/Alert'
 
 export interface LabOrderFormProps {
   customerId: string
@@ -67,19 +69,11 @@ export default function LabOrderForm({ customerId, treatmentId, onDone }: LabOrd
           className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
         />
       </div>
-      {error && (
-        <p role="alert" className="text-sm text-danger">
-          {error}
-        </p>
-      )}
+      {error && <Alert tone="error" inline>{error}</Alert>}
       <div className="space-y-1">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
-        >
-          {submitting ? 'Ordering…' : 'Order lab test'}
-        </button>
+        <Button type="submit" loading={submitting}>
+          Order lab test
+        </Button>
         <p className="text-xs text-slate">This order can&rsquo;t be edited after saving.</p>
       </div>
     </form>
