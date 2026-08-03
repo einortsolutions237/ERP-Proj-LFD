@@ -1,6 +1,7 @@
 'use client'
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import Button from '@/components/ui/Button'
 import DemographicsForm from './DemographicsForm'
 import NursingVisitForm from './NursingVisitForm'
 import type { PatientDemographicsRow, NursingVisitRow } from '@/lib/clinical/getPatientIntake'
@@ -53,16 +54,15 @@ export default function IntakeSection({ customerId, demographics, visits, canRec
         {canRecord && (
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <button
-                type="button"
+              <Button
+                variant="secondary"
                 onClick={() => {
                   setShowDemographicsForm((prev) => !prev)
                   setDemographicsSaved(false)
                 }}
-                className="min-h-11 rounded-lg border border-mist px-3 text-sm text-ink transition-colors duration-200 hover:bg-mist"
               >
                 {demographics ? 'Edit demographics' : 'Record demographics'}
-              </button>
+              </Button>
               {demographicsSaved && !showDemographicsForm && <SavedNote />}
               {isRefreshing && <p className="text-sm text-slate">Updating…</p>}
             </div>
@@ -114,16 +114,14 @@ export default function IntakeSection({ customerId, demographics, visits, canRec
         {canRecord && (
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <button
-                type="button"
+              <Button
                 onClick={() => {
                   setShowVisitForm((prev) => !prev)
                   setVisitSaved(false)
                 }}
-                className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
               >
                 Record visit
-              </button>
+              </Button>
               {visitSaved && !showVisitForm && <SavedNote />}
             </div>
             {showVisitForm && (
