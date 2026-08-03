@@ -14,6 +14,7 @@ import PendingDeliveriesSection from '@/components/pos/PendingDeliveriesSection'
 import { getPendingDeliveries } from '@/lib/pos/getPendingDeliveries'
 import { getPatientIntake } from '@/lib/clinical/getPatientIntake'
 import IntakeSection from '@/components/clinical/IntakeSection'
+import Card from '@/components/ui/Card'
 import type { Customer } from '@/lib/types/customer'
 import type { Sale } from '@/lib/types/sale'
 
@@ -144,7 +145,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         )}
       </div>
 
-      <div className="space-y-1 rounded-2xl border border-mist bg-surface p-4 text-sm shadow-[var(--shadow-card)]">
+      <Card className="space-y-1 text-sm">
         <div>
           <span className="text-slate">Phone:</span> <span className="text-ink">{data.phone}</span>
         </div>
@@ -159,7 +160,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             <span className="text-slate">Notes:</span> <span className="text-ink">{data.notes ?? '—'}</span>
           </div>
         )}
-      </div>
+      </Card>
 
       {canViewCommercial && (
       <div className="space-y-3 border-t border-mist pt-8">
