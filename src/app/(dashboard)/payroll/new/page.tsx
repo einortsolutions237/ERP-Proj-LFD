@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { getAdminFirestore } from '@/lib/firebase/admin'
+import PageHeader from '@/components/ui/PageHeader'
 import PayrollForm from './PayrollForm'
 
 export default async function NewPayrollPage() {
@@ -25,7 +26,7 @@ export default async function NewPayrollPage() {
 
   return (
     <div className="max-w-md mx-auto mt-12 space-y-6">
-      <h1 className="font-display text-2xl font-semibold text-ink">Record payroll</h1>
+      <PageHeader title="Record payroll" />
       <PayrollForm staffOptions={staffOptions} />
     </div>
   )

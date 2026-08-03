@@ -2,6 +2,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Alert from '@/components/ui/Alert'
+import FormSection from '@/components/ui/FormSection'
+import Button from '@/components/ui/Button'
 
 interface StaffOption {
   uid: string
@@ -54,56 +56,77 @@ export default function PayrollForm({ staffOptions }: { staffOptions: StaffOptio
 
   return (
     <form onSubmit={handleSubmit} className="max-w-md space-y-4">
+      <FormSection>
+        <div>
+          <label htmlFor="payroll-staff" className="block text-sm font-medium text-ink">
+            Staff member
+          </label>
+          <select
+            id="payroll-staff"
+            required
+            value={staffId}
+            onChange={(e) => setStaffId(e.target.value)}
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+          >
+            {staffOptions.map((s) => (
+              <option key={s.uid} value={s.uid}>
+                {s.name} — {s.role} — {s.branchName}
+              </option>
+            ))}
+          </select>
+        </div>
+      </FormSection>
+      <FormSection>
+        <div>
+          <label htmlFor="payroll-period-start" className="block text-sm font-medium text-ink">
+            Pay period start
+          </label>
+          <input
+            id="payroll-period-start"
+            required
+            type="date"
+            value={payPeriodStart}
+            onChange={(e) => setPayPeriodStart(e.target.value)}
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+          />
+        </div>
+        <div>
+          <label htmlFor="payroll-period-end" className="block text-sm font-medium text-ink">
+            Pay period end
+          </label>
+          <input
+            id="payroll-period-end"
+            required
+            type="date"
+            value={payPeriodEnd}
+            onChange={(e) => setPayPeriodEnd(e.target.value)}
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+          />
+        </div>
+      </FormSection>
+      <FormSection>
+        <div>
+          <label htmlFor="payroll-gross-amount" className="block text-sm font-medium text-ink">
+            Gross amount
+          </label>
+          <input
+            id="payroll-gross-amount"
+            type="number"
+            step="0.01"
+            min="0.01"
+            placeholder="Leave blank to use the staff member's base salary"
+            value={grossAmount}
+            onChange={(e) => setGrossAmount(e.target.value)}
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink placeholder:text-slate focus:border-marine"
+          />
+        </div>
+      </FormSection>
       <div>
-        <label className="block text-sm font-medium text-ink">Staff member</label>
-        <select
-          required
-          value={staffId}
-          onChange={(e) => setStaffId(e.target.value)}
-          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
-        >
-          {staffOptions.map((s) => (
-            <option key={s.uid} value={s.uid}>
-              {s.name} — {s.role} — {s.branchName}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-ink">Pay period start</label>
-        <input
-          required
-          type="date"
-          value={payPeriodStart}
-          onChange={(e) => setPayPeriodStart(e.target.value)}
-          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-ink">Pay period end</label>
-        <input
-          required
-          type="date"
-          value={payPeriodEnd}
-          onChange={(e) => setPayPeriodEnd(e.target.value)}
-          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-ink">Gross amount</label>
-        <input
-          type="number"
-          step="0.01"
-          min="0.01"
-          placeholder="Leave blank to use the staff member's base salary"
-          value={grossAmount}
-          onChange={(e) => setGrossAmount(e.target.value)}
-          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink placeholder:text-slate focus:border-marine"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-ink">Notes</label>
+        <label htmlFor="payroll-notes" className="block text-sm font-medium text-ink">
+          Notes
+        </label>
         <textarea
+          id="payroll-notes"
           placeholder="Optional — e.g. &quot;prorated, started mid-month&quot;"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
@@ -111,13 +134,9 @@ export default function PayrollForm({ staffOptions }: { staffOptions: StaffOptio
         />
       </div>
       {error && <Alert tone="error" inline>{error}</Alert>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
-      >
+      <Button type="submit" loading={submitting}>
         Record payroll
-      </button>
+      </Button>
     </form>
   )
 }
