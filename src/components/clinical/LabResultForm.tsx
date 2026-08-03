@@ -1,5 +1,7 @@
 'use client'
 import { useState } from 'react'
+import Button from '@/components/ui/Button'
+import Alert from '@/components/ui/Alert'
 
 interface ValueRow {
   parameter: string
@@ -149,19 +151,11 @@ export default function LabResultForm({ labOrderId, onDone }: LabResultFormProps
           className="w-full rounded-lg border border-mist bg-paper px-2 py-1 text-sm text-ink focus:border-marine"
         />
       </div>
-      {error && (
-        <p role="alert" className="text-sm text-danger">
-          {error}
-        </p>
-      )}
+      {error && <Alert tone="error" inline>{error}</Alert>}
       <div className="space-y-1">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
-        >
-          {submitting ? 'Saving…' : 'Save results'}
-        </button>
+        <Button type="submit" loading={submitting}>
+          Save results
+        </Button>
         <p className="text-xs text-slate">Results can&rsquo;t be edited after saving.</p>
       </div>
     </form>
