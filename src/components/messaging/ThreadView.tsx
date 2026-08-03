@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Alert from '@/components/ui/Alert'
+import Button from '@/components/ui/Button'
+import Card from '@/components/ui/Card'
 
 interface ThreadMessage {
   id: string
@@ -107,10 +109,7 @@ export default function ThreadView({ peerUid, ownUid }: { peerUid: string; ownUi
         </h1>
       </div>
 
-      <div
-        className="flex-1 space-y-2 overflow-y-auto rounded-2xl border border-mist bg-surface p-4 shadow-[var(--shadow-card)]"
-        aria-live="polite"
-      >
+      <Card className="flex-1 space-y-2 overflow-y-auto bg-surface" aria-live="polite">
         {thread.messages.length === 0 && <p className="text-sm text-slate">No messages yet.</p>}
         {thread.messages.map((m) => (
           <div key={m.id} className={m.senderUid === ownUid ? 'text-right' : 'text-left'}>
@@ -126,14 +125,14 @@ export default function ThreadView({ peerUid, ownUid }: { peerUid: string; ownUi
             <div className="font-mono text-xs text-slate">{formatRelativeTime(m.createdAt)}</div>
           </div>
         ))}
-      </div>
+      </Card>
 
       {thread.canReply ? (
         <div className="space-y-2">
           {error && (
-            <p role="alert" className="text-sm text-danger">
+            <Alert tone="error" inline>
               {error}
-            </p>
+            </Alert>
           )}
           <div className="flex gap-2">
             <label htmlFor="message-draft" className="sr-only">
@@ -149,14 +148,9 @@ export default function ThreadView({ peerUid, ownUid }: { peerUid: string; ownUi
               className="min-h-11 flex-1 rounded-lg border border-mist px-3 py-2 text-sm focus:border-marine"
               disabled={sending}
             />
-            <button
-              type="button"
-              onClick={handleSend}
-              disabled={sending || !draft.trim()}
-              className="min-h-11 rounded-lg bg-marine px-4 text-sm font-medium text-paper transition-opacity duration-200 disabled:opacity-50"
-            >
-              {sending ? 'Sending…' : 'Send'}
-            </button>
+            <Button onClick={handleSend} disabled={sending || !draft.trim()} loading={sending}>
+              Send
+            </Button>
           </div>
         </div>
       ) : (
