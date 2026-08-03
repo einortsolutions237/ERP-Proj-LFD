@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import LabOrderForm from './LabOrderForm'
 import LabResultForm from './LabResultForm'
 import AttachScanForm from './AttachScanForm'
+import Button from '@/components/ui/Button'
 import type { LabOrderRow } from '@/lib/clinical/getLabRecords'
 
 export interface LabSectionProps {
@@ -178,16 +179,14 @@ export default function LabSection({ customerId, orders, canOrder, canEnterResul
       {canOrder && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <button
-              type="button"
+            <Button
               onClick={() => {
                 setShowOrderForm((prev) => !prev)
                 setOrderSaved(false)
               }}
-              className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
             >
               Order lab test
-            </button>
+            </Button>
             {orderSaved && !showOrderForm && <SavedNote />}
             {isRefreshing && <p className="text-sm text-slate">Updating…</p>}
           </div>
