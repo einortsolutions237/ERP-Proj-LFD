@@ -9,7 +9,7 @@ export interface PendingDeliveriesSectionProps {
   deliveries: PendingDeliveryRow[]
 }
 
-const STATUS_TONE: Record<string, 'warning' | 'success'> = {
+const STATUS_TONE: Record<PendingDeliveryRow['status'], 'warning' | 'success'> = {
   pending: 'warning',
   fulfilled: 'success',
 }
@@ -62,7 +62,7 @@ export default function PendingDeliveriesSection({ deliveries }: PendingDeliveri
                     </td>
                     <td className="px-3 py-2 text-right font-mono text-ink">{d.quantityOwed}</td>
                     <td className="px-3 py-2">
-                      <Badge tone={STATUS_TONE[d.status] ?? 'neutral'}>{d.status}</Badge>
+                      <Badge tone={STATUS_TONE[d.status]}>{d.status}</Badge>
                       {d.status === 'fulfilled' && (
                         <span className="ml-2 text-xs text-slate">
                           {d.fulfilledByName ? `by ${d.fulfilledByName}` : ''}{d.fulfilledAt ? ` on ${new Date(d.fulfilledAt).toLocaleString()}` : ''}
