@@ -3,6 +3,8 @@ import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import { buildInventoryReport } from '@/lib/reports/inventory'
 import { toCsv } from '@/lib/csv'
 import DownloadCsvButton from '@/components/reports/DownloadCsvButton'
+import PageHeader from '@/components/ui/PageHeader'
+import Card from '@/components/ui/Card'
 
 export default async function InventoryReportPage() {
   let user
@@ -31,13 +33,13 @@ export default async function InventoryReportPage() {
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-8">
-      <h1 className="font-display text-2xl font-semibold text-ink">Inventory report</h1>
+      <PageHeader title="Inventory report" />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <div className="rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
+        <Card padding="compact" className="bg-surface">
           <div className="text-xs text-slate">Total value</div>
           <div className="font-mono text-lg font-semibold text-ink">{report.totalValue.toFixed(2)}</div>
-        </div>
+        </Card>
       </div>
 
       <DownloadCsvButton filename="inventory-report.csv" csv={csv} />
