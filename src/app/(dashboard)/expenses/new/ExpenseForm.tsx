@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import AttachReceiptForm from './AttachReceiptForm'
 import Alert from '@/components/ui/Alert'
+import FormSection from '@/components/ui/FormSection'
+import Button from '@/components/ui/Button'
 
 const CATEGORY_SUGGESTIONS = ['Rent', 'Utilities', 'Supplies', 'Salaries', 'Other']
 
@@ -59,59 +61,69 @@ export default function ExpenseForm() {
             ))}
           </ul>
         )}
-        <button
-          type="button"
-          onClick={() => router.push('/expenses')}
-          className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200"
-        >
-          Done
-        </button>
+        <Button onClick={() => router.push('/expenses')}>Done</Button>
       </div>
     )
   }
 
   return (
     <form onSubmit={handleSubmit} className="max-w-md space-y-4">
+      <FormSection>
+        <div>
+          <label htmlFor="expense-date" className="block text-sm font-medium text-ink">
+            Date
+          </label>
+          <input
+            id="expense-date"
+            required
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+          />
+        </div>
+        <div>
+          <label htmlFor="expense-category" className="block text-sm font-medium text-ink">
+            Category
+          </label>
+          <input
+            id="expense-category"
+            required
+            list="expense-category-suggestions"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
+          />
+          <datalist id="expense-category-suggestions">
+            {CATEGORY_SUGGESTIONS.map((c) => (
+              <option key={c} value={c} />
+            ))}
+          </datalist>
+        </div>
+      </FormSection>
+      <FormSection>
+        <div>
+          <label htmlFor="expense-amount" className="block text-sm font-medium text-ink">
+            Amount
+          </label>
+          <input
+            id="expense-amount"
+            required
+            type="number"
+            step="0.01"
+            min="0.01"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink placeholder:text-slate focus:border-marine"
+          />
+        </div>
+      </FormSection>
       <div>
-        <label className="block text-sm font-medium text-ink">Date</label>
-        <input
-          required
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-ink">Category</label>
-        <input
-          required
-          list="expense-category-suggestions"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink placeholder:text-slate focus:border-marine"
-        />
-        <datalist id="expense-category-suggestions">
-          {CATEGORY_SUGGESTIONS.map((c) => (
-            <option key={c} value={c} />
-          ))}
-        </datalist>
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-ink">Amount</label>
-        <input
-          required
-          type="number"
-          step="0.01"
-          min="0.01"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink placeholder:text-slate focus:border-marine"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-ink">Description</label>
+        <label htmlFor="expense-description" className="block text-sm font-medium text-ink">
+          Description
+        </label>
         <textarea
+          id="expense-description"
           required
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -119,13 +131,9 @@ export default function ExpenseForm() {
         />
       </div>
       {error && <Alert tone="error" inline>{error}</Alert>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded-lg bg-marine px-3 py-2 text-paper transition-opacity duration-200 disabled:opacity-50"
-      >
+      <Button type="submit" loading={submitting}>
         Record expense
-      </button>
+      </Button>
     </form>
   )
 }

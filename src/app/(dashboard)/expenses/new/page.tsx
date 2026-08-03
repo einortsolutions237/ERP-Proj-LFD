@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
+import PageHeader from '@/components/ui/PageHeader'
 import ExpenseForm from './ExpenseForm'
 
 export default async function NewExpensePage() {
@@ -12,7 +13,7 @@ export default async function NewExpensePage() {
 
   return (
     <div className="max-w-md mx-auto mt-12 space-y-6">
-      <h1 className="font-display text-2xl font-semibold text-ink">Record expense</h1>
+      <PageHeader title="Record expense" />
       <ExpenseForm />
     </div>
   )
