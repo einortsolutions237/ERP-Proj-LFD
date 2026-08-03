@@ -8,6 +8,8 @@ import Alert from '@/components/ui/Alert'
 import PageHeader from '@/components/ui/PageHeader'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
+import CategoryBarChart from '@/components/reports/CategoryBarChart'
+import RankedBarChart from '@/components/reports/RankedBarChart'
 
 export default async function SalesReportPage({
   searchParams,
@@ -139,6 +141,45 @@ export default async function SalesReportPage({
               <div className="font-mono text-lg font-semibold text-ink">{report.voidedTotal.toFixed(2)}</div>
             </Card>
           </div>
+
+          {report.byBranch.length > 0 && (
+            <Card className="bg-surface">
+              <h2 className="text-lg font-medium text-ink mb-2">Revenue by branch</h2>
+              <CategoryBarChart
+                data={[...report.byBranch]
+                  .sort((a, b) => b.revenue - a.revenue)
+                  .map((row) => ({ label: row.branchName, value: row.revenue }))}
+                color="#2563eb"
+                valueLabel="Revenue"
+              />
+            </Card>
+          )}
+
+          {report.byPaymentMethod.length > 0 && (
+            <Card className="bg-surface">
+              <h2 className="text-lg font-medium text-ink mb-2">Revenue by payment method</h2>
+              <CategoryBarChart
+                data={[...report.byPaymentMethod]
+                  .sort((a, b) => b.amount - a.amount)
+                  .map((row) => ({ label: row.method, value: row.amount }))}
+                color="#2563eb"
+                valueLabel="Revenue"
+              />
+            </Card>
+          )}
+
+          {sortedTopSellers.length > 0 && (
+            <Card className="bg-surface">
+              <h2 className="text-lg font-medium text-ink mb-2">Top sellers</h2>
+              <RankedBarChart
+                data={sortedTopSellers
+                  .slice(0, 5)
+                  .map((row) => ({ label: row.name, value: sortBy === 'quantity' ? row.quantity : row.revenue }))}
+                color="#2563eb"
+                valueLabel={sortBy === 'quantity' ? 'Quantity' : 'Revenue'}
+              />
+            </Card>
+          )}
 
           <DownloadCsvButton filename="sales-report.csv" csv={csv} />
 
