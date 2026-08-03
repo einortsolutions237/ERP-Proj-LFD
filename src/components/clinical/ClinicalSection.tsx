@@ -5,6 +5,7 @@ import TreatmentForm from './TreatmentForm'
 import LabOrderForm from './LabOrderForm'
 import type { TreatmentRow } from '@/lib/clinical/getPatientTreatments'
 import type { SeminarAttendanceRow } from '@/lib/clinical/getSeminarAttendance'
+import Button from '@/components/ui/Button'
 
 export type { TreatmentRow }
 
@@ -107,16 +108,14 @@ export default function ClinicalSection({
           {canCreate && (
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
+                <Button
                   onClick={() => {
                     setShowForm((prev) => !prev)
                     setTreatmentSaved(false)
                   }}
-                  className="min-h-11 rounded-lg bg-marine px-3 text-paper transition-opacity duration-200 disabled:opacity-50"
                 >
                   Add treatment
-                </button>
+                </Button>
                 {treatmentSaved && !showForm && <SavedNote />}
                 {isRefreshing && <p className="text-sm text-slate">Updating…</p>}
               </div>
