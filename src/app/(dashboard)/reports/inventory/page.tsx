@@ -5,6 +5,7 @@ import { toCsv } from '@/lib/csv'
 import DownloadCsvButton from '@/components/reports/DownloadCsvButton'
 import PageHeader from '@/components/ui/PageHeader'
 import Card from '@/components/ui/Card'
+import CategoryBarChart from '@/components/reports/CategoryBarChart'
 
 export default async function InventoryReportPage() {
   let user
@@ -41,6 +42,19 @@ export default async function InventoryReportPage() {
           <div className="font-mono text-lg font-semibold text-ink">{report.totalValue.toFixed(2)}</div>
         </Card>
       </div>
+
+      {report.byBranch.length > 0 && (
+        <Card className="bg-surface">
+          <h2 className="text-lg font-medium text-ink mb-2">Stock value by branch</h2>
+          <CategoryBarChart
+            data={[...report.byBranch]
+              .sort((a, b) => b.totalValue - a.totalValue)
+              .map((row) => ({ label: row.branchName, value: row.totalValue }))}
+            color="#2563eb"
+            valueLabel="Value"
+          />
+        </Card>
+      )}
 
       <DownloadCsvButton filename="inventory-report.csv" csv={csv} />
 
