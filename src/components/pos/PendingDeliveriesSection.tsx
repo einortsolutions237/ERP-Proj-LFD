@@ -2,14 +2,16 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { PendingDeliveryRow } from '@/lib/pos/getPendingDeliveries'
+import Badge from '@/components/ui/Badge'
+import Alert from '@/components/ui/Alert'
 
 export interface PendingDeliveriesSectionProps {
   deliveries: PendingDeliveryRow[]
 }
 
-const STATUS_BADGE: Record<string, string> = {
-  pending: 'bg-warning/10 text-warning',
-  fulfilled: 'bg-success/10 text-success',
+const STATUS_TONE: Record<string, 'warning' | 'success'> = {
+  pending: 'warning',
+  fulfilled: 'success',
 }
 
 export default function PendingDeliveriesSection({ deliveries }: PendingDeliveriesSectionProps) {
@@ -60,9 +62,7 @@ export default function PendingDeliveriesSection({ deliveries }: PendingDeliveri
                     </td>
                     <td className="px-3 py-2 text-right font-mono text-ink">{d.quantityOwed}</td>
                     <td className="px-3 py-2">
-                      <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[d.status] ?? 'bg-slate/10 text-slate'}`}>
-                        {d.status}
-                      </span>
+                      <Badge tone={STATUS_TONE[d.status] ?? 'neutral'}>{d.status}</Badge>
                       {d.status === 'fulfilled' && (
                         <span className="ml-2 text-xs text-slate">
                           {d.fulfilledByName ? `by ${d.fulfilledByName}` : ''}{d.fulfilledAt ? ` on ${new Date(d.fulfilledAt).toLocaleString()}` : ''}
@@ -88,11 +88,7 @@ export default function PendingDeliveriesSection({ deliveries }: PendingDeliveri
           </div>
         </div>
       )}
-      {error && (
-        <p role="alert" className="text-sm text-danger">
-          {error}
-        </p>
-      )}
+      {error && <Alert tone="error" inline>{error}</Alert>}
     </div>
   )
 }

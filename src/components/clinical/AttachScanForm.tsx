@@ -1,5 +1,6 @@
 'use client'
 import { useId, useState, useRef } from 'react'
+import Alert from '@/components/ui/Alert'
 
 export interface AttachScanFormProps {
   labResultId: string
@@ -65,9 +66,9 @@ export default function AttachScanForm({ labResultId, onDone }: AttachScanFormPr
         {uploading ? 'Uploading…' : 'Attach scan'}
       </button>
       {error && (
-        <p role="alert" className="w-full text-xs text-danger">
+        <Alert tone="error" inline size="xs" className="w-full">
           {error}
-        </p>
+        </Alert>
       )}
     </form>
   )

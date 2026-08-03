@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Alert from '@/components/ui/Alert'
 
 export interface DeleteCustomerButtonProps {
   customerId: string
@@ -41,11 +42,7 @@ export default function DeleteCustomerButton({ customerId, customerName }: Delet
       >
         {deleting ? 'Deleting…' : 'Delete'}
       </button>
-      {error && (
-        <p role="alert" className="text-sm text-danger">
-          {error}
-        </p>
-      )}
+      {error && <Alert tone="error" inline>{error}</Alert>}
     </div>
   )
 }
