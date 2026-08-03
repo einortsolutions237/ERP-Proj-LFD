@@ -145,7 +145,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         )}
       </div>
 
-      <Card className="space-y-1 text-sm">
+      <Card className="space-y-1 bg-surface text-sm">
         <div>
           <span className="text-slate">Phone:</span> <span className="text-ink">{data.phone}</span>
         </div>
