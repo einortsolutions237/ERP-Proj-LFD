@@ -132,7 +132,7 @@ export default async function PnLReportPage({
 
           {report.expensesByCategory.length > 0 && (
             <Card className="bg-surface">
-              <h2 className="text-lg font-medium text-ink mb-2">Expenses by category</h2>
+              <h2 className="text-lg font-medium text-ink mb-2">Top 5 expense categories</h2>
               <RankedBarChart
                 data={report.expensesByCategory
                   .slice(0, 5)

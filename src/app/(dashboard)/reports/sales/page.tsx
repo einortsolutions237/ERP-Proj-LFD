@@ -170,7 +170,7 @@ export default async function SalesReportPage({
 
           {sortedTopSellers.length > 0 && (
             <Card className="bg-surface">
-              <h2 className="text-lg font-medium text-ink mb-2">Top sellers</h2>
+              <h2 className="text-lg font-medium text-ink mb-2">Top 5 sellers</h2>
               <RankedBarChart
                 data={sortedTopSellers
                   .slice(0, 5)
