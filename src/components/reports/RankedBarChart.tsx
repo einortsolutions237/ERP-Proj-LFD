@@ -16,10 +16,12 @@ export default function RankedBarChart({
   data,
   color,
   valueLabel,
+  ariaLabel,
 }: {
   data: BarChartDatum[]
   color: string
   valueLabel: string
+  ariaLabel: string
 }) {
   const [reducedMotion, setReducedMotion] = useState(false)
   useEffect(() => {
@@ -28,7 +30,12 @@ export default function RankedBarChart({
   }, [])
 
   return (
-    <div className="w-full" style={{ height: Math.max(data.length * 40, 120) }}>
+    <div
+      className="w-full"
+      style={{ height: Math.max(data.length * 40, 120) }}
+      role="img"
+      aria-label={ariaLabel}
+    >
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} layout="vertical" margin={{ top: 8, right: 24, left: 8, bottom: 0 }}>
           <CartesianGrid stroke={MIST} horizontal={false} />

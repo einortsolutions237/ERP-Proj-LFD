@@ -19,10 +19,12 @@ export default function CategoryBarChart({
   data,
   color,
   valueLabel,
+  ariaLabel,
 }: {
   data: BarChartDatum[]
   color: string
   valueLabel: string
+  ariaLabel: string
 }) {
   const [reducedMotion, setReducedMotion] = useState(false)
   useEffect(() => {
@@ -31,7 +33,7 @@ export default function CategoryBarChart({
   }, [])
 
   return (
-    <div className="h-56 w-full">
+    <div className="h-56 w-full" role="img" aria-label={ariaLabel}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid stroke={MIST} vertical={false} />
@@ -39,7 +41,7 @@ export default function CategoryBarChart({
           <YAxis
             stroke={SLATE}
             tick={{ fontSize: 11 }}
-            width={56}
+            width="auto"
             tickFormatter={(value: number) => value.toLocaleString()}
           />
           <Tooltip

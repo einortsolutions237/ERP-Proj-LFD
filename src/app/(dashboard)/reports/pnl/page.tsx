@@ -139,6 +139,7 @@ export default async function PnLReportPage({
                   .map((row) => ({ label: row.category, value: row.amount }))}
                 color="#c08a28"
                 valueLabel="Amount"
+                ariaLabel="Bar chart: top 5 expense categories by amount"
               />
             </Card>
           )}

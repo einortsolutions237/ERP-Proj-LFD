@@ -142,7 +142,7 @@ export default async function SalesReportPage({
             </Card>
           </div>
 
-          {report.byBranch.length > 0 && (
+          {report.byBranch.length > 1 && (
             <Card className="bg-surface">
               <h2 className="text-lg font-medium text-ink mb-2">Revenue by branch</h2>
               <CategoryBarChart
@@ -151,6 +151,7 @@ export default async function SalesReportPage({
                   .map((row) => ({ label: row.branchName, value: row.revenue }))}
                 color="#2563eb"
                 valueLabel="Revenue"
+                ariaLabel="Bar chart: revenue by branch"
               />
             </Card>
           )}
@@ -164,6 +165,7 @@ export default async function SalesReportPage({
                   .map((row) => ({ label: row.method, value: row.amount }))}
                 color="#2563eb"
                 valueLabel="Revenue"
+                ariaLabel="Bar chart: revenue by payment method"
               />
             </Card>
           )}
@@ -177,6 +179,7 @@ export default async function SalesReportPage({
                   .map((row) => ({ label: row.name, value: sortBy === 'quantity' ? row.quantity : row.revenue }))}
                 color="#2563eb"
                 valueLabel={sortBy === 'quantity' ? 'Quantity' : 'Revenue'}
+                ariaLabel={`Bar chart: top 5 sellers by ${sortBy === 'quantity' ? 'quantity' : 'revenue'}`}
               />
             </Card>
           )}

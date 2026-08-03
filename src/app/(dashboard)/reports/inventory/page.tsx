@@ -43,7 +43,7 @@ export default async function InventoryReportPage() {
         </Card>
       </div>
 
-      {report.byBranch.length > 0 && (
+      {report.byBranch.length > 1 && (
         <Card className="bg-surface">
           <h2 className="text-lg font-medium text-ink mb-2">Stock value by branch</h2>
           <CategoryBarChart
@@ -52,6 +52,7 @@ export default async function InventoryReportPage() {
               .map((row) => ({ label: row.branchName, value: row.totalValue }))}
             color="#2563eb"
             valueLabel="Value"
+            ariaLabel="Bar chart: stock value by branch"
           />
         </Card>
       )}
