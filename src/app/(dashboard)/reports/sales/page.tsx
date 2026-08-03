@@ -5,6 +5,9 @@ import { buildSalesReport, ReportValidationError } from '@/lib/reports/sales'
 import { toCsv } from '@/lib/csv'
 import DownloadCsvButton from '@/components/reports/DownloadCsvButton'
 import Alert from '@/components/ui/Alert'
+import PageHeader from '@/components/ui/PageHeader'
+import Button from '@/components/ui/Button'
+import Card from '@/components/ui/Card'
 
 export default async function SalesReportPage({
   searchParams,
@@ -77,57 +80,64 @@ export default async function SalesReportPage({
 
   return (
     <div className="max-w-4xl mx-auto mt-12 space-y-8">
-      <h1 className="font-display text-2xl font-semibold text-ink">Sales report</h1>
-
-      <form method="GET" className="flex items-end gap-2">
-        <div>
-          <label className="block text-sm font-medium text-ink">Start date</label>
-          <input
-            type="date"
-            name="startDate"
-            defaultValue={startValue}
-            className="rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink focus:border-marine"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-ink">End date</label>
-          <input
-            type="date"
-            name="endDate"
-            defaultValue={endValue}
-            className="rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink focus:border-marine"
-          />
-        </div>
-        <button type="submit" className="rounded-lg bg-marine px-3 py-2 text-sm text-paper transition-opacity duration-200 disabled:opacity-50">
-          View
-        </button>
-      </form>
+      <PageHeader
+        title="Sales report"
+        filters={
+          <form method="GET" className="flex items-end gap-2">
+            <div>
+              <label htmlFor="sales-report-start-date" className="block text-sm font-medium text-ink">
+                Start date
+              </label>
+              <input
+                id="sales-report-start-date"
+                type="date"
+                name="startDate"
+                defaultValue={startValue}
+                className="rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink focus:border-marine"
+              />
+            </div>
+            <div>
+              <label htmlFor="sales-report-end-date" className="block text-sm font-medium text-ink">
+                End date
+              </label>
+              <input
+                id="sales-report-end-date"
+                type="date"
+                name="endDate"
+                defaultValue={endValue}
+                className="rounded-lg border border-mist bg-paper px-3 py-2 text-sm text-ink focus:border-marine"
+              />
+            </div>
+            <Button type="submit">View</Button>
+          </form>
+        }
+      />
 
       {rangeError && <Alert tone="error" inline>{rangeError}</Alert>}
 
       {report && (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-            <div className="rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
+            <Card padding="compact" className="bg-surface">
               <div className="text-xs text-slate">Revenue</div>
               <div className="font-mono text-lg font-semibold text-ink">{report.revenueTotal.toFixed(2)}</div>
-            </div>
-            <div className="rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
+            </Card>
+            <Card padding="compact" className="bg-surface">
               <div className="text-xs text-slate">Sales</div>
               <div className="font-mono text-lg font-semibold text-ink">{report.nonVoidedCount}</div>
-            </div>
-            <div className="rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
+            </Card>
+            <Card padding="compact" className="bg-surface">
               <div className="text-xs text-slate">Average sale</div>
               <div className="font-mono text-lg font-semibold text-ink">{report.averageSaleValue.toFixed(2)}</div>
-            </div>
-            <div className="rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
+            </Card>
+            <Card padding="compact" className="bg-surface">
               <div className="text-xs text-slate">Voided count</div>
               <div className="font-mono text-lg font-semibold text-ink">{report.voidedCount}</div>
-            </div>
-            <div className="rounded-2xl border border-mist bg-surface p-3 shadow-[var(--shadow-card)]">
+            </Card>
+            <Card padding="compact" className="bg-surface">
               <div className="text-xs text-slate">Voided total</div>
               <div className="font-mono text-lg font-semibold text-ink">{report.voidedTotal.toFixed(2)}</div>
-            </div>
+            </Card>
           </div>
 
           <DownloadCsvButton filename="sales-report.csv" csv={csv} />
