@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
 import ConversationList from '@/components/messaging/ConversationList'
+import PageHeader from '@/components/ui/PageHeader'
 
 export default async function MessagesPage() {
   try {
@@ -12,7 +13,7 @@ export default async function MessagesPage() {
 
   return (
     <div className="mx-auto mt-12 max-w-2xl space-y-6">
-      <h1 className="font-display text-xl font-semibold text-ink">Messages</h1>
+      <PageHeader title="Messages" />
       <ConversationList />
     </div>
   )
