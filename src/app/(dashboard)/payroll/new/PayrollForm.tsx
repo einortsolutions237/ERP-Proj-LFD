@@ -56,26 +56,24 @@ export default function PayrollForm({ staffOptions }: { staffOptions: StaffOptio
 
   return (
     <form onSubmit={handleSubmit} className="max-w-md space-y-4">
-      <FormSection>
-        <div>
-          <label htmlFor="payroll-staff" className="block text-sm font-medium text-ink">
-            Staff member
-          </label>
-          <select
-            id="payroll-staff"
-            required
-            value={staffId}
-            onChange={(e) => setStaffId(e.target.value)}
-            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
-          >
-            {staffOptions.map((s) => (
-              <option key={s.uid} value={s.uid}>
-                {s.name} — {s.role} — {s.branchName}
-              </option>
-            ))}
-          </select>
-        </div>
-      </FormSection>
+      <div>
+        <label htmlFor="payroll-staff" className="block text-sm font-medium text-ink">
+          Staff member
+        </label>
+        <select
+          id="payroll-staff"
+          required
+          value={staffId}
+          onChange={(e) => setStaffId(e.target.value)}
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 text-ink focus:border-marine"
+        >
+          {staffOptions.map((s) => (
+            <option key={s.uid} value={s.uid}>
+              {s.name} — {s.role} — {s.branchName}
+            </option>
+          ))}
+        </select>
+      </div>
       <FormSection>
         <div>
           <label htmlFor="payroll-period-start" className="block text-sm font-medium text-ink">
@@ -104,23 +102,21 @@ export default function PayrollForm({ staffOptions }: { staffOptions: StaffOptio
           />
         </div>
       </FormSection>
-      <FormSection>
-        <div>
-          <label htmlFor="payroll-gross-amount" className="block text-sm font-medium text-ink">
-            Gross amount
-          </label>
-          <input
-            id="payroll-gross-amount"
-            type="number"
-            step="0.01"
-            min="0.01"
-            placeholder="Leave blank to use the staff member's base salary"
-            value={grossAmount}
-            onChange={(e) => setGrossAmount(e.target.value)}
-            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink placeholder:text-slate focus:border-marine"
-          />
-        </div>
-      </FormSection>
+      <div>
+        <label htmlFor="payroll-gross-amount" className="block text-sm font-medium text-ink">
+          Gross amount
+        </label>
+        <input
+          id="payroll-gross-amount"
+          type="number"
+          step="0.01"
+          min="0.01"
+          placeholder="Leave blank to use the staff member's base salary"
+          value={grossAmount}
+          onChange={(e) => setGrossAmount(e.target.value)}
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink placeholder:text-slate focus:border-marine"
+        />
+      </div>
       <div>
         <label htmlFor="payroll-notes" className="block text-sm font-medium text-ink">
           Notes

@@ -101,23 +101,21 @@ export default function ExpenseForm() {
           </datalist>
         </div>
       </FormSection>
-      <FormSection>
-        <div>
-          <label htmlFor="expense-amount" className="block text-sm font-medium text-ink">
-            Amount
-          </label>
-          <input
-            id="expense-amount"
-            required
-            type="number"
-            step="0.01"
-            min="0.01"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink placeholder:text-slate focus:border-marine"
-          />
-        </div>
-      </FormSection>
+      <div>
+        <label htmlFor="expense-amount" className="block text-sm font-medium text-ink">
+          Amount
+        </label>
+        <input
+          id="expense-amount"
+          required
+          type="number"
+          step="0.01"
+          min="0.01"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="w-full rounded-lg border border-mist bg-paper px-3 py-2 font-mono text-ink placeholder:text-slate focus:border-marine"
+        />
+      </div>
       <div>
         <label htmlFor="expense-description" className="block text-sm font-medium text-ink">
           Description
