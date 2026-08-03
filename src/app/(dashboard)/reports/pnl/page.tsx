@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
 import { toCsv } from '@/lib/csv'
 import DownloadCsvButton from '@/components/reports/DownloadCsvButton'
+import RankedBarChart from '@/components/reports/RankedBarChart'
 
 export default async function PnLReportPage({
   searchParams,
@@ -128,6 +129,19 @@ export default async function PnLReportPage({
               </div>
             </Card>
           </div>
+
+          {report.expensesByCategory.length > 0 && (
+            <Card className="bg-surface">
+              <h2 className="text-lg font-medium text-ink mb-2">Expenses by category</h2>
+              <RankedBarChart
+                data={report.expensesByCategory
+                  .slice(0, 5)
+                  .map((row) => ({ label: row.category, value: row.amount }))}
+                color="#c08a28"
+                valueLabel="Amount"
+              />
+            </Card>
+          )}
 
           <DownloadCsvButton filename="pnl-report.csv" csv={csv} />
 
