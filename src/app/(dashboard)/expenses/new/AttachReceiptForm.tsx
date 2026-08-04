@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useId, useState, useRef } from 'react'
 import Alert from '@/components/ui/Alert'
 
 export interface AttachReceiptFormProps {
@@ -11,6 +11,8 @@ export default function AttachReceiptForm({ expenseId, onUploaded }: AttachRecei
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const uid = useId()
+  const fieldId = `attach-receipt-file-${uid}`
 
   async function handleUpload(e: React.FormEvent) {
     e.preventDefault()
@@ -46,7 +48,11 @@ export default function AttachReceiptForm({ expenseId, onUploaded }: AttachRecei
 
   return (
     <form onSubmit={handleUpload} className="flex flex-wrap items-center gap-2">
+      <label htmlFor={fieldId} className="sr-only">
+        Receipt file (JPEG, PNG, or PDF)
+      </label>
       <input
+        id={fieldId}
         ref={fileInputRef}
         type="file"
         accept="image/jpeg,image/png,application/pdf"
@@ -55,7 +61,7 @@ export default function AttachReceiptForm({ expenseId, onUploaded }: AttachRecei
       <button
         type="submit"
         disabled={uploading}
-        className="shrink-0 rounded-lg border border-mist px-2 py-1 text-xs text-ink transition-colors hover:bg-mist/40 disabled:opacity-50"
+        className="min-h-11 shrink-0 rounded-lg border border-mist px-3 text-xs text-ink transition-colors hover:bg-mist/40 disabled:opacity-50"
       >
         {uploading ? 'Uploading…' : 'Attach receipt'}
       </button>
