@@ -1,16 +1,12 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import type { BarChartDatum } from './CategoryBarChart'
 
 // See CategoryBarChart.tsx for why these are hardcoded hex rather than
 // Tailwind classes — identical reasoning, same tokens.
 const MIST = '#e2e8f0'
 const SLATE = '#475569'
-
-export interface BarChartDatum {
-  label: string
-  value: number
-}
 
 export default function RankedBarChart({
   data,
