@@ -168,7 +168,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         {purchases.length === 0 ? (
           <p className="text-sm text-slate">No purchases yet.</p>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-mist shadow-[var(--shadow-card)] bg-surface">
+          <div className="overflow-hidden rounded-2xl border border-mist bg-surface shadow-[var(--shadow-card)]">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-mist/40">
