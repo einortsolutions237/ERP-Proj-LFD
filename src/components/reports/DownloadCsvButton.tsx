@@ -1,4 +1,6 @@
 'use client'
+import Button from '@/components/ui/Button'
+
 export default function DownloadCsvButton({ filename, csv }: { filename: string; csv: string }) {
   function handleClick() {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
@@ -10,12 +12,8 @@ export default function DownloadCsvButton({ filename, csv }: { filename: string;
     URL.revokeObjectURL(url)
   }
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      className="rounded-lg border border-mist px-3 py-1.5 text-sm text-ink transition-colors duration-200 hover:bg-mist"
-    >
+    <Button type="button" variant="secondary" onClick={handleClick}>
       Download CSV
-    </button>
+    </Button>
   )
 }
