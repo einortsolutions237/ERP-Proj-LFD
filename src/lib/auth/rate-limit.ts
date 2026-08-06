@@ -4,15 +4,25 @@ const MAX_ATTEMPTS = 5
 const WINDOW_MS = 15 * 60 * 1000
 const LOCKOUT_MS = 15 * 60 * 1000
 
-export async function checkRateLimit(key: string): Promise<{ blocked: boolean; retryAfterMs?: number }> {
-  const doc = await getAdminFirestore().collection('rateLimits').doc(key).get()
-  if (!doc.exists) return { blocked: false }
+export type RateLimitResult =
+  | { status: 'ok' }
+  | { status: 'blocked'; retryAfterMs: number }
+  | { status: 'unavailable' } // Firestore read failed — caller must fail closed
+
+export async function checkRateLimit(key: string): Promise<RateLimitResult> {
+  let doc
+  try {
+    doc = await getAdminFirestore().collection('rateLimits').doc(key).get()
+  } catch {
+    return { status: 'unavailable' }
+  }
+  if (!doc.exists) return { status: 'ok' }
   const data = doc.data()!
   const lockedUntil = data.lockedUntil?.toDate?.() as Date | undefined
   if (lockedUntil && lockedUntil.getTime() > Date.now()) {
-    return { blocked: true, retryAfterMs: lockedUntil.getTime() - Date.now() }
+    return { status: 'blocked', retryAfterMs: lockedUntil.getTime() - Date.now() }
   }
-  return { blocked: false }
+  return { status: 'ok' }
 }
 
 export async function recordFailedAttempt(key: string): Promise<void> {

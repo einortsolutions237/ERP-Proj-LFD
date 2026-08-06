@@ -13,18 +13,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
   }
 
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+  const ip = request.headers.get('x-vercel-forwarded-for') || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
   const emailKey = `login:email:${email.toLowerCase()}`
   const ipKey = `login:ip:${ip}`
 
-  let emailLimit: { blocked: boolean; retryAfterMs?: number } = { blocked: false }
-  let ipLimit: { blocked: boolean; retryAfterMs?: number } = { blocked: false }
-  try {
-    ;[emailLimit, ipLimit] = await Promise.all([checkRateLimit(emailKey), checkRateLimit(ipKey)])
-  } catch (err) {
-    console.error('auth/login: rate limit check failed, failing open', err)
+  const [emailLimit, ipLimit] = await Promise.all([checkRateLimit(emailKey), checkRateLimit(ipKey)])
+  if (emailLimit.status === 'unavailable' || ipLimit.status === 'unavailable') {
+    return NextResponse.json({ error: 'Login temporarily unavailable, please try again' }, { status: 503 })
   }
-  if (emailLimit.blocked || ipLimit.blocked) {
+  if (emailLimit.status === 'blocked' || ipLimit.status === 'blocked') {
     return NextResponse.json({ error: 'Too many attempts. Try again later.' }, { status: 429 })
   }
 
