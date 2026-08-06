@@ -1,3 +1,8 @@
+/* eslint-disable no-restricted-syntax -- this file implements Phase 19's messaging
+   hierarchy relationship check (role IDENTITY within the hierarchy, not Firestore
+   branch-scoping) — a structurally different category of access logic than the
+   isBranchLocked bug class this rule targets. See CLAUDE.md's Messaging section:
+   "this is NOT a capability check" like everything else the rule protects. */
 import type { RoleId } from '@/lib/auth/permissions'
 
 export interface MessagingParty {

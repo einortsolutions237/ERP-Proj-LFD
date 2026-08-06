@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
+import { isBranchLocked } from '@/lib/auth/permissions'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { getTodayDateString } from '@/lib/attendance/today'
 import type { AttendanceRecord } from '@/lib/types/attendance'
@@ -46,14 +47,14 @@ export default async function AttendancePage({
   if (isHistory) {
     // Full history, all dates — mirrors H5's history mode.
     query =
-      user.role === 'branch_manager'
+      isBranchLocked(user.role)
         ? db.collection('attendanceRecords').where('branchId', '==', user.branchId).orderBy('date', 'desc')
         : db.collection('attendanceRecords').orderBy('date', 'desc')
   } else {
     // Day roster: pure equality query, no .orderBy() — mirrors H5's default
     // mode, avoids needing a composite index.
     query =
-      user.role === 'branch_manager'
+      isBranchLocked(user.role)
         ? db.collection('attendanceRecords').where('branchId', '==', user.branchId).where('date', '==', date)
         : db.collection('attendanceRecords').where('date', '==', date)
   }

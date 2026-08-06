@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
+import { isBranchLocked } from '@/lib/auth/permissions'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import LeaveReviewButtons from '@/components/leave/LeaveReviewButtons'
 import type { LeaveRequest } from '@/lib/types/leave-request'
@@ -27,8 +28,8 @@ export default async function ReviewLeavePage() {
 
   const db = getAdminFirestore()
 
-  let query: FirebaseFirestore.Query =
-    user.role === 'branch_manager'
+  const query: FirebaseFirestore.Query =
+    isBranchLocked(user.role)
       ? db.collection('leaveRequests').where('branchId', '==', user.branchId).where('status', '==', 'pending')
       : db.collection('leaveRequests').where('status', '==', 'pending')
   const snap = await query.orderBy('createdAt', 'desc').get()

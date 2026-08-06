@@ -1,5 +1,5 @@
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { hasEffectiveCapability } from '@/lib/auth/permissions'
+import { hasEffectiveCapability, isBranchLocked } from '@/lib/auth/permissions'
 import { AuthError, type SessionUser } from '@/lib/auth/server-guard'
 import type { LeaveRequest } from '@/lib/types/leave-request'
 
@@ -11,11 +11,8 @@ export interface PendingLeaveApprovalRow {
   endDate: string
 }
 
-// Replicates leave/review/page.tsx's own query exactly (role === 'branch_manager'
-// scoping, not isBranchLocked — matching what that page already does) rather
-// than modifying it — that page's query only ever existed inline, with no
-// shared function to import, so this is the reuse-without-reimplementation
-// path for this one widget. leave/review/page.tsx itself is untouched.
+// Must match leave/review/page.tsx's scoping exactly (same hr.leave.approve
+// capability, same isBranchLocked predicate) — see Phase 42's H-2 fix.
 export async function getPendingLeaveApprovals(viewer: SessionUser): Promise<PendingLeaveApprovalRow[]> {
   if (!hasEffectiveCapability(viewer, 'hr.leave.approve')) {
     throw new AuthError('Forbidden', 403)
@@ -23,7 +20,7 @@ export async function getPendingLeaveApprovals(viewer: SessionUser): Promise<Pen
 
   const db = getAdminFirestore()
   const query: FirebaseFirestore.Query =
-    viewer.role === 'branch_manager'
+    isBranchLocked(viewer.role)
       ? db.collection('leaveRequests').where('branchId', '==', viewer.branchId).where('status', '==', 'pending')
       : db.collection('leaveRequests').where('status', '==', 'pending')
   const snap = await query.orderBy('createdAt', 'desc').get()

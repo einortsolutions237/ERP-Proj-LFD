@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
+import { isBranchLocked } from '@/lib/auth/permissions'
 import { writeAuditLog } from '@/lib/audit/log'
 import type { LeaveRequest, LeaveStatus } from '@/lib/types/leave-request'
 
@@ -49,11 +50,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
           throw new AuthError('You cannot review your own leave request', 403)
         }
 
-        // Branch-ownership guard — a branch_manager cannot act on another
-        // branch's request even via a direct document ID, not just be kept
-        // from seeing it in a list. Direct generalization of the
-        // pos.sale.void guard.
-        if (user.role === 'branch_manager' && current.branchId !== user.branchId) {
+        // Branch-ownership guard — a branch-locked role (branch_manager/
+        // cashier/inventory_manager) cannot act on another branch's request
+        // even via a direct document ID, not just be kept from seeing it in
+        // a list. Direct generalization of the pos.sale.void guard.
+        if (isBranchLocked(user.role) && current.branchId !== user.branchId) {
           throw new AuthError('Can only review leave requests for your own branch', 403)
         }
 

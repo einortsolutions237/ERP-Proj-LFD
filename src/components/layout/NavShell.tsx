@@ -80,6 +80,7 @@ export default function NavShell({ user, children }: { user: SessionUser; childr
           <span className="min-w-0 flex-1 truncate text-sm text-slate">
             {user.email} &middot; <span className="font-medium text-ink">{humanizeRole(user.role)}</span>
           </span>
+          {/* eslint-disable-next-line no-restricted-syntax -- UI display check for which roles see the offline-queue indicator, not Firestore branch-scoping; same non-data-scoping reasoning as the 'cashier' exclusion in eslint.config.mjs */}
           {(user.role === 'cashier' || user.role === 'branch_manager') && <QueueStatusIndicator />}
           <NotificationBell />
           <button

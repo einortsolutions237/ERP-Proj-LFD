@@ -1,5 +1,5 @@
 import { getAdminFirestore } from '@/lib/firebase/admin'
-import { hasEffectiveCapability } from '@/lib/auth/permissions'
+import { hasEffectiveCapability, isBranchLocked } from '@/lib/auth/permissions'
 import { AuthError, type SessionUser } from '@/lib/auth/server-guard'
 import type { Sale } from '@/lib/types/sale'
 
@@ -12,10 +12,10 @@ function dayKey(date: Date): string {
   return date.toISOString().slice(0, 10)
 }
 
-// Reuses buildSalesReport's exact scoping convention (role === 'branch_manager',
-// not isBranchLocked) since this shares the same reports.sales.view capability
-// and must behave identically for who sees what — see GET /api/reports/sales,
-// deliberately left unchanged since Phase 20.
+// Must match buildSalesReport's scoping exactly (same reports.sales.view
+// capability, same isBranchLocked predicate) — see Phase 42's H-2 fix,
+// which moved both together specifically to prevent this widget and the
+// Sales report disagreeing about who sees what.
 export async function buildRevenueTrend(user: SessionUser, days = 30): Promise<RevenueTrendPoint[]> {
   if (!hasEffectiveCapability(user, 'reports.sales.view')) {
     throw new AuthError('Forbidden', 403)
@@ -28,7 +28,7 @@ export async function buildRevenueTrend(user: SessionUser, days = 30): Promise<R
   start.setUTCHours(0, 0, 0, 0)
 
   const db = getAdminFirestore()
-  let query: FirebaseFirestore.Query = user.role === 'branch_manager'
+  let query: FirebaseFirestore.Query = isBranchLocked(user.role)
     ? db.collection('sales').where('branchId', '==', user.branchId)
     : db.collection('sales')
   query = query.where('createdAt', '>=', start).where('createdAt', '<=', end)

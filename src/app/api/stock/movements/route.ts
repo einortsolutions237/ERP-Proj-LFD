@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { FieldValue } from 'firebase-admin/firestore'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
+import { isBranchLocked } from '@/lib/auth/permissions'
 import { writeAuditLog } from '@/lib/audit/log'
 
 const MOVEMENT_TYPES = ['restock', 'adjustment', 'waste'] as const
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
     const quantityDelta = body.quantityDelta as number
     const reason = reasonResult.reason
 
-    if (user.role === 'branch_manager' && branchId !== user.branchId) {
+    if (isBranchLocked(user.role) && branchId !== user.branchId) {
       return NextResponse.json({ error: 'Can only adjust stock for your own branch' }, { status: 403 })
     }
 

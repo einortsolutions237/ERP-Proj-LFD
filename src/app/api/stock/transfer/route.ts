@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto'
 import { FieldValue } from 'firebase-admin/firestore'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
+import { isBranchLocked } from '@/lib/auth/permissions'
 import { writeAuditLog } from '@/lib/audit/log'
 
 function isNonEmptyString(value: unknown): value is string {
@@ -51,7 +52,7 @@ export async function POST(request: Request) {
     const quantity = body.quantity as number
     const reason = reasonResult.reason
 
-    if (user.role === 'branch_manager' && sourceBranchId !== user.branchId) {
+    if (isBranchLocked(user.role) && sourceBranchId !== user.branchId) {
       return NextResponse.json({ error: 'Can only transfer stock out of your own branch' }, { status: 403 })
     }
 

@@ -1,4 +1,5 @@
 import { getAdminFirestore } from '@/lib/firebase/admin'
+import { isBranchLocked } from '@/lib/auth/permissions'
 import type { SessionUser } from '@/lib/auth/server-guard'
 import type { Sale } from '@/lib/types/sale'
 
@@ -57,7 +58,7 @@ export async function buildSalesReport(
 
   const db = getAdminFirestore()
 
-  let query: FirebaseFirestore.Query = user.role === 'branch_manager'
+  let query: FirebaseFirestore.Query = isBranchLocked(user.role)
     ? db.collection('sales').where('branchId', '==', user.branchId)
     : db.collection('sales')
   query = query.where('createdAt', '>=', start).where('createdAt', '<=', end)

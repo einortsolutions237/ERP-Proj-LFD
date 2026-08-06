@@ -1,4 +1,5 @@
 import { getAdminFirestore } from '@/lib/firebase/admin'
+import { isBranchLocked } from '@/lib/auth/permissions'
 import type { SessionUser } from '@/lib/auth/server-guard'
 import type { ProductStock } from '@/lib/types/stock'
 import type { Product } from '@/lib/types/product'
@@ -22,7 +23,7 @@ export interface InventoryReport {
 export async function buildInventoryReport(user: SessionUser): Promise<InventoryReport> {
   const db = getAdminFirestore()
 
-  let stockQuery: FirebaseFirestore.Query = user.role === 'branch_manager'
+  const stockQuery: FirebaseFirestore.Query = isBranchLocked(user.role)
     ? db.collection('productStock').where('branchId', '==', user.branchId)
     : db.collection('productStock')
   const [stockSnap, productsSnap, branchesSnap] = await Promise.all([

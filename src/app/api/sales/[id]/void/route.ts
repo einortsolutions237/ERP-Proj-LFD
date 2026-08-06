@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { FieldValue } from 'firebase-admin/firestore'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 import { requireCapability, AuthError } from '@/lib/auth/server-guard'
+import { isBranchLocked } from '@/lib/auth/permissions'
 import { writeAuditLog } from '@/lib/audit/log'
 import type { Sale } from '@/lib/types/sale'
 
@@ -42,7 +43,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           throw new AuthError('Sale has already been voided', 409)
         }
 
-        if (user.role === 'branch_manager' && sale.branchId !== user.branchId) {
+        if (isBranchLocked(user.role) && sale.branchId !== user.branchId) {
           throw new AuthError('Can only void sales for your own branch', 403)
         }
 
