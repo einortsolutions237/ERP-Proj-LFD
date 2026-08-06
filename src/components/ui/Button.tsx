@@ -44,10 +44,18 @@ export default function Button({
     <button
       type={type}
       disabled={disabled || loading}
+      aria-busy={loading || undefined}
       className={`rounded-[var(--radius-control)] text-sm font-medium transition duration-200 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 ${sizeClasses} ${VARIANT_CLASSES[variant]} ${className}`}
       {...rest}
     >
-      {loading ? <LoadingSpinner /> : children}
+      {loading ? (
+        <>
+          <LoadingSpinner />
+          <span className="sr-only">{children}</span>
+        </>
+      ) : (
+        children
+      )}
     </button>
   )
 }
