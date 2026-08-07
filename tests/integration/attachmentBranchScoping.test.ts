@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { mockNextHeaders, withSession } from '../setup/mockSession'
 
 mockNextHeaders()
@@ -55,7 +55,14 @@ describe('GET /api/attachments/[id] branch scoping', () => {
     // collections, complete-replacement per Phase 39's own semantics —
     // this test suite doesn't need branch_manager to retain any of its
     // real default capabilities, only these two, for the duration of
-    // this file (the next test file's own resetEmulator() wipes it).
+    // this file. Deleted in afterAll below rather than relied on being
+    // wiped by a later file's resetEmulator() — not every integration
+    // test file in this suite calls resetEmulator() (e.g.
+    // branchLockedOverrideScoping.test.ts cleans up via afterEach
+    // instead), so leaving this doc behind would be a real ordering
+    // landmine for any other file that authenticates a branch_manager
+    // before a full reset happens to run. Matches the established
+    // cleanup pattern in tests/integration/roleOverrideResolution.test.ts.
     await getAdminFirestore()
       .collection('roleCapabilityOverrides')
       .doc('branch_manager')
@@ -95,6 +102,10 @@ describe('GET /api/attachments/[id] branch scoping', () => {
     const labFile = new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], 'scan.jpg', { type: 'image/jpeg' })
     const uploadLabRes = await withSession(doctorCookie, () => postAttachment(uploadRequest('labResults', labResultId, labFile)))
     labAttachmentId = (await uploadLabRes.json()).id
+  })
+
+  afterAll(async () => {
+    await getAdminFirestore().collection('roleCapabilityOverrides').doc('branch_manager').delete()
   })
 
   it("returns 404, not the file, when a branch-locked viewer requests another branch's attachment", async () => {
