@@ -54,8 +54,10 @@ describe('getLabRecords — result id and attachments', () => {
     labResultIdNoAttachments = (await resultRes2.json()).id
 
     // Two attachments on the first result, exercising "multiple per result".
-    const file1 = new File([new Uint8Array([1, 2])], 'page1.jpg', { type: 'image/jpeg' })
-    const file2 = new File([new Uint8Array([3, 4, 5])], 'page2.jpg', { type: 'image/jpeg' })
+    // Real JPEG magic bytes — Phase 42 Task 3's magic-byte sniff check
+    // rejects arbitrary bytes that don't match the declared content type.
+    const file1 = new File([new Uint8Array([0xff, 0xd8, 0xff])], 'page1.jpg', { type: 'image/jpeg' })
+    const file2 = new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], 'page2.jpg', { type: 'image/jpeg' })
     await withSession(doctorCookie, () => postAttachment(uploadRequest('labResults', labResultId, file1)))
     await withSession(doctorCookie, () => postAttachment(uploadRequest('labResults', labResultId, file2)))
   })

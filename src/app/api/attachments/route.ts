@@ -4,6 +4,7 @@ import { hasEffectiveCapability } from '@/lib/auth/permissions'
 import { getSessionUser, AuthError } from '@/lib/auth/server-guard'
 import { writeAuditLog } from '@/lib/audit/log'
 import { ATTACHMENT_CAPABILITIES, isAttachableCollection } from '@/lib/attachments/capabilityMap'
+import { sniffMimeType } from '@/lib/attachments/sniffMimeType'
 
 const ACCEPTED_MIME_TYPES = ['image/jpeg', 'image/png', 'application/pdf']
 const MAX_SIZE_BYTES = 10 * 1024 * 1024
@@ -46,6 +47,16 @@ export async function POST(request: Request) {
       )
     }
 
+    const buffer = Buffer.from(await file.arrayBuffer())
+
+    const sniffedType = sniffMimeType(buffer)
+    if (sniffedType === null || sniffedType !== file.type) {
+      return NextResponse.json(
+        { error: 'The file\'s actual content does not match its declared type — the file may be corrupted or mislabeled' },
+        { status: 400 }
+      )
+    }
+
     const db = getAdminFirestore()
     const relatedRef = db.collection(relatedCollection).doc(relatedDocId)
     const relatedSnap = await relatedRef.get()
@@ -57,10 +68,9 @@ export async function POST(request: Request) {
     const attachmentRef = db.collection('attachments').doc()
     const storagePath = `attachments/${relatedCollection}/${relatedDocId}/${attachmentRef.id}-${file.name}`
 
-    const buffer = Buffer.from(await file.arrayBuffer())
     try {
       const bucket = getAdminStorage().bucket()
-      await bucket.file(storagePath).save(buffer, { contentType: file.type })
+      await bucket.file(storagePath).save(buffer, { contentType: sniffedType })
     } catch {
       return NextResponse.json({ error: 'Could not upload the file — try again' }, { status: 502 })
     }
@@ -70,7 +80,7 @@ export async function POST(request: Request) {
       relatedDocId,
       storagePath,
       fileName: file.name,
-      mimeType: file.type,
+      mimeType: sniffedType,
       sizeBytes: file.size,
       uploadedBy: user.uid,
       branchId,
@@ -83,7 +93,7 @@ export async function POST(request: Request) {
       actorEmail: user.email,
       targetUid: relatedDocId,
       branchId,
-      details: { relatedCollection, fileName: file.name, mimeType: file.type, sizeBytes: file.size },
+      details: { relatedCollection, fileName: file.name, mimeType: sniffedType, sizeBytes: file.size },
     })
 
     return NextResponse.json({ id: attachmentRef.id }, { status: 201 })

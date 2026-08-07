@@ -65,7 +65,10 @@ describe('POST /api/attachments', () => {
   })
 
   it('finance_admin uploads a PDF receipt attached to a real expense, branchId inherited from the expense', async () => {
-    const file = new File([new Uint8Array([1, 2, 3, 4])], 'receipt.pdf', { type: 'application/pdf' })
+    // Real "%PDF-1.4" magic bytes — this task's magic-byte sniff check
+    // rejects the synthetic [1,2,3,4] content this test used before, since
+    // it no longer matches any real file signature for the declared type.
+    const file = new File([new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x34])], 'receipt.pdf', { type: 'application/pdf' })
     const res = await withSession(financeAdminCookie, () => postAttachment(uploadRequest('expenses', expenseId, file)))
     expect(res.status).toBe(201)
     const { id } = await res.json()
@@ -75,7 +78,7 @@ describe('POST /api/attachments', () => {
     expect(doc.data()!.relatedDocId).toBe(expenseId)
     expect(doc.data()!.fileName).toBe('receipt.pdf')
     expect(doc.data()!.mimeType).toBe('application/pdf')
-    expect(doc.data()!.sizeBytes).toBe(4)
+    expect(doc.data()!.sizeBytes).toBe(8)
     expect(doc.data()!.branchId).toBe(branchA)
 
     const [exists] = await getAdminStorage().bucket().file(doc.data()!.storagePath).exists()
@@ -86,7 +89,8 @@ describe('POST /api/attachments', () => {
   })
 
   it('doctor uploads a JPEG scan attached to a real lab result, branchId is null (labResults has no branchId field)', async () => {
-    const file = new File([new Uint8Array([5, 6, 7])], 'scan.jpg', { type: 'image/jpeg' })
+    // Real JPEG magic bytes (0xFF 0xD8 0xFF...) — see note above.
+    const file = new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10])], 'scan.jpg', { type: 'image/jpeg' })
     const res = await withSession(doctorCookie, () => postAttachment(uploadRequest('labResults', labResultId, file)))
     expect(res.status).toBe(201)
     const { id } = await res.json()
@@ -95,7 +99,8 @@ describe('POST /api/attachments', () => {
   })
 
   it('lab_staff (holds clinical.lab.results.enter) can also upload a lab result attachment', async () => {
-    const file = new File([new Uint8Array([9])], 'scan2.png', { type: 'image/png' })
+    // Real PNG magic bytes — see note above.
+    const file = new File([new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])], 'scan2.png', { type: 'image/png' })
     const res = await withSession(labStaffCookie, () => postAttachment(uploadRequest('labResults', labResultId, file)))
     expect(res.status).toBe(201)
   })
@@ -120,7 +125,9 @@ describe('POST /api/attachments', () => {
   })
 
   it('rejects a nonexistent relatedDocId with a clear 400', async () => {
-    const file = new File([new Uint8Array([1])], 'x.pdf', { type: 'application/pdf' })
+    // Needs real magic bytes so the request gets past the sniff check and
+    // actually reaches the relatedDocId existence check this test targets.
+    const file = new File([new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d])], 'x.pdf', { type: 'application/pdf' })
     const res = await withSession(financeAdminCookie, () => postAttachment(uploadRequest('expenses', 'does-not-exist', file)))
     expect(res.status).toBe(400)
     expect((await res.json()).error).toMatch(/does not reference/)
@@ -152,7 +159,9 @@ describe('POST /api/attachments', () => {
       throw new Error('simulated Storage outage')
     })
     try {
-      const file = new File([new Uint8Array([1, 2, 3])], 'receipt.pdf', { type: 'application/pdf' })
+      // Needs real magic bytes so the request gets past the sniff check
+      // and actually reaches the mocked Storage call this test targets.
+      const file = new File([new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d])], 'receipt.pdf', { type: 'application/pdf' })
       const res = await withSession(financeAdminCookie, () => postAttachment(uploadRequest('expenses', expenseId, file)))
       expect(res.status).toBe(502)
       expect((await res.json()).error).toMatch(/Could not upload the file/)
@@ -202,7 +211,10 @@ describe('GET /api/attachments/[id]', () => {
       postExpense(jsonRequest('http://localhost/api/expenses', { date: '2026-07-19', category: 'Supplies', amount: 40, description: 'Retrieval test expense' }))
     )
     const expenseId = (await expenseRes.json()).id
-    const expenseFile = new File([new Uint8Array([1, 2, 3])], 'receipt.pdf', { type: 'application/pdf' })
+    // Real "%PDF-" magic bytes — required by this task's sniff check; the
+    // "the uploader can retrieve..." test below asserts these exact bytes
+    // round-trip through upload-then-retrieve.
+    const expenseFile = new File([new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d])], 'receipt.pdf', { type: 'application/pdf' })
     const uploadExpenseRes = await withSession(financeAdminCookie, () => postAttachment(uploadRequest('expenses', expenseId, expenseFile)))
     expenseAttachmentId = (await uploadExpenseRes.json()).id
 
@@ -213,7 +225,8 @@ describe('GET /api/attachments/[id]', () => {
       postLabResult(jsonRequest('http://localhost/api/lab-results', { labOrderId, values: [{ parameter: 'Na', value: '140', unit: 'mmol/L' }] }))
     )
     const labResultId = (await resultRes.json()).id
-    const labFile = new File([new Uint8Array([4, 5, 6, 7])], 'scan.jpg', { type: 'image/jpeg' })
+    // Real JPEG magic bytes — see note above.
+    const labFile = new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], 'scan.jpg', { type: 'image/jpeg' })
     const uploadLabRes = await withSession(doctorCookie, () => postAttachment(uploadRequest('labResults', labResultId, labFile)))
     labAttachmentId = (await uploadLabRes.json()).id
   })
@@ -223,7 +236,7 @@ describe('GET /api/attachments/[id]', () => {
     expect(res.status).toBe(200)
     expect(res.headers.get('Content-Type')).toBe('application/pdf')
     const bytes = new Uint8Array(await res.arrayBuffer())
-    expect(Array.from(bytes)).toEqual([1, 2, 3])
+    expect(Array.from(bytes)).toEqual([0x25, 0x50, 0x44, 0x46, 0x2d])
   })
 
   it('general_manager can view an expense attachment despite lacking accounting.expense.create (real view-not-manage asymmetry)', async () => {

@@ -45,8 +45,10 @@ describe('queryExpenses — attachments', () => {
     expenseIdNoAttachments = (await expenseRes2.json()).id
 
     // Two attachments on the first expense, exercising "multiple per expense".
-    const file1 = new File([new Uint8Array([1, 2])], 'receipt-front.jpg', { type: 'image/jpeg' })
-    const file2 = new File([new Uint8Array([3, 4, 5])], 'receipt-back.jpg', { type: 'image/jpeg' })
+    // Real JPEG magic bytes — Phase 42 Task 3's magic-byte sniff check
+    // rejects arbitrary bytes that don't match the declared content type.
+    const file1 = new File([new Uint8Array([0xff, 0xd8, 0xff])], 'receipt-front.jpg', { type: 'image/jpeg' })
+    const file2 = new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], 'receipt-back.jpg', { type: 'image/jpeg' })
     await withSession(financeAdminCookie, () => postAttachment(uploadRequest('expenses', expenseIdWithAttachments, file1)))
     await withSession(financeAdminCookie, () => postAttachment(uploadRequest('expenses', expenseIdWithAttachments, file2)))
   })
