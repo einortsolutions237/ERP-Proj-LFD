@@ -26,6 +26,9 @@ describe('branch-locked roles stay branch-filtered even when granted an org-wide
       const snap = await db.collection(col).where('branchId', 'in', [BRANCH_A, BRANCH_B]).get()
       await Promise.all(snap.docs.map((d) => d.ref.delete()))
     }
+    // products is org-wide (no branchId field), so it can't share the loop above —
+    // clean up the single fixture doc the inventory test seeds directly.
+    await db.collection('products').doc('p1').delete()
   })
 
   it('buildSalesReport stays branch-filtered for a cashier holding reports.sales.view', async () => {
@@ -55,15 +58,19 @@ describe('branch-locked roles stay branch-filtered even when granted an org-wide
 
   it('buildInventoryReport stays branch-filtered for a cashier holding reports.inventory.view', async () => {
     const db = getAdminFirestore()
+    // buildInventoryReport skips any stock row whose product doc is missing
+    // (inventory.ts:44, "orphaned stock row"), so a real products/p1 doc must
+    // exist or both branches' rows get silently dropped and the branch-filter
+    // assertion below would pass vacuously on an empty array regardless of
+    // whether the fix actually works.
+    await db.collection('products').doc('p1').set({ name: 'Test Product P1', unitCost: 10, reorderThreshold: 2 })
     await db.collection('productStock').add({ branchId: BRANCH_A, productId: 'p1', quantity: 5 })
     await db.collection('productStock').add({ branchId: BRANCH_B, productId: 'p1', quantity: 50 })
-    // buildInventoryReport joins against products/branches; a missing product is
-    // skipped (see its own "orphaned stock row" comment), which is enough for
-    // this test — we only assert the branch filter, not full row shape.
 
     const user = cashierWithOverride(BRANCH_A, ['reports.inventory.view'])
     const report = await buildInventoryReport(user)
 
+    expect(report.rows.length).toBe(1) // must not be empty (vacuous pass) or include branch B's row
     expect(report.rows.every((r) => r.branchId === BRANCH_A)).toBe(true)
   })
 
