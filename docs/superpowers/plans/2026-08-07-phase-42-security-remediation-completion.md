@@ -82,15 +82,17 @@ node_modules/uuid
 
 `firebase-admin` confirmed genuinely untouched at both layers: `package.json` still declares `^14.1.0`, and `package-lock.json`'s resolved entry is `14.1.0` (both re-checked directly at this wrap-up task, not assumed from Task 5's report).
 
-## Step 2 — live verification: NOT DONE, pending
+## Step 2 — live verification: DONE (controller-performed, post-wrap-up, with user go-ahead)
 
-Per this task's explicit scope, live verification against real `erp-lfd` data — provisioning temporary test accounts, confirming each of the five findings end-to-end through the actual browser/HTTP surface, and checking response headers on the real Vercel deployment — was **not attempted**. This project has a standing rule that writing test data to live production Firestore requires the user's explicit go-ahead each time it's proposed, which is a live conversation between the controller and the user, not something available to a wrap-up task running independently. **This remains outstanding and must be performed separately, by the controller, with the user's direct involvement, before Phase 42 can be considered fully closed.** The five specific checks the plan's own Step 2 names, still needed:
+Per this task's explicit scope, live verification was not attempted as part of the original wrap-up task itself — see the scope note above. It was subsequently performed separately by the controller, with the user's direct involvement and explicit go-ahead for the live-Firestore test writes this required, per this project's standing rule on live test-data writes. Results against the plan's own five-item Step 2 checklist:
 
-1. H-1: sign in as a temporary `super_admin` test account via the client SDK, POST the resulting ID token to `/api/auth/session`, confirm 403 and the `login_failed` audit entry with `details.reason: 'strict_role_wrong_path'`.
-2. H-2: grant `reports.sales.view` to `cashier` via the live Role Capability Editor, confirm the Sales report and Dashboard revenue-trend widget both stay branch-scoped, then reset. Separately, grant `hr.attendance.view` to `cashier` and confirm `/attendance` (both modes) stays branch-scoped — `attendance/page.tsx` has no automated regression coverage, so this manual check is its *only* verification.
-3. M-1: as a temporary branch-locked test account, attempt to fetch a different branch's attachment by ID directly, confirm 404.
-4. M-2: check response headers on the actual Vercel deployment (not just local `curl`), confirming the CSP report-only header, HSTS, and the rest all survive Vercel's own edge.
-5. H-3: confirm `npm audit --omit=dev` on the deployed environment's lockfile matches the 0 high / 6 moderate result above.
+1. **H-1**: a direct Identity Toolkit `signInWithPassword` call for a real `super_admin` test account (bypassing `/api/auth/login` entirely) followed by `POST /api/auth/session` returned 403 with no `set-cookie`, and wrote the exact `login_failed` audit entry (`details: { source: 'session_route', reason: 'strict_role_wrong_path', role: 'super_admin' }`). Confirmed.
+2. **H-2**: `reports.sales.view` and `hr.attendance.view` were granted to a real `cashier` test account via the live Role Capability Editor. The Sales Report showed the branch-locked cashier's own-branch revenue (Douala: 206799.99 / 7 sales) as a genuine subset of the org-wide `super_admin` total (209499.99 / 14 sales across both branches), not the full total. The Attendance history page showed fewer records for the cashier (2) than for `super_admin` (3), missing the other branch's staff record. Confirmed on both sites; the override was reset afterward.
+3. **M-1**: a temporary attachment was created scoped to a different branch (Yaoundé) than the test cashier's own (Douala); the cashier was granted `accounting.expense.view` via override; the fetch as the cashier returned 404 ("Not found"), not the file. Confirmed. The temporary attachment and override were both deleted afterward.
+4. **M-2**: confirmed as a byproduct of the H-1 check above — the same `POST /api/auth/session` response carried all six security headers, including the report-only CSP, on a real route.
+5. **H-3 / M-2 (Vercel deployment spot-check)**: deferred, not done. This phase's commits had not been pushed yet at verification time, so checking the live Vercel deployment then would only have reflected pre-Phase-42 code — not meaningful to attempt. **This is the one item from the plan's original Step 2 checklist still genuinely outstanding**: a post-push spot-check of the real Vercel deployment's response headers and `npm audit` state.
+
+All test data created for this verification (2 staff accounts, 1 temporary attachment, 1 override doc, 15 test-generated audit log entries) was confirmed deleted afterward; the dev server used was stopped and its temp scripts removed.
 
 ## Step 6 — tag: NOT DONE, pending
 
@@ -108,7 +110,7 @@ Reading CLAUDE.md before drafting the Phase 42 addition surfaced that its "Curre
 
 ## Next steps
 
-1. **Live verification (Step 2)** — controller-led, with the user's explicit go-ahead for any live-Firestore test writes, against the five checks listed above.
+1. **Live verification (Step 2) — DONE.** Performed by the controller with the user's explicit go-ahead; see the corrected Step 2 section above for full results. The one piece still outstanding is a post-push spot-check of the real Vercel deployment's response headers and `npm audit` state, deferred only because this phase's commits hadn't been pushed at verification time.
 2. **Tag (Step 6)** — `phase-42-baseline`, created only after live verification confirms everything works; push only on explicit request, per this project's standing tag-on-request-only convention.
 3. TD-9's enforcing-CSP switch, once a real deployment window's report-only violation data exists to review (and a `report-to`/`report-uri` collector exists to gather it — currently absent, per Task 4's own minor/deferred note).
 4. TD-10 revisited only if `npm view firebase-admin versions` shows a release whose dependency tree has moved off the vulnerable `@google-cloud/storage`/`gaxios`/`uuid`/`teeny-request`/`retry-request`/`protobufjs` chain.
